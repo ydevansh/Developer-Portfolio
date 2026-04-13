@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #001f3f 0%, #000a14 100%);
+  color: #fff;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Remove scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 127, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0074d9;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #005aa3;
+}
+
+/* Selection color */
+::selection {
+  background: #0074d9;
+  color: #fff;
+}
+
+/* Focus outline */
+:focus-visible {
+  outline: 2px solid #0074d9;
+  outline-offset: 2px;
+}
