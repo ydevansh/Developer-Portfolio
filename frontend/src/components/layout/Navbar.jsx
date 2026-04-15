@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaMenu, FaTimes } from 'react-icons/fa';
-import { useState } from 'react';
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaBars, FaTimes } from 'react-icons/fa';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -80,7 +79,7 @@ export default function Navbar() {
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-white"
           >
-            {menuOpen ? <FaTimes size={24} /> : <FaMenu size={24} />}
+            {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
           </button>
         </div>
 

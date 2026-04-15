@@ -12,6 +12,9 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'react-icons/fa', 'framer-motion', 'axios'],
+  },
   build: {
     outDir: 'dist',
     sourcemap: false,

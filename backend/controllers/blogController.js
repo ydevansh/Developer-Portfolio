@@ -1,5 +1,12 @@
 import Blog from '../models/Blog.js';
 
+const generateSlug = (title) =>
+  title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 export const getAllBlogs = async (req, res, next) => {
   try {
     const { featured } = req.query;
@@ -76,7 +83,11 @@ export const createBlog = async (req, res, next) => {
 export const updateBlog = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
+
+    if (updates.title) {
+      updates.slug = generateSlug(updates.title);
+    }
 
     const blog = await Blog.findByIdAndUpdate(id, updates, {
       new: true,

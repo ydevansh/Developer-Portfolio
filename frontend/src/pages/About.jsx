@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function About() {
   return (
@@ -38,12 +39,12 @@ export default function About() {
           </div>
 
           <div className="pt-8">
-            <a
-              href="#skills"
+            <Link
+              to="/skills"
               className="inline-block px-6 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors duration-300"
             >
               View My Skills →
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>
