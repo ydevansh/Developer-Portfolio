@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import contactService from '../services/contactService';
 
 export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -15,13 +16,15 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage('');
     try {
       await contactService.submitForm(formData);
       setSuccess(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSuccess(false), 5000);
     } catch (error) {
       console.error('Error submitting form:', error);
+      setErrorMessage(error.response?.data?.message || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -44,6 +47,12 @@ export default function Contact() {
           {success && (
             <div className="bg-green-500/20 border border-green-500 rounded-lg p-4 text-green-400">
               Message sent successfully! I'll get back to you soon.
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="bg-red-500/20 border border-red-500 rounded-lg p-4 text-red-300">
+              {errorMessage}
             </div>
           )}
 
@@ -71,19 +80,6 @@ export default function Contact() {
                 required
                 className="w-full px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-lg text-white placeholder-gray-500 focus:border-primary-500 focus:outline-none transition-colors"
                 placeholder="your@email.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Subject</label>
-              <input
-                type="text"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-lg text-white placeholder-gray-500 focus:border-primary-500 focus:outline-none transition-colors"
-                placeholder="Subject"
               />
             </div>
 

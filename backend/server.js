@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './config/db.js';
+import connectDB from './config/database.js';
 import errorHandler from './middleware/errorHandler.js';
 
 // Routes
@@ -24,8 +24,8 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -67,7 +67,7 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/services/all              - Get all services`);
   console.log(`   GET    /api/blog/all                  - Get all blogs`);
   console.log(`   GET    /api/testimonials/all          - Get all testimonials`);
-  console.log(`   POST   /api/contact/send              - Submit contact form`);
+  console.log(`   POST   /api/contact                   - Submit contact form`);
 });
 
 export default app;
