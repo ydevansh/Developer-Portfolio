@@ -1,14 +1,23 @@
 import Contact from '../models/Contact.js';
+import sendContactEmail from '../utils/emailService.js';
 
 export const submitContactForm = async (req, res, next) => {
   try {
     const { name, email, message } = req.body;
 
+    // Save contact to database
     const contact = await Contact.create({
       name,
       email,
       message,
     });
+
+    // Send email notification
+    const emailSent = await sendContactEmail(name, email, 'Contact Form Submission', message);
+
+    if (!emailSent) {
+      console.warn('⚠️  Contact saved but email notification failed to send');
+    }
 
     res.status(201).json({
       success: true,

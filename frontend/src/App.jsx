@@ -1,7 +1,9 @@
 import './styles/globals.css';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import LoadingScreen from './components/LoadingScreen';
 
 // Public Pages
 import Home from './pages/Home';
@@ -23,6 +25,18 @@ import AdminLogin from './pages/Admin/Login';
 import AdminDashboard from './pages/Admin/Dashboard';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time for resources
+    const timer = setTimeout(() => setIsLoading(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />;
+  }
+
   return (
     <Router>
       <div className="min-h-screen bg-gradient-to-b from-primary-900 via-dark to-primary-900 flex flex-col">

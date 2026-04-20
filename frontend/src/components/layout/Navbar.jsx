@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaBars, FaTimes } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaBars, FaTimes, FaDownload } from 'react-icons/fa';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -66,12 +66,13 @@ export default function Navbar() {
                 </a>
               );
             })}
-            <Link
-              to="/admin/login"
-              className="ml-4 px-4 py-2 bg-primary-500 hover:bg-primary-600 rounded-lg text-white text-sm font-medium transition-colors duration-300"
+            <a
+              href="#resume"
+              className="ml-20 px-4 py-2 bg-primary-500 hover:bg-primary-600 rounded-lg text-white text-sm font-medium transition-colors duration-300 flex items-center space-x-2"
             >
-              Admin
-            </Link>
+              <span>Resume</span>
+              <FaDownload size={14} />
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -96,13 +97,13 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link
-              to="/admin/login"
-              className="block px-4 py-2 text-primary-500 font-medium"
+            <a
+              href="#resume"
+              className="block px-4 py-2 text-primary-500 font-medium hover:text-primary-400 transition-colors"
               onClick={() => setMenuOpen(false)}
             >
-              Admin Login
-            </Link>
+              Resume
+            </a>
           </div>
         )}
       </div>
