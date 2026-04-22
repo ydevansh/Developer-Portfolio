@@ -4,6 +4,7 @@ export const contactService = {
   submitForm: (data) => api.post('/contact', data),
   getAllMessages: () => api.get('/contact/all'),
   getMessageById: (id) => api.get(`/contact/${id}`),
+  markMessageAsRead: (id) => api.patch(`/contact/${id}/read`),
   deleteMessage: (id) => api.delete(`/contact/${id}`),
 };
 

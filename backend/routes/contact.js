@@ -4,6 +4,7 @@ import {
   deleteMessage,
   getAllMessages,
   getMessageById,
+  markMessageAsRead,
   submitContactForm,
 } from '../controllers/contactController.js';
 import verifyToken from '../middleware/auth.js';
@@ -34,6 +35,7 @@ router.post('/', contactValidation, validateRequest, submitContactForm);
 // Keep the legacy path working while the frontend moves to /api/contact.
 router.post('/send', contactValidation, validateRequest, submitContactForm);
 
+router.patch('/:id/read', verifyToken, markMessageAsRead);
 router.get('/all', verifyToken, getAllMessages);
 router.get('/:id', verifyToken, getMessageById);
 router.delete('/:id', verifyToken, deleteMessage);

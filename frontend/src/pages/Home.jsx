@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaArrowRight, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaArrowRight, FaGraduationCap, FaWhatsapp } from 'react-icons/fa';
 import { HiOutlineCodeBracket, HiOutlineCpuChip, HiOutlineSquares2X2 } from 'react-icons/hi2';
 import {
   SiC,
@@ -125,94 +125,178 @@ export default function Home() {
     liveDemoLink: project.liveDemoLink,
   }));
 
+  const heroHighlights = [
+    {
+      label: 'Python Developer',
+      icon: SiPython,
+      borderClass: 'from-sky-500 via-cyan-400 to-blue-500',
+      iconClass: 'from-sky-500 via-cyan-400 to-blue-500',
+    },
+    {
+      label: 'AI & Data Science',
+      icon: HiOutlineCpuChip,
+      borderClass: 'from-violet-500 via-fuchsia-500 to-purple-500',
+      iconClass: 'from-violet-500 via-fuchsia-500 to-purple-500',
+    },
+    {
+      label: 'Full Stack Developer',
+      icon: SiReact,
+      borderClass: 'from-cyan-500 via-sky-500 to-indigo-500',
+      iconClass: 'from-cyan-500 via-sky-500 to-indigo-500',
+    },
+  ];
+
   return (
-    <div className="pt-32 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
+    <div className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16">
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-24 left-[-10rem] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="absolute top-16 right-[-10rem] h-96 w-96 rounded-full bg-fuchsia-500/15 blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,0.14),transparent_30%),radial-gradient(circle_at_82%_10%,rgba(168,85,247,0.16),transparent_28%),radial-gradient(circle_at_50%_90%,rgba(59,130,246,0.1),transparent_34%)]" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.section
+          className="grid items-center gap-8 lg:grid-cols-[1.08fr_0.92fr]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Text Content */}
-          <motion.div variants={itemVariants} className="space-y-6">
-            <div>
-              <motion.h1
-                className="text-5xl md:text-6xl font-bold leading-tight"
-                variants={itemVariants}
-              >
-                Hi, I'm{' '}
-                <span className="bg-gradient-to-r from-primary-500 to-secondary bg-clip-text text-transparent">
-                  Devansh Yadav
-                </span>
-              </motion.h1>
+          <motion.div variants={itemVariants} className="space-y-5">
+            <div className="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_30px_rgba(34,211,238,0.12)] backdrop-blur-sm">
+              Welcome to my portfolio
             </div>
 
-            <motion.div variants={itemVariants} className="space-y-2">
-              <p className="text-2xl font-semibold text-gray-300">Full Stack Developer</p>
-              <p className="text-xl text-gray-400">UI Designer - AI Engineer</p>
+            <div className="space-y-3.5">
+              <motion.h1
+                className="font-heading text-4xl font-extrabold leading-[0.9] tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl xl:text-6xl"
+                variants={itemVariants}
+              >
+                <span className="block text-white/92 drop-shadow-[0_0_24px_rgba(255,255,255,0.08)]">
+                  Devansh
+                </span>
+                <span className="block bg-gradient-to-r from-sky-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+                  Yadav
+                </span>
+              </motion.h1>
+
+              <motion.p variants={itemVariants} className="text-lg font-semibold text-slate-100 sm:text-xl">
+                AI/ML Developer and Web Developer
+              </motion.p>
+
+              <motion.p variants={itemVariants} className="max-w-lg text-sm leading-6 text-slate-300 sm:text-[15px]">
+                I&apos;m a BCA student building AI/ML and full stack projects that blend practical problem-solving,
+                modern interfaces, and production-ready engineering.
+              </motion.p>
+            </div>
+
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
+              {heroHighlights.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <motion.div
+                    key={item.label}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    className={`rounded-2xl bg-gradient-to-r ${item.borderClass} p-[1px] shadow-[0_12px_30px_rgba(15,23,42,0.22)]`}
+                  >
+                    <div className="flex items-center gap-3 rounded-[15px] border border-white/10 bg-slate-950/80 px-3 py-2 backdrop-blur-xl">
+                      <span
+                        className={`flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-r ${item.iconClass} text-white shadow-[0_10px_18px_rgba(34,211,238,0.2)]`}
+                      >
+                        <Icon size={15} />
+                      </span>
+                      <span className="text-[12px] font-semibold text-slate-100 sm:text-sm">{item.label}</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </motion.div>
 
-            <motion.p variants={itemVariants} className="text-gray-400 leading-relaxed text-lg">
-              I'm an aspiring AI engineer with a passion for building intelligent, scalable solutions using modern
-              technologies. Currently based in Lucknow, India.
-            </motion.p>
+            <motion.div
+              variants={itemVariants}
+              className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-200 backdrop-blur-sm sm:text-sm"
+            >
+              <FaGraduationCap className="text-cyan-300" size={13} />
+              <span>BCA Student at BBDU Lucknow, Uttar Pradesh, India</span>
+            </motion.div>
 
-            <motion.div variants={itemVariants} className="flex gap-4 pt-4">
+            <motion.div
+              variants={itemVariants}
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,0.16)] sm:text-sm"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(74,222,128,0.85)] animate-pulse" />
+              Open for Internships &amp; Freelance
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-2.5 pt-1">
               <Link
                 to="/contact"
-                className="px-6 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium flex items-center gap-2 transition-colors duration-300"
+                className="group inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(99,102,241,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(34,211,238,0.32)]"
               >
-                Get in Touch <FaArrowRight size={16} />
+                Book Service
+                <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-0.5" size={14} />
               </Link>
+
               <Link
                 to="/projects"
-                className="px-6 py-3 border border-primary-500 hover:border-primary-400 bg-transparent hover:bg-primary-500/10 rounded-lg font-medium transition-colors duration-300"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10"
               >
                 View Projects
               </Link>
+
+              <a
+                href="https://wa.me/916388525760?text=Hello%20Devansh%2C%20I%20want%20to%20connect%20about%20a%20project"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:bg-emerald-500/10 hover:text-emerald-100"
+              >
+                <FaWhatsapp size={14} />
+                Contact Me
+              </a>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="flex gap-4 pt-4">
-              <a
-                href="https://github.com/ydevansh"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-primary-500 transition-colors"
+            <motion.div
+              variants={itemVariants}
+              className="hidden items-center gap-3 pt-2 text-[10px] uppercase tracking-[0.28em] text-slate-400 lg:flex"
+            >
+              <span>Scroll Down</span>
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="flex h-9 w-6 justify-center rounded-full border border-white/15 bg-white/5 p-1"
               >
-                <FaGithub size={24} />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/ydevansh/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-primary-500 transition-colors"
-              >
-                <FaLinkedin size={24} />
-              </a>
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+              </motion.div>
             </motion.div>
           </motion.div>
 
-          {/* Hero Illustration */}
-          <motion.div variants={itemVariants} className="w-full flex justify-center md:justify-end">
-            <motion.div
-              className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <div className="absolute inset-0 rounded-full bg-primary-500/20 blur-3xl scale-110" />
-              <div className="relative w-full h-full rounded-full p-2 bg-gradient-to-br from-primary-500 via-secondary to-primary-500 shadow-[0_20px_60px_rgba(6,182,212,0.35)]">
-                <div className="w-full h-full rounded-full overflow-hidden border border-white/20 bg-slate-900">
+          <motion.div variants={itemVariants} className="relative flex justify-center lg:justify-end">
+            <div className="relative aspect-square w-full max-w-[20rem] sm:max-w-[22rem] lg:max-w-[24rem]">
+              <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-3xl scale-100" />
+              <div className="absolute inset-5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm" />
+              <motion.div
+                className="relative z-10 h-full w-full rounded-full bg-gradient-to-br from-cyan-400 via-violet-500 to-fuchsia-500 p-1.5 shadow-[0_18px_50px_rgba(99,102,241,0.26)]"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <div className="h-full w-full overflow-hidden rounded-full border border-white/20 bg-slate-950">
                   <img
                     src={profileImage}
                     alt="Devansh Yadav portrait"
-                    className="w-full h-full object-cover object-[50%_32%] scale-x-105 transition-transform duration-500 hover:scale-x-110"
+                    className="h-full w-full object-cover object-[50%_30%] scale-100 transition-transform duration-500 hover:scale-[1.03]"
                   />
                 </div>
+              </motion.div>
+
+              <div className="absolute -bottom-1 right-4 z-20 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-500 px-3 py-1 text-[10px] font-semibold text-white shadow-[0_0_18px_rgba(16,185,129,0.34)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                Available!
               </div>
-            </motion.div>
+            </div>
           </motion.div>
-        </motion.div>
+        </motion.section>
 
         {/* Home Sections */}
         <motion.div

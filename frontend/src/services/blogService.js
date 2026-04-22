@@ -1,7 +1,8 @@
 import api from './api.js';
 
 export const blogService = {
-  getAllBlogs: (featured) => api.get('/blog/all', { params: { featured } }),
+  getAllBlogs: (params = {}) => api.get('/blog/all', { params }),
+  getAdminBlogs: () => api.get('/blog/all', { params: { admin: true } }),
   getBlogBySlug: (slug) => api.get(`/blog/${slug}`),
   createBlog: (data) => api.post('/blog', data),
   updateBlog: (id, data) => api.put(`/blog/${id}`, data),

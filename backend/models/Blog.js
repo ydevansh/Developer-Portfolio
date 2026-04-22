@@ -14,15 +14,25 @@ const blogSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, 'Blog description is required'],
+      default: '',
     },
     content: {
       type: String,
       required: [true, 'Blog content is required'],
     },
+    category: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     image: {
       type: String,
       default: null,
+    },
+    readTime: {
+      type: String,
+      default: '',
+      trim: true,
     },
     tags: {
       type: [String],

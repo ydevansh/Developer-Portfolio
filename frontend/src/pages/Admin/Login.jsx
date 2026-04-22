@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService';
 
 export default function Login() {
@@ -8,6 +8,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  if (authService.isAuthenticated()) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,19 +23,25 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const response = await authService.login(formData.email, formData.password);
-      authService.setToken(response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      const email = formData.email.trim();
+      const password = formData.password.trim();
+
+      if (import.meta.env.DEV) {
+        console.log('[admin login] frontend email:', email || 'undefined');
+        console.log('[admin login] frontend password:', password || 'undefined');
+      }
+
+      await authService.login(email, password);
       navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center pt-20">
+    <div className="min-h-screen flex items-center justify-center pt-20 pb-8">
       <motion.div
         className="w-full max-w-md px-4"
         initial={{ opacity: 0, y: 20 }}
@@ -43,9 +53,13 @@ export default function Login() {
           <p className="text-gray-400 mb-8">Access your portfolio admin panel</p>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded text-red-400 text-sm">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded text-red-400 text-sm"
+            >
               {error}
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,7 +72,7 @@ export default function Login() {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-lg text-white placeholder-gray-500 focus:border-primary-500 focus:outline-none transition-colors"
-                placeholder="admin@portfolio.com"
+                placeholder="you@example.com"
               />
             </div>
 
@@ -75,13 +89,15 @@ export default function Login() {
               />
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-2 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-6 py-2 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Logging in...' : 'Login'}
-            </button>
+            </motion.button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-400">

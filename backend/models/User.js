@@ -24,6 +24,36 @@ const userSchema = new mongoose.Schema(
       enum: ['admin'],
       default: 'admin',
     },
+    refreshTokens: [
+      {
+        token: String,
+        createdAt: {
+          type: Date,
+          default: Date.now,
+          expires: 604800, // 7 days
+        },
+      },
+    ],
+    sessions: [
+      {
+        sessionId: String,
+        ipAddress: String,
+        userAgent: String,
+        loginAt: {
+          type: Date,
+          default: Date.now,
+        },
+        lastActive: {
+          type: Date,
+          default: Date.now,
+        },
+        expiresAt: {
+          type: Date,
+          expires: 604800, // 7 days
+        },
+      },
+    ],
+    lastLogin: Date,
   },
   { timestamps: true }
 );

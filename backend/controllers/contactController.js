@@ -10,6 +10,7 @@ export const submitContactForm = async (req, res, next) => {
       name,
       email,
       message,
+      read: false,
     });
 
     // Send email notification
@@ -23,6 +24,36 @@ export const submitContactForm = async (req, res, next) => {
       success: true,
       message: 'Contact form submitted successfully',
       data: contact,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const markMessageAsRead = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const message = await Contact.findByIdAndUpdate(
+      id,
+      {
+        read: true,
+        readAt: new Date(),
+      },
+      { new: true }
+    );
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Message marked as read',
+      data: message,
     });
   } catch (error) {
     next(error);
@@ -88,6 +119,7 @@ export const deleteMessage = async (req, res, next) => {
 
 export default {
   submitContactForm,
+  markMessageAsRead,
   getAllMessages,
   getMessageById,
   deleteMessage,

@@ -7,18 +7,41 @@ const generateSlug = (title) =>
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
 
+const buildDescription = (content, description) => {
+  if (description && description.trim()) {
+    return description.trim();
+  }
+
+  if (!content) {
+    return '';
+  }
+
+  return content
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+};
+
 export const getAllBlogs = async (req, res, next) => {
   try {
-    const { featured } = req.query;
-    let query = { published: true };
+    const { featured, admin } = req.query;
+    const query = {};
+
+    if (admin !== 'true') {
+      query.published = true;
+    }
 
     if (featured === 'true') {
       query.featured = true;
     }
 
-    const blogs = await Blog.find(query)
-      .select('-content')
-      .sort({ featured: -1, order: 1, createdAt: -1 });
+    let blogQuery = Blog.find(query).sort({ featured: -1, order: 1, createdAt: -1 });
+
+    if (admin !== 'true') {
+      blogQuery = blogQuery.select('-content');
+    }
+
+    const blogs = await blogQuery;
 
     res.json({
       message: 'Blogs fetched successfully',
@@ -53,20 +76,34 @@ export const getBlogBySlug = async (req, res, next) => {
 
 export const createBlog = async (req, res, next) => {
   try {
-    const { title, description, content, image, tags, featured, published } = req.body;
+    const {
+      title,
+      description,
+      content,
+      category,
+      image,
+      readTime,
+      tags,
+      featured,
+      published,
+      order,
+    } = req.body;
 
-    if (!title || !description || !content) {
-      return res.status(400).json({ message: 'Title, description, and content are required' });
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Title and content are required' });
     }
 
     const blog = new Blog({
       title,
-      description,
+      description: buildDescription(content, description),
       content,
+      category,
       image,
+      readTime,
       tags,
-      featured: featured || false,
-      published: published || false,
+      featured: featured ?? false,
+      published: published ?? true,
+      order: order ?? 0,
     });
 
     await blog.save();
@@ -87,6 +124,10 @@ export const updateBlog = async (req, res, next) => {
 
     if (updates.title) {
       updates.slug = generateSlug(updates.title);
+    }
+
+    if (updates.content) {
+      updates.description = buildDescription(updates.content, updates.description);
     }
 
     const blog = await Blog.findByIdAndUpdate(id, updates, {

@@ -19,6 +19,14 @@ const contactSchema = new mongoose.Schema(
       required: [true, 'Message is required'],
       trim: true,
     },
+    read: {
+      type: Boolean,
+      default: false,
+    },
+    readAt: {
+      type: Date,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
