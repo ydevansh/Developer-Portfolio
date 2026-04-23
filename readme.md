@@ -157,7 +157,7 @@ FRONTEND_URL=http://localhost:5173
 
 # Admin credentials (for first login)
 ADMIN_EMAIL=admin@portfolio.com
-ADMIN_PASSWORD=Admin@123
+ADMIN_PASSWORD_HASH=<bcrypt-hash>
 ```
 
 **Note for Gmail:** Generate an App Password:

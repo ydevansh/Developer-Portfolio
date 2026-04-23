@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init-admin": "node scripts/initAdmin.js"
+    "init-admin": "node scripts/initAdmin.js",
+    "hash-admin-password": "node scripts/generateAdminPasswordHash.js"
   },
   "keywords": ["portfolio", "mern"],
   "author": "Devansh Yadav",

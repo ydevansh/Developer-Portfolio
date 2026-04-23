@@ -2,17 +2,41 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { createRequire } from 'module';
+import dotenv from 'dotenv';
 
-const require = createRequire(import.meta.url);
-require('dotenv').config();
+dotenv.config();
+
+const ACCESS_TOKEN_EXPIRY = '1h';
+const REFRESH_TOKEN_EXPIRY = '7d';
+const REFRESH_TOKEN_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+const normalizeValue = (value) => (typeof value === 'string' ? value.trim() : '');
+
+const isValidBcryptHash = (value) => /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(value);
+
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const getRefreshCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
+  path: '/api/auth',
+});
+
+const getRefreshCookieClearOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  path: '/api/auth',
+});
 
 // Generate Access Token (short-lived)
 const generateAccessToken = (userId, email) => {
   return jwt.sign(
     { id: userId, email },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: ACCESS_TOKEN_EXPIRY }
   );
 };
 
@@ -21,7 +45,7 @@ const generateRefreshToken = (userId) => {
   return jwt.sign(
     { id: userId },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
 };
 
@@ -32,53 +56,51 @@ const generateSessionId = () => {
 
 export const login = async (req, res, next) => {
   try {
-    const inputEmail = typeof req.body?.email === 'string' ? req.body.email.trim() : '';
-    const inputPassword = typeof req.body?.password === 'string' ? req.body.password.trim() : '';
-    const adminEmail = typeof process.env.ADMIN_EMAIL === 'string' ? process.env.ADMIN_EMAIL.trim() : '';
-    const adminPassword = typeof process.env.ADMIN_PASSWORD === 'string' ? process.env.ADMIN_PASSWORD.trim() : '';
+    const inputEmail = normalizeValue(req.body?.email).toLowerCase();
+    const inputPassword = normalizeValue(req.body?.password);
+    const adminEmail = normalizeValue(process.env.ADMIN_EMAIL).toLowerCase();
+    const adminPasswordHash = normalizeValue(process.env.ADMIN_PASSWORD_HASH);
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[admin login] request email:', inputEmail || 'undefined');
-      console.log('[admin login] request password:', inputPassword || 'undefined');
-      console.log('[admin login] env ADMIN_EMAIL:', adminEmail || 'undefined');
-      console.log('[admin login] env ADMIN_PASSWORD:', adminPassword || 'undefined');
+    if (!adminEmail || !adminPasswordHash) {
+      return res.status(500).json({ message: 'Admin credentials are not configured' });
     }
 
-    if (!adminEmail || !adminPassword) {
-      console.error('[admin login] ADMIN_EMAIL or ADMIN_PASSWORD is not configured');
-      return res.status(500).json({ message: 'Admin credentials are not configured' });
+    if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+      return res.status(500).json({ message: 'Token secrets are not configured' });
+    }
+
+    if (!isValidBcryptHash(adminPasswordHash)) {
+      return res.status(500).json({ message: 'Admin password hash is invalid' });
     }
 
     if (!inputEmail || !inputPassword) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    if (inputEmail !== adminEmail || inputPassword !== adminPassword) {
+    const passwordMatches = await bcrypt.compare(inputPassword, adminPasswordHash);
+
+    if (inputEmail !== adminEmail || !passwordMatches) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     let user = await User.findOne({ email: adminEmail }).select('+password');
 
     if (!user) {
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
       user = await User.create({
         email: adminEmail,
-        password: hashedPassword,
+        password: adminPasswordHash,
         fullName: 'Devansh Yadav',
         role: 'admin',
       });
-    } else {
-      const passwordMatches = user.password ? await bcrypt.compare(adminPassword, user.password) : false;
-
-      if (!passwordMatches) {
-        user.password = await bcrypt.hash(adminPassword, 10);
-        await user.save();
-      }
+    } else if (user.password !== adminPasswordHash) {
+      user.password = adminPasswordHash;
+      await user.save();
     }
 
     // Generate tokens
     const accessToken = generateAccessToken(user._id, user.email);
     const refreshToken = generateRefreshToken(user._id);
+    const refreshTokenHash = hashToken(refreshToken);
     const sessionId = generateSessionId();
 
     // Get client info
@@ -92,27 +114,21 @@ export const login = async (req, res, next) => {
       userAgent,
       loginAt: new Date(),
       lastActive: new Date(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_COOKIE_MAX_AGE_MS),
     };
 
     // Update user with refresh token and session
-    user.refreshTokens.push({ token: refreshToken });
+    user.refreshTokens.push({ token: refreshTokenHash });
     user.sessions.push(session);
     user.lastLogin = new Date();
     await user.save();
 
     // Set refresh token in HTTP-only cookie
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    res.cookie('refreshToken', refreshToken, getRefreshCookieOptions());
 
     res.json({
       message: 'Login successful',
       accessToken,
-      refreshToken,
       sessionId,
       user: {
         id: user._id,
@@ -127,13 +143,16 @@ export const login = async (req, res, next) => {
 
 export const refreshAccessToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
-    const cookieRefreshToken = req.cookies?.refreshToken;
-
-    const token = refreshToken || cookieRefreshToken;
+    const bodyRefreshToken = normalizeValue(req.body?.refreshToken);
+    const cookieRefreshToken = normalizeValue(req.cookies?.refreshToken);
+    const token = bodyRefreshToken || cookieRefreshToken;
 
     if (!token) {
       return res.status(401).json({ message: 'Refresh token is required' });
+    }
+
+    if (!process.env.REFRESH_TOKEN_SECRET) {
+      return res.status(500).json({ message: 'Token secret is not configured' });
     }
 
     const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
@@ -144,7 +163,10 @@ export const refreshAccessToken = async (req, res, next) => {
     }
 
     // Check if refresh token is valid
-    const tokenExists = user.refreshTokens.some((rt) => rt.token === token);
+    const tokenHash = hashToken(token);
+    const tokenExists = user.refreshTokens.some(
+      (rt) => rt.token === tokenHash || rt.token === token
+    );
     if (!tokenExists) {
       return res.status(401).json({ message: 'Refresh token is invalid or expired' });
     }
@@ -159,13 +181,19 @@ export const refreshAccessToken = async (req, res, next) => {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Refresh token expired' });
     }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Refresh token is invalid' });
+    }
     next(error);
   }
 };
 
 export const logout = async (req, res, next) => {
   try {
-    const { sessionId, refreshToken } = req.body;
+    const sessionId = normalizeValue(req.body?.sessionId);
+    const bodyRefreshToken = normalizeValue(req.body?.refreshToken);
+    const cookieRefreshToken = normalizeValue(req.cookies?.refreshToken);
+    const refreshToken = bodyRefreshToken || cookieRefreshToken;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -185,13 +213,16 @@ export const logout = async (req, res, next) => {
 
     // Remove refresh token
     if (refreshToken) {
-      user.refreshTokens = user.refreshTokens.filter((rt) => rt.token !== refreshToken);
+      const refreshTokenHash = hashToken(refreshToken);
+      user.refreshTokens = user.refreshTokens.filter(
+        (rt) => rt.token !== refreshTokenHash && rt.token !== refreshToken
+      );
     }
 
     await user.save();
 
     // Clear refresh token cookie
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', getRefreshCookieClearOptions());
 
     res.json({ message: 'Logout successful' });
   } catch (error) {
@@ -218,7 +249,7 @@ export const logoutAllSessions = async (req, res, next) => {
     user.refreshTokens = [];
     await user.save();
 
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', getRefreshCookieClearOptions());
 
     res.json({ message: 'Logged out from all sessions' });
   } catch (error) {

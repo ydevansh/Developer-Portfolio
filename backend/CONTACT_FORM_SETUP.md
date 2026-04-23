@@ -32,7 +32,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/portfolio?
 JWT_SECRET=change_this_jwt_secret_in_production
 FRONTEND_URL=http://localhost:5173
 ADMIN_EMAIL=admin@portfolio.com
-ADMIN_PASSWORD=Admin@123
+ADMIN_PASSWORD_HASH=<bcrypt-hash>
 ```
 
 ## Contact API

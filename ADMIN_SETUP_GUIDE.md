@@ -83,11 +83,11 @@ npm run dev
 2. Backend verifies credentials
 3. Server returns:
    - `accessToken` (1-hour expiry)
-   - `refreshToken` (7-day expiry in HTTP-only cookie)
    - `sessionId` (for tracking)
    - `user` info
+  - `refreshToken` as an HTTP-only cookie (7-day expiry)
 
-4. Frontend stores tokens in localStorage
+4. Frontend stores access token in localStorage
 5. User redirected to dashboard
 
 ### Token Refresh
@@ -132,7 +132,6 @@ Response:
 {
   "message": "Login successful",
   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
   "sessionId": "a1b2c3d4...",
   "user": {
     "id": "64f1a2b3c4d5e6f7g8h9i0j1",
@@ -147,10 +146,6 @@ Response:
 POST /api/auth/refresh
 Content-Type: application/json
 
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-}
-
 Response:
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIs..."
@@ -164,8 +159,7 @@ Authorization: Bearer <accessToken>
 Content-Type: application/json
 
 {
-  "sessionId": "a1b2c3d4...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+  "sessionId": "a1b2c3d4..."
 }
 
 Response:
@@ -300,7 +294,7 @@ SESSION_SECRET=your_super_secret_session_key_2024
 
 # Admin Credentials
 ADMIN_EMAIL=devansh@gmail.com
-ADMIN_PASSWORD=gaurav@dev
+ADMIN_PASSWORD_HASH=<bcrypt-hash>
 
 # Frontend
 FRONTEND_URL=http://localhost:5173
@@ -324,7 +318,6 @@ VITE_API_URL=http://localhost:5000/api
 ### localStorage Keys
 ```javascript
 localStorage.getItem('accessToken')      // Short-lived token
-localStorage.getItem('refreshToken')     // Long-lived token
 localStorage.getItem('sessionId')        // Session identifier
 localStorage.getItem('user')             // User info (JSON)
 ```

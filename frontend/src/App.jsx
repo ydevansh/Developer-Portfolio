@@ -12,11 +12,12 @@ import About from './pages/About';
 import SkillsPage from './pages/Skills';
 import Projects from './pages/Projects';
 import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 import {
   Experience,
   Services,
-  Blog,
-  BlogDetail,
   Testimonials,
   NotFound,
 } from './pages/Placeholders';
@@ -53,6 +54,7 @@ function AppContent() {
             <Route path="/blog/:slug" element={<BlogDetail />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

@@ -26,11 +26,6 @@ export default function Login() {
       const email = formData.email.trim();
       const password = formData.password.trim();
 
-      if (import.meta.env.DEV) {
-        console.log('[admin login] frontend email:', email || 'undefined');
-        console.log('[admin login] frontend password:', password || 'undefined');
-      }
-
       await authService.login(email, password);
       navigate('/admin/dashboard');
     } catch (err) {

@@ -6,7 +6,6 @@ export const authService = {
     const response = await api.post('/auth/login', { email, password }, { skipAuthRefresh: true });
     if (response.data.accessToken) {
       localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('sessionId', response.data.sessionId);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
@@ -16,11 +15,7 @@ export const authService = {
   // Refresh access token
   refreshToken: async () => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) {
-        throw new Error('No refresh token');
-      }
-      const response = await api.post('/auth/refresh', { refreshToken }, { skipAuthRefresh: true });
+      const response = await api.post('/auth/refresh', {}, { skipAuthRefresh: true });
       if (response.data.accessToken) {
         localStorage.setItem('accessToken', response.data.accessToken);
       }
@@ -36,13 +31,11 @@ export const authService = {
   logout: async () => {
     try {
       const sessionId = localStorage.getItem('sessionId');
-      const refreshToken = localStorage.getItem('refreshToken');
-      await api.post('/auth/logout', { sessionId, refreshToken }, { skipAuthRefresh: true });
+      await api.post('/auth/logout', { sessionId }, { skipAuthRefresh: true });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       localStorage.removeItem('sessionId');
       localStorage.removeItem('user');
     }
@@ -56,7 +49,6 @@ export const authService = {
       console.error('Logout all error:', error);
     } finally {
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       localStorage.removeItem('sessionId');
       localStorage.removeItem('user');
     }
@@ -67,7 +59,6 @@ export const authService = {
 
   // Get stored token
   getAccessToken: () => localStorage.getItem('accessToken'),
-  getRefreshToken: () => localStorage.getItem('refreshToken'),
   getSessionId: () => localStorage.getItem('sessionId'),
 
   // Set token

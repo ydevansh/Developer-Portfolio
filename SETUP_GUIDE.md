@@ -29,7 +29,7 @@ EMAIL_PASS=your-app-password
 EMAIL_FROM=noreply@yourportfolio.com
 FRONTEND_URL=http://localhost:5173
 ADMIN_EMAIL=admin@portfolio.com
-ADMIN_PASSWORD=Admin@123
+ADMIN_PASSWORD_HASH=<bcrypt-hash>
 ```
 
 **Create `/frontend/.env`:**

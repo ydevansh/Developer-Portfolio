@@ -21,7 +21,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Policy Links */}
         <div className="flex flex-col md:flex-row justify-center items-center gap-8 mb-12 text-sm">
-          <Link to="#" className="text-gray-400 hover:text-primary-500 transition-colors">
+          <Link to="/privacy-policy" className="text-gray-400 hover:text-primary-500 transition-colors">
             Privacy Policy
           </Link>
           <div className="hidden md:block w-px h-4 bg-primary-500/20"></div>
