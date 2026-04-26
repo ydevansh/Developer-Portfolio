@@ -61,7 +61,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
       initial="initial"
       exit="exit"
     >
-      <div className="text-center">
+      <div className="w-full max-w-3xl px-4 text-center">
         {/* Logo/Badge */}
         <motion.div
           className="mb-8 flex justify-center"
@@ -81,17 +81,17 @@ export default function LoadingScreen({ onLoadingComplete }) {
 
         {/* Main Title */}
         <motion.div variants={textVariants} initial="initial" animate="animate">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
             Devansh Yadav
           </h1>
-          <p className="text-primary-400 text-lg uppercase tracking-widest mb-8">
+          <p className="text-primary-400 text-base sm:text-lg uppercase tracking-wider sm:tracking-widest mb-8">
             Full Stack Developer Portfolio
           </p>
         </motion.div>
 
         {/* Progress Section */}
         <motion.div
-          className="w-80 md:w-96"
+          className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto"
           variants={progressVariants}
           initial="initial"
           animate="animate"
