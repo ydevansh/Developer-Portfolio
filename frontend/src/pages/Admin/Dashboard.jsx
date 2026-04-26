@@ -131,10 +131,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-4xl font-bold mb-2">Hi Devansh 👑</h1>
-        <p className="text-gray-400">Welcome back to your admin panel</p>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 leading-tight">Hi Devansh 👑</h1>
+        <p className="text-gray-400 text-sm sm:text-base">Welcome back to your admin panel</p>
       </div>
 
       {error && (
@@ -177,9 +177,9 @@ export default function Dashboard() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
               <div>
-                <h2 className="text-2xl font-bold">Recent Activity</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold">Recent Activity</h2>
                 <p className="text-sm text-gray-400 mt-1">
                   Latest messages, projects, and blogs from the database
                 </p>
@@ -188,7 +188,7 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               <Card>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
                   <h3 className="text-lg font-semibold">Latest Messages</h3>
                   <span className="text-xs text-gray-400">{dashboard.stats.unreadMessages} unread</span>
                 </div>
@@ -196,7 +196,7 @@ export default function Dashboard() {
               </Card>
 
               <Card>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
                   <h3 className="text-lg font-semibold">Recently Added Projects</h3>
                   <span className="text-xs text-gray-400">{dashboard.recentProjects.length} items</span>
                 </div>
@@ -204,7 +204,7 @@ export default function Dashboard() {
               </Card>
 
               <Card>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
                   <h3 className="text-lg font-semibold">Recently Added Blogs</h3>
                   <span className="text-xs text-gray-400">{dashboard.recentBlogs.length} items</span>
                 </div>
