@@ -22,27 +22,44 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const normalizeOrigin = (origin) => {
+  const value = (origin || '').trim();
+
+  if (!value) {
+    return '';
+  }
+
+  try {
+    return new URL(value).origin.toLowerCase();
+  } catch {
+    return value.replace(/\/+$/, '').toLowerCase();
+  }
+};
+
 const DEFAULT_FRONTEND_ORIGINS = ['http://localhost:5173'];
 
 const parseAllowedOrigins = () => {
-  const configuredOrigins = (process.env.FRONTEND_URL || '')
+  const configuredOrigins = `${process.env.FRONTEND_URL || ''},${process.env.CORS_ORIGINS || ''}`
     .split(',')
-    .map((origin) => origin.trim())
+    .map(normalizeOrigin)
     .filter(Boolean);
 
-  return configuredOrigins.length > 0 ? configuredOrigins : DEFAULT_FRONTEND_ORIGINS;
+  const fallbackOrigins = DEFAULT_FRONTEND_ORIGINS.map(normalizeOrigin);
+  return configuredOrigins.length > 0 ? configuredOrigins : fallbackOrigins;
 };
 
-const allowedOrigins = parseAllowedOrigins();
+const allowedOrigins = new Set(parseAllowedOrigins());
 const allowVercelPreviewOrigins = process.env.ALLOW_VERCEL_PREVIEWS === 'true';
 const vercelPreviewOriginPattern = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
 
 const isAllowedOrigin = (origin) => {
-  if (allowedOrigins.includes(origin)) {
+  const normalizedOrigin = normalizeOrigin(origin);
+
+  if (allowedOrigins.has(normalizedOrigin)) {
     return true;
   }
 
-  if (allowVercelPreviewOrigins && vercelPreviewOriginPattern.test(origin)) {
+  if (allowVercelPreviewOrigins && vercelPreviewOriginPattern.test(normalizedOrigin)) {
     return true;
   }
 
@@ -56,19 +73,18 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    return callback(new Error('Not allowed by CORS'));
+    console.warn(`⛔ CORS blocked origin: ${origin}`);
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
 };
-
-// Connect to MongoDB
-connectDB();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -109,7 +125,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`✅ Server running on http://localhost:${PORT}`);
-      console.log(`🌐 Allowed frontend origins: ${allowedOrigins.join(', ')}`);
+      console.log(`🌐 Allowed frontend origins: ${Array.from(allowedOrigins).join(', ')}`);
       console.log(`📝 API Documentation:`);
       console.log(`   POST   /api/auth/login                 - Admin login`);
       console.log(`   GET    /api/projects/all              - Get all projects`);
