@@ -10,6 +10,7 @@ export default {
           500: '#0074D9',
           600: '#0052a3',
           900: '#001f3f', // Navy Blue
+          950: '#001428',
         },
         secondary: '#f39c12',
         dark: '#0a0a0a',
