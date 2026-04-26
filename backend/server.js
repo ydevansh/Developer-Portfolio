@@ -22,6 +22,45 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const DEFAULT_FRONTEND_ORIGINS = ['http://localhost:5173'];
+
+const parseAllowedOrigins = () => {
+  const configuredOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  return configuredOrigins.length > 0 ? configuredOrigins : DEFAULT_FRONTEND_ORIGINS;
+};
+
+const allowedOrigins = parseAllowedOrigins();
+const allowVercelPreviewOrigins = process.env.ALLOW_VERCEL_PREVIEWS === 'true';
+const vercelPreviewOriginPattern = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
+const isAllowedOrigin = (origin) => {
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  if (allowVercelPreviewOrigins && vercelPreviewOriginPattern.test(origin)) {
+    return true;
+  }
+
+  return false;
+};
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow non-browser requests (health checks, curl) that do not send Origin.
+    if (!origin || isAllowedOrigin(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+};
+
 // Connect to MongoDB
 connectDB();
 
@@ -29,12 +68,7 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -63,6 +97,7 @@ app.use(errorHandler);
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`🌐 Allowed frontend origins: ${allowedOrigins.join(', ')}`);
   console.log(`📝 API Documentation:`);
   console.log(`   POST   /api/auth/login                 - Admin login`);
   console.log(`   GET    /api/projects/all              - Get all projects`);

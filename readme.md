@@ -284,47 +284,56 @@ Use admin panel at `http://localhost:5173/admin/login` to:
 
 ## 🌐 Deployment
 
-### Deploy Frontend (Vercel - Recommended)
+### Frontend on Vercel
 
-1. **Push to GitHub**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
+1. Create a new Vercel project from this repository.
+2. Set **Root Directory** to `frontend`.
+3. Use default Vite settings:
+   - Install Command: `npm install`
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+4. Add Vercel environment variable:
+   ```
+   VITE_API_URL=https://your-backend.onrender.com/api
+   ```
+5. Deploy.
+
+`frontend/vercel.json` includes SPA rewrites so routes like `/projects` and `/admin/login` work after refresh.
+
+### Backend on Render
+
+1. Create a new Render **Web Service** from this repository.
+2. Set **Root Directory** to `backend`.
+3. Configure:
+   - Environment: `Node`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+4. Add environment variables in Render:
+   ```
+   NODE_ENV=production
+   MONGODB_URI=<your-mongodb-atlas-uri>
+   JWT_SECRET=<strong-random-secret>
+   REFRESH_TOKEN_SECRET=<strong-random-secret>
+   ADMIN_EMAIL=<your-admin-email>
+   ADMIN_PASSWORD_HASH=<bcrypt-hash>
+   FRONTEND_URL=https://your-frontend.vercel.app
+   EMAIL_USER=<smtp-user>
+   EMAIL_PASS=<smtp-password>
+   EMAIL_FROM=<from-email>
+   ```
+5. Optional variables:
+   ```
+   ALLOW_VERCEL_PREVIEWS=true
+   COOKIE_DOMAIN=.yourdomain.com
    ```
 
-2. **Connect to Vercel**
-   - Go to [Vercel](https://vercel.com)
-   - Click "New Project"
-   - Import your GitHub repository
-   - Set root directory to `/client`
-   - Add environment variables:
-     ```
-     VITE_API_URL=https://your-backend-api.com/api
-     ```
-   - Deploy!
+`render.yaml` is included at the repo root for Blueprint-based setup.
 
-### Deploy Backend (Render - Recommended)
-
-1. **Create render.com account** and connect GitHub
-
-2. **Create new Web Service**
-   - Connect your repository
-   - Set root directory to `/server`
-   - Environment: Node
-   - Build command: `npm install`
-   - Start command: `node server.js`
-   - Add environment variables (from .env file)
-   - Pre-check MongoDB Atlas is accessible
-
-3. **MongoDB Atlas Setup**
+### MongoDB Atlas Setup
    - Create account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
    - Create cluster in a free tier region
    - Add IP address 0.0.0.0/0 to Network Access
    - Get connection string and copy to MONGODB_URI
-
-4. **Deploy!**
 
 ### Alternative Backend Hosting
 - **Railway**: Similar to Render, easy setup

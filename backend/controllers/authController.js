@@ -16,20 +16,68 @@ const isValidBcryptHash = (value) => /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
-const getRefreshCookieOptions = () => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
-  path: '/api/auth',
-});
+const getCookieDomain = () => {
+  const domain = normalizeValue(process.env.COOKIE_DOMAIN);
+  return domain || undefined;
+};
 
-const getRefreshCookieClearOptions = () => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  path: '/api/auth',
-});
+const getCookieSameSite = () => {
+  const configuredSameSite = normalizeValue(process.env.COOKIE_SAME_SITE).toLowerCase();
+
+  if (configuredSameSite === 'strict' || configuredSameSite === 'lax' || configuredSameSite === 'none') {
+    return configuredSameSite;
+  }
+
+  return process.env.NODE_ENV === 'production' ? 'none' : 'strict';
+};
+
+const getCookieSecure = (sameSite) => {
+  // Browsers require Secure=true whenever SameSite=None is used.
+  if (sameSite === 'none') {
+    return true;
+  }
+
+  const configuredSecure = normalizeValue(process.env.COOKIE_SECURE).toLowerCase();
+
+  if (configuredSecure === 'true') {
+    return true;
+  }
+
+  if (configuredSecure === 'false') {
+    return false;
+  }
+
+  return process.env.NODE_ENV === 'production';
+};
+
+const getRefreshCookieOptions = () => {
+  const sameSite = getCookieSameSite();
+  const secure = getCookieSecure(sameSite);
+  const domain = getCookieDomain();
+
+  return {
+    httpOnly: true,
+    secure,
+    sameSite,
+    maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
+    path: '/api/auth',
+    ...(domain ? { domain } : {}),
+  };
+};
+
+const getRefreshCookieClearOptions = () => {
+  const sameSite = getCookieSameSite();
+  const secure = getCookieSecure(sameSite);
+  const domain = getCookieDomain();
+
+  return {
+    httpOnly: true,
+    secure,
+    sameSite,
+    path: '/api/auth',
+    ...(domain ? { domain } : {}),
+  };
+};
 
 // Generate Access Token (short-lived)
 const generateAccessToken = (userId, email) => {
