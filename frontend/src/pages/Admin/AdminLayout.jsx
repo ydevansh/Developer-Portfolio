@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { FaHome, FaProjectDiagram, FaBlog, FaEnvelope, FaCode, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
-import { motion } from 'framer-motion';
 import authService from '../../services/authService';
 
 export default function AdminLayout() {
@@ -65,9 +64,7 @@ export default function AdminLayout() {
       )}
 
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -300 }}
-        animate={{ x: 0 }}
+      <aside
         className={`${
           mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } w-72 md:translate-x-0 ${sidebarOpen ? 'md:w-64' : 'md:w-20'} fixed md:static inset-y-0 left-0 z-40 bg-primary-950 border-r border-primary-500/20 transition-all duration-300 flex flex-col`}
@@ -129,7 +126,7 @@ export default function AdminLayout() {
             {sidebarOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
           </button>
         </div>
-      </motion.aside>
+      </aside>
 
       {/* Main Content */}
       <main className="flex-1 min-w-0 overflow-auto">
