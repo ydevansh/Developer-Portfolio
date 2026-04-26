@@ -82,6 +82,14 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);
 
 // Health check
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Portfolio API is live',
+    health: '/health',
+    timestamp: new Date(),
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ message: 'Server is running', timestamp: new Date() });
 });
@@ -95,18 +103,29 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`🌐 Allowed frontend origins: ${allowedOrigins.join(', ')}`);
-  console.log(`📝 API Documentation:`);
-  console.log(`   POST   /api/auth/login                 - Admin login`);
-  console.log(`   GET    /api/projects/all              - Get all projects`);
-  console.log(`   GET    /api/skills/all                - Get all skills`);
-  console.log(`   GET    /api/experience/all            - Get all experience`);
-  console.log(`   GET    /api/services/all              - Get all services`);
-  console.log(`   GET    /api/blog/all                  - Get all blogs`);
-  console.log(`   GET    /api/testimonials/all          - Get all testimonials`);
-  console.log(`   POST   /api/contact                   - Submit contact form`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on http://localhost:${PORT}`);
+      console.log(`🌐 Allowed frontend origins: ${allowedOrigins.join(', ')}`);
+      console.log(`📝 API Documentation:`);
+      console.log(`   POST   /api/auth/login                 - Admin login`);
+      console.log(`   GET    /api/projects/all              - Get all projects`);
+      console.log(`   GET    /api/skills/all                - Get all skills`);
+      console.log(`   GET    /api/experience/all            - Get all experience`);
+      console.log(`   GET    /api/services/all              - Get all services`);
+      console.log(`   GET    /api/blog/all                  - Get all blogs`);
+      console.log(`   GET    /api/testimonials/all          - Get all testimonials`);
+      console.log(`   POST   /api/contact                   - Submit contact form`);
+    });
+  } catch (error) {
+    console.error(`❌ Startup failed: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app;
