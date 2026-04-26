@@ -58,7 +58,7 @@ export default function AdminLayout() {
         <button
           type="button"
           aria-label="Close sidebar overlay"
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-30 bg-black/70 md:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
@@ -67,7 +67,7 @@ export default function AdminLayout() {
       <aside
         className={`${
           mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } w-72 md:translate-x-0 ${sidebarOpen ? 'md:w-64' : 'md:w-20'} fixed md:static inset-y-0 left-0 z-40 bg-primary-950 border-r border-primary-500/20 transition-all duration-300 flex flex-col`}
+        } w-72 md:translate-x-0 ${sidebarOpen ? 'md:w-64' : 'md:w-20'} fixed md:static inset-y-0 left-0 z-40 bg-primary-950 border-r border-primary-500/20 shadow-2xl transition-all duration-300 flex flex-col`}
       >
         {/* Logo */}
         <div className="p-6 border-b border-primary-500/20">
@@ -130,11 +130,11 @@ export default function AdminLayout() {
 
       {/* Main Content */}
       <main className="flex-1 min-w-0 overflow-auto">
-        <div className="md:hidden sticky top-0 z-20 bg-primary-950/95 backdrop-blur border-b border-primary-500/20 px-4 py-3 flex items-center justify-between">
+        <div className="md:hidden sticky top-0 z-20 bg-primary-950 border-b border-primary-500/20 px-4 py-3 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setMobileSidebarOpen(true)}
-            className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 transition-colors"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors shadow-md"
             aria-label="Open sidebar"
           >
             <FaBars size={18} />
