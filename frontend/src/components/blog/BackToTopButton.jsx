@@ -1,18 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaArrowUp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BackToTopButton() {
   const [visible, setVisible] = useState(false);
+  const tickingRef = useRef(false);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setVisible(window.scrollY > 420);
+      const nextVisible = window.scrollY > 420;
+
+      if (nextVisible !== visibleRef.current) {
+        visibleRef.current = nextVisible;
+        setVisible(nextVisible);
+      }
+    };
+
+    const requestScrollUpdate = () => {
+      if (tickingRef.current) {
+        return;
+      }
+
+      tickingRef.current = true;
+      window.requestAnimationFrame(() => {
+        tickingRef.current = false;
+        handleScroll();
+      });
     };
 
     handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', requestScrollUpdate, { passive: true });
+    return () => window.removeEventListener('scroll', requestScrollUpdate);
   }, []);
 
   const handleClick = () => {
