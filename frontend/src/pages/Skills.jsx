@@ -18,6 +18,14 @@ import {
   SiTensorflow,
 } from 'react-icons/si';
 import skillService from '../services/skillService';
+import Seo from '../components/Seo';
+
+const skillsSeo = {
+  title: 'Skills | AI/ML Developer and Web Developer in Lucknow',
+  description:
+    'Explore the skills of Devansh Yadav, an AI/ML Developer and Web Developer from Lucknow focused on React, Node.js, Python, SQL, MongoDB, and AI/ML.',
+  keywords: ['Devansh Yadav skills', 'AI/ML Developer', 'Web Developer', 'React', 'Node.js', 'Python', 'MongoDB', 'SQL', 'BBDU'],
+};
 
 const fallbackSkills = {
   'AI & Data Science': ['Python', 'Machine Learning', 'Data Analysis', 'Pandas', 'NumPy'],
@@ -128,6 +136,13 @@ export default function Skills() {
 
   return (
     <div className="relative overflow-hidden pt-32 pb-20">
+      <Seo
+        title={skillsSeo.title}
+        description={skillsSeo.description}
+        keywords={skillsSeo.keywords}
+        canonicalPath="/skills"
+      />
+
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(34,211,238,0.2),transparent_38%),radial-gradient(circle_at_80%_20%,rgba(192,132,252,0.18),transparent_38%),radial-gradient(circle_at_50%_100%,rgba(2,132,199,0.2),transparent_45%)]" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,9 +157,9 @@ export default function Skills() {
               WHAT I KNOW
             </p>
             <h1 className="mt-5 text-5xl md:text-6xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-              My Skills
+              AI/ML and Web Development Skills
             </h1>
-            <p className="mt-4 text-gray-300 text-lg">Technologies and tools I use to bring ideas to life</p>
+            <p className="mt-4 text-gray-300 text-lg">Technologies and tools I use to build AI/ML and full stack web apps</p>
           </div>
 
           <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-7">

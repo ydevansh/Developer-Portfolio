@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 import contactService from '../services/contactService';
+import Seo from '../components/Seo';
+
+const contactSeo = {
+  title: 'Contact Devansh Yadav | AI/ML and Web Developer in Lucknow',
+  description:
+    'Contact Devansh Yadav for AI/ML, web development, internship, freelance, and collaboration opportunities from Lucknow or remote.',
+  keywords: ['Contact Devansh Yadav', 'Devansh Lucknow', 'Devansh BBD', 'AI/ML Developer', 'Web Developer', 'BBDU'],
+};
 
 export default function Contact() {
   const whatsappNumber = '+91 6388525760';
@@ -98,6 +106,13 @@ export default function Contact() {
 
   return (
     <div className="pt-32 pb-20">
+      <Seo
+        title={contactSeo.title}
+        description={contactSeo.description}
+        keywords={contactSeo.keywords}
+        canonicalPath="/contact"
+      />
+
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="space-y-12"
@@ -106,8 +121,10 @@ export default function Contact() {
           transition={{ duration: 0.8 }}
         >
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Get In Touch</h1>
-            <p className="text-gray-400">Feel free to reach out for collaborations or inquiries</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Devansh Yadav</h1>
+            <p className="text-gray-400">
+              Feel free to reach out for collaborations, internships, or freelance work from Lucknow or remote.
+            </p>
           </div>
 
           <motion.div

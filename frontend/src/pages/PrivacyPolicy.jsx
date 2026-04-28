@@ -1,9 +1,23 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Seo from '../components/Seo';
+
+const privacySeo = {
+  title: 'Privacy Policy | Devansh Yadav',
+  description: 'Privacy policy for the Devansh Yadav portfolio website.',
+  keywords: ['Privacy Policy', 'Devansh Yadav portfolio'],
+};
 
 export default function PrivacyPolicy() {
   return (
     <div className="pt-32 pb-20">
+      <Seo
+        title={privacySeo.title}
+        description={privacySeo.description}
+        keywords={privacySeo.keywords}
+        canonicalPath="/privacy-policy"
+      />
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.article
           className="rounded-2xl border border-primary-500/20 bg-primary-900/35 p-6 sm:p-8 md:p-10 space-y-8"

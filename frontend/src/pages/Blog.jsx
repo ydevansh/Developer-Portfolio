@@ -12,6 +12,14 @@ import BlogCard from '../components/blog/BlogCard';
 import FeaturedBlogCard from '../components/blog/FeaturedBlogCard';
 import ScrollProgressBar from '../components/blog/ScrollProgressBar';
 import BackToTopButton from '../components/blog/BackToTopButton';
+import Seo from '../components/Seo';
+
+const blogSeo = {
+  title: 'Blog | Devansh Yadav',
+  description:
+    'Read Devansh Yadav’s blog about AI/ML, web development, React, Node.js, and student projects from Lucknow and BBDU.',
+  keywords: ['Devansh Yadav blog', 'AI/ML', 'Web Development', 'React', 'Node.js', 'Lucknow', 'BBDU'],
+};
 
 const normalizeText = (value) => (typeof value === 'string' ? value.trim() : '');
 
@@ -151,6 +159,13 @@ export default function Blog() {
 
   return (
     <>
+      <Seo
+        title={blogSeo.title}
+        description={blogSeo.description}
+        keywords={blogSeo.keywords}
+        canonicalPath="/blog"
+      />
+
       <ScrollProgressBar />
       <div className="relative overflow-hidden pt-28 pb-20">
         <div className="pointer-events-none absolute inset-0">
@@ -167,9 +182,9 @@ export default function Blog() {
             className="mb-12 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/85 via-blue-950/60 to-slate-900/85 p-7 sm:p-10 shadow-[0_35px_55px_rgba(5,10,30,0.7)]"
           >
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">Insights & Articles</p>
-            <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">My Blog</h1>
+            <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">Devansh Yadav Blog</h1>
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-gray-300 sm:text-lg">
-              Sharing my journey in Full Stack Development, AI, and real-world coding experiences.
+              Sharing my journey in AI/ML, web development, and real-world coding experiences from Lucknow and BBDU.
             </p>
           </motion.section>
 

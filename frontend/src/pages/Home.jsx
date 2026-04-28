@@ -17,7 +17,29 @@ import {
   SiTensorflow,
 } from 'react-icons/si';
 import profileImage from '../assets/profile.jpg';
+import Seo from '../components/Seo';
 import { generatedProjects } from '../data/portfolioContent';
+
+const homeSeo = {
+  title: 'Devansh Yadav Portfolio - AI/ML Developer and Web Developer in Lucknow',
+  description:
+    'Devansh Yadav is an AI/ML Developer and Web Developer from Lucknow, studying at Babu Banarasi Das University (BBDU). Explore projects, skills, blogs, and contact details.',
+  keywords: [
+    'Devansh Yadav portfolio',
+    'Devansh Lucknow',
+    'Devansh BBD',
+    'AI/ML Developer',
+    'Web Developer',
+    'AI engineer',
+    'BBDU',
+    'Babu Banarasi Das University',
+    'Lucknow',
+    'React developer',
+    'Node.js developer',
+    'Python developer',
+    'portfolio',
+  ],
+};
 
 export default function Home() {
   const containerVariants = {
@@ -148,6 +170,15 @@ export default function Home() {
 
   return (
     <div className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16">
+      <Seo
+        title={homeSeo.title}
+        description={homeSeo.description}
+        keywords={homeSeo.keywords}
+        canonicalPath="/"
+        image={profileImage}
+        imageAlt="Devansh Yadav profile portrait"
+      />
+
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-24 left-[-10rem] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
         <div className="absolute top-16 right-[-10rem] h-96 w-96 rounded-full bg-fuchsia-500/15 blur-3xl" />
@@ -181,12 +212,12 @@ export default function Home() {
               </motion.h1>
 
               <motion.p variants={itemVariants} className="text-lg font-semibold text-slate-100 sm:text-xl">
-                AI/ML Developer and Web Developer
+                AI/ML Developer and Web Developer in Lucknow
               </motion.p>
 
               <motion.p variants={itemVariants} className="max-w-lg text-sm leading-6 text-slate-300 sm:text-[15px]">
-                I&apos;m a BCA student building AI/ML and full stack projects that blend practical problem-solving,
-                modern interfaces, and production-ready engineering.
+                I&apos;m Devansh Yadav, a BCA student at Babu Banarasi Das University (BBDU) in Lucknow, building AI/ML
+                and full stack projects with React, Node.js, Python, MongoDB, and SQL.
               </motion.p>
             </div>
 
@@ -219,7 +250,7 @@ export default function Home() {
               className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-200 backdrop-blur-sm sm:text-sm"
             >
               <FaGraduationCap className="text-cyan-300" size={13} />
-              <span>BCA Student at BBDU Lucknow, Uttar Pradesh, India</span>
+              <span>BCA Student at Babu Banarasi Das University (BBDU), Lucknow</span>
             </motion.div>
 
             <motion.div

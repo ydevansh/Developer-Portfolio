@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Seo from '../components/Seo';
 import projectService from '../services/projectService';
 import { generatedProjects } from '../data/portfolioContent';
+
+const projectsSeo = {
+  title: 'Projects | Devansh Yadav Portfolio',
+  description:
+    'Explore AI/ML and full stack web development projects by Devansh Yadav, a developer from Lucknow and BBDU.',
+  keywords: ['Devansh Yadav projects', 'AI/ML projects', 'Web Development projects', 'React', 'Node.js', 'Python', 'BBDU'],
+};
 
 const normalizeProject = (project, index, source = 'api') => ({
   id: project._id || `demo-project-${index + 1}`,
@@ -54,6 +62,13 @@ export default function Projects() {
 
   return (
     <div className="pt-32 pb-20">
+      <Seo
+        title={projectsSeo.title}
+        description={projectsSeo.description}
+        keywords={projectsSeo.keywords}
+        canonicalPath="/projects"
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="space-y-12"
@@ -62,9 +77,9 @@ export default function Projects() {
           transition={{ duration: 0.8 }}
         >
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">My Projects</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">AI/ML and Web Development Projects</h1>
             <p className="text-gray-400">
-              Modern full stack and AI-focused projects built for real-world impact
+              Modern full stack and AI-focused projects built for real-world impact from Lucknow and BBDU
             </p>
           </div>
 

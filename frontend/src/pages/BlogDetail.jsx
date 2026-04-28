@@ -19,6 +19,8 @@ import {
 import ScrollProgressBar from '../components/blog/ScrollProgressBar';
 import BackToTopButton from '../components/blog/BackToTopButton';
 import { formatDate, slugify } from '../utils/helpers';
+import Seo from '../components/Seo';
+import { SITE_AUTHOR, SITE_URL } from '../data/siteMetadata';
 
 const normalizeText = (value) => (typeof value === 'string' ? value.trim() : '');
 
@@ -286,6 +288,51 @@ export default function BlogDetail() {
     };
   }, [post?.title, slug]);
 
+  const seoConfig = useMemo(() => {
+    const canonicalPath = slug ? `/blog/${slug}` : '/blog';
+    const baseKeywords = ['Devansh Yadav blog', 'AI/ML', 'Web Development', 'Lucknow', 'BBDU'];
+    const extraKeywords = [post?.category, ...(Array.isArray(post?.tags) ? post.tags : [])].filter(Boolean);
+
+    return {
+      title: post?.title || 'Blog',
+      description:
+        post?.description || 'Read Devansh Yadav’s blog about AI/ML, web development, and portfolio building from Lucknow and BBDU.',
+      keywords: [...baseKeywords, ...extraKeywords],
+      canonicalPath,
+      image: post?.image,
+      imageAlt: post?.title || 'Devansh Yadav blog article',
+      type: post ? 'article' : 'website',
+      noindex: Boolean(error && !post),
+    };
+  }, [error, post, slug]);
+
+  const blogStructuredData = useMemo(() => {
+    if (!post) {
+      return null;
+    }
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.description,
+      image: [post.image],
+      datePublished: post.publishedAt,
+      dateModified: post.publishedAt,
+      author: {
+        '@type': 'Person',
+        name: SITE_AUTHOR,
+        url: SITE_URL,
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': new URL(`/blog/${post.slug}`, SITE_URL).toString(),
+      },
+      articleSection: post.category,
+      keywords: Array.isArray(post.tags) ? post.tags.join(', ') : '',
+    };
+  }, [post]);
+
   const handleCopy = async () => {
     try {
       if (!shareLinks.direct || !navigator.clipboard) {
@@ -302,35 +349,42 @@ export default function BlogDetail() {
 
   if (loading) {
     return (
-      <div className="pt-32 pb-20 text-center">
-        <div className="inline-flex items-center gap-3 rounded-full border border-cyan-300/30 bg-cyan-500/10 px-5 py-3 text-cyan-100">
-          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300" />
-          Loading article...
+      <>
+        <Seo {...seoConfig} structuredData={blogStructuredData} />
+        <div className="pt-32 pb-20 text-center">
+          <div className="inline-flex items-center gap-3 rounded-full border border-cyan-300/30 bg-cyan-500/10 px-5 py-3 text-cyan-100">
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300" />
+            Loading article...
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="pt-32 pb-20">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-white">Article Not Found</h1>
-          <p className="mt-4 text-gray-400">{error || 'The article you are trying to read does not exist.'}</p>
-          <button
-            type="button"
-            onClick={() => navigate('/blog')}
-            className="mt-7 rounded-xl border border-cyan-300/35 bg-cyan-500/15 px-5 py-3 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-500/25"
-          >
-            Back to Blog
-          </button>
+      <>
+        <Seo {...seoConfig} noindex structuredData={blogStructuredData} />
+        <div className="pt-32 pb-20">
+          <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-white">Article Not Found</h1>
+            <p className="mt-4 text-gray-400">{error || 'The article you are trying to read does not exist.'}</p>
+            <button
+              type="button"
+              onClick={() => navigate('/blog')}
+              className="mt-7 rounded-xl border border-cyan-300/35 bg-cyan-500/15 px-5 py-3 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-500/25"
+            >
+              Back to Blog
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
     <>
+      <Seo {...seoConfig} structuredData={blogStructuredData} />
       <ScrollProgressBar />
       <div className="relative overflow-hidden pt-28 pb-20">
         <div className="pointer-events-none absolute inset-0">
