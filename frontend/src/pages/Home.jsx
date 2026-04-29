@@ -19,6 +19,7 @@ import {
 import profileImage from '../assets/profile.jpg';
 import Seo from '../components/Seo';
 import { generatedProjects } from '../data/portfolioContent';
+import { fallbackBlogArticles } from '../data/blogArticles';
 
 const homeSeo = {
   title: 'Devansh Yadav Portfolio - AI/ML Developer and Web Developer in Lucknow',
@@ -40,6 +41,29 @@ const homeSeo = {
     'portfolio',
   ],
 };
+
+const blogDescriptionClamp = {
+  display: '-webkit-box',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 2,
+  overflow: 'hidden',
+};
+
+const blogPreview = [...fallbackBlogArticles]
+  .sort((left, right) => {
+    const featuredOrder = Number(Boolean(right.featured)) - Number(Boolean(left.featured));
+    if (featuredOrder !== 0) return featuredOrder;
+
+    return new Date(right.publishedAt).getTime() - new Date(left.publishedAt).getTime();
+  })
+  .slice(0, 3)
+  .map((blog) => ({
+    title: blog.title,
+    description:
+      blog.description.length > 120 ? `${blog.description.slice(0, 120).trim()}...` : blog.description,
+    category: blog.category,
+    slug: blog.slug,
+  }));
 
 export default function Home() {
   const containerVariants = {
@@ -366,49 +390,51 @@ export default function Home() {
           </motion.section>
 
           <motion.section variants={itemVariants} className="space-y-10">
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1430]/55 px-4 py-12 sm:p-10">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1430]/55 px-4 py-10 sm:p-8">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(34,211,238,0.2),transparent_38%),radial-gradient(circle_at_80%_20%,rgba(192,132,252,0.18),transparent_38%),radial-gradient(circle_at_50%_100%,rgba(2,132,199,0.2),transparent_45%)]" />
               <div className="relative">
                 <div className="text-center">
-                  <p className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/20 px-5 py-2 text-xs font-semibold tracking-[0.2em] text-violet-200">
+                  <p className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/20 px-4 py-1.5 text-[11px] font-semibold tracking-[0.2em] text-violet-200">
                     WHAT I KNOW
                   </p>
-                  <h2 className="mt-5 text-5xl md:text-6xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+                  <h2 className="mt-4 text-3xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent md:text-4xl">
                     My Skills
                   </h2>
-                  <p className="mt-4 text-gray-300 text-lg">
+                  <p className="mt-3 text-sm text-gray-300 sm:text-base">
                     Technologies and tools I use to bring ideas to life
                   </p>
                 </div>
 
-                <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-7">
+                <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
                   {skillGroups.map((group) => {
                     const SectionIcon = group.icon;
                     return (
                       <motion.article
                         key={group.title}
-                        whileHover={{ y: -8, scale: 1.01 }}
+                        whileHover={{ y: -6, scale: 1.01 }}
                         transition={{ duration: 0.28, ease: 'easeOut' }}
-                        className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/45 p-7 backdrop-blur-xl"
+                        className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-5 backdrop-blur-xl"
                       >
                         <div className={`absolute inset-0 bg-gradient-to-br ${group.glowClass}`} />
                         <div className="relative">
                           <div className="flex items-center gap-3">
-                            <SectionIcon className="text-4xl text-cyan-300" />
-                            <h3 className={`text-4xl lg:text-3xl font-bold bg-gradient-to-r ${group.titleClass} bg-clip-text text-transparent`}>
+                            <SectionIcon className="text-3xl text-cyan-300" />
+                            <h3
+                              className={`text-2xl font-bold bg-gradient-to-r ${group.titleClass} bg-clip-text text-transparent sm:text-[1.7rem]`}
+                            >
                               {group.title}
                             </h3>
                           </div>
 
-                          <div className="mt-7 flex flex-wrap gap-3">
+                          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
                             {group.items.map((skill) => {
                               const SkillIcon = skill.icon;
                               return (
                                 <span
                                   key={skill.label}
-                                  className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-300 ${group.badgeClass}`}
+                                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-300 sm:text-sm ${group.badgeClass}`}
                                 >
-                                  {SkillIcon && <SkillIcon className="text-base" />}
+                                  {SkillIcon && <SkillIcon className="text-sm" />}
                                   {skill.label}
                                 </span>
                               );
@@ -423,7 +449,7 @@ export default function Home() {
                 <div className="mt-10 flex justify-center">
                   <Link
                     to="/skills"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-8 py-4 text-lg font-semibold text-white shadow-[0_12px_40px_rgba(56,189,248,0.35)] transition-transform duration-300 hover:scale-[1.02]"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(56,189,248,0.35)] transition-transform duration-300 hover:scale-[1.02] sm:px-7 sm:py-3.5 sm:text-base"
                   >
                     View All Skills & Expertise <FaArrowRight size={17} />
                   </Link>
@@ -542,6 +568,63 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
+            </div>
+          </motion.section>
+
+          <motion.section variants={itemVariants} className="space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary-400 mb-2">Blog</p>
+                <h2 className="text-3xl md:text-4xl font-bold">Latest Blogs</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
+                  A small preview of recent writing on AI, web development, and practical project building.
+                </p>
+              </div>
+              <Link
+                to="/blog"
+                className="w-fit rounded-lg border border-primary-500/40 bg-primary-500/20 px-4 py-2.5 text-sm font-medium transition-colors duration-300 hover:bg-primary-500/30"
+              >
+                View All Blogs
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {blogPreview.map((blog) => (
+                <motion.article
+                  key={blog.slug}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-950/70 via-blue-950/35 to-slate-900/70 p-5 shadow-[0_18px_35px_rgba(2,6,23,0.35)] transition-colors duration-300 hover:border-cyan-400/35"
+                >
+                  <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_55%)]" />
+                  </div>
+
+                  <div className="relative flex h-full flex-col">
+                    <span className="inline-flex w-fit rounded-full border border-cyan-300/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
+                      {blog.category}
+                    </span>
+
+                    <div className="mt-4 space-y-2">
+                      <h3 className="text-xl font-semibold leading-snug text-white">{blog.title}</h3>
+                      <p className="text-sm leading-6 text-gray-300" style={blogDescriptionClamp}>
+                        {blog.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between gap-3">
+                      <span className="text-xs text-gray-400">Read the full article</span>
+                      <Link
+                        to={`/blog/${blog.slug}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm font-semibold text-slate-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10 hover:text-white"
+                      >
+                        Read More
+                        <FaArrowRight size={11} />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
             </div>
           </motion.section>
         </motion.div>
