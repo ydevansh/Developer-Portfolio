@@ -11,6 +11,7 @@ const REFRESH_TOKEN_EXPIRY = '7d';
 const REFRESH_TOKEN_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 const normalizeValue = (value) => (typeof value === 'string' ? value.trim() : '');
+const normalizePassword = (value) => (typeof value === 'string' ? value : '');
 
 const isValidBcryptHash = (value) => /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(value);
 
@@ -105,44 +106,56 @@ const generateSessionId = () => {
 export const login = async (req, res, next) => {
   try {
     const inputEmail = normalizeValue(req.body?.email).toLowerCase();
-    const inputPassword = normalizeValue(req.body?.password);
+    const inputPassword = normalizePassword(req.body?.password);
     const adminEmail = normalizeValue(process.env.ADMIN_EMAIL).toLowerCase();
     const adminPasswordHash = normalizeValue(process.env.ADMIN_PASSWORD_HASH);
 
-    if (!adminEmail || !adminPasswordHash) {
-      return res.status(500).json({ message: 'Admin credentials are not configured' });
-    }
-
     if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
       return res.status(500).json({ message: 'Token secrets are not configured' });
-    }
-
-    if (!isValidBcryptHash(adminPasswordHash)) {
-      return res.status(500).json({ message: 'Admin password hash is invalid' });
     }
 
     if (!inputEmail || !inputPassword) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const passwordMatches = await bcrypt.compare(inputPassword, adminPasswordHash);
+    let user = await User.findOne({ email: inputEmail, role: 'admin' }).select('+password');
+    let passwordMatches = false;
 
-    if (inputEmail !== adminEmail || !passwordMatches) {
+    if (user?.password) {
+      passwordMatches = await bcrypt.compare(inputPassword, user.password);
+      if (
+        !passwordMatches &&
+        adminEmail &&
+        adminPasswordHash &&
+        isValidBcryptHash(adminPasswordHash) &&
+        inputEmail === adminEmail
+      ) {
+        passwordMatches = await bcrypt.compare(inputPassword, adminPasswordHash);
+
+        if (passwordMatches && user.password !== adminPasswordHash) {
+          user.password = adminPasswordHash;
+          await user.save();
+        }
+      }
+    } else if (adminEmail && adminPasswordHash && isValidBcryptHash(adminPasswordHash) && inputEmail === adminEmail) {
+      passwordMatches = await bcrypt.compare(inputPassword, adminPasswordHash);
+    }
+
+    if (!passwordMatches) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    let user = await User.findOne({ email: adminEmail }).select('+password');
-
     if (!user) {
+      if (!adminEmail || !adminPasswordHash || !isValidBcryptHash(adminPasswordHash)) {
+        return res.status(500).json({ message: 'Admin credentials are not configured' });
+      }
+
       user = await User.create({
         email: adminEmail,
         password: adminPasswordHash,
         fullName: 'Devansh Yadav',
         role: 'admin',
       });
-    } else if (user.password !== adminPasswordHash) {
-      user.password = adminPasswordHash;
-      await user.save();
     }
 
     // Generate tokens

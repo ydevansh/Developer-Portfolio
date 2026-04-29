@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaArrowRight } from 'react-icons/fa';
-import { HiOutlineCodeBracket, HiOutlineCpuChip, HiOutlineSquares2X2 } from 'react-icons/hi2';
-import {
-  SiC,
-  SiGit,
-  SiJavascript,
-  SiMongodb,
-  SiMysql,
-  SiNodedotjs,
-  SiNumpy,
-  SiPandas,
-  SiPython,
-  SiReact,
-  SiTailwindcss,
-  SiTensorflow,
-} from 'react-icons/si';
+import { FaArrowRight, FaTimes } from 'react-icons/fa';
 import skillService from '../services/skillService';
 import Seo from '../components/Seo';
+import {
+  defaultSkillSeeds,
+  getSkillDetails,
+  groupSkillsByCategory,
+  resolveSkillIcon,
+  skillCategoryMeta,
+  skillCategoryOrder,
+} from '../data/skillCatalog';
 
 const skillsSeo = {
   title: 'Skills | AI/ML Developer and Web Developer in Lucknow',
@@ -27,92 +20,20 @@ const skillsSeo = {
   keywords: ['Devansh Yadav skills', 'AI/ML Developer', 'Web Developer', 'React', 'Node.js', 'Python', 'MongoDB', 'SQL', 'BBDU'],
 };
 
-const fallbackSkills = {
-  'AI & Data Science': ['Python', 'Machine Learning', 'Data Analysis', 'Pandas', 'NumPy'],
-  'Web Development': ['React', 'JavaScript', 'Tailwind CSS', 'Node.js', 'Git', 'MongoDB'],
-  Languages: ['Python', 'JavaScript', 'C', 'SQL'],
-};
-
-const themePalette = [
-  {
-    titleClass: 'from-blue-300 to-cyan-300',
-    badgeClass:
-      'bg-blue-500/20 text-blue-100 border border-blue-400/35 hover:bg-blue-500/30 hover:border-blue-300/45',
-    glowClass: 'from-blue-500/20 via-transparent to-cyan-500/20',
-    icon: HiOutlineCpuChip,
-  },
-  {
-    titleClass: 'from-fuchsia-300 to-violet-300',
-    badgeClass:
-      'bg-violet-500/20 text-violet-100 border border-violet-400/35 hover:bg-violet-500/30 hover:border-violet-300/45',
-    glowClass: 'from-fuchsia-500/20 via-transparent to-violet-500/20',
-    icon: HiOutlineSquares2X2,
-  },
-  {
-    titleClass: 'from-cyan-300 to-sky-300',
-    badgeClass:
-      'bg-cyan-500/20 text-cyan-100 border border-cyan-400/35 hover:bg-cyan-500/30 hover:border-cyan-300/45',
-    glowClass: 'from-cyan-500/20 via-transparent to-sky-500/20',
-    icon: HiOutlineCodeBracket,
-  },
-];
-
-const skillIconMap = {
-  python: SiPython,
-  'machine learning': SiTensorflow,
-  react: SiReact,
-  javascript: SiJavascript,
-  'tailwind css': SiTailwindcss,
-  'node.js': SiNodedotjs,
-  git: SiGit,
-  pandas: SiPandas,
-  numpy: SiNumpy,
-  mongodb: SiMongodb,
-  c: SiC,
-  sql: SiMysql,
-};
-
-const pickTheme = (category, index) => {
-  const lower = category.toLowerCase();
-  if (lower.includes('ai') || lower.includes('data')) return themePalette[0];
-  if (lower.includes('web') || lower.includes('front') || lower.includes('back')) return themePalette[1];
-  if (lower.includes('lang') || lower.includes('program')) return themePalette[2];
-  return themePalette[index % themePalette.length];
-};
-
-const getSkillIcon = (name) => {
-  const lower = name.toLowerCase();
-  const direct = skillIconMap[lower];
-  if (direct) return direct;
-
-  const key = Object.keys(skillIconMap).find((item) => lower.includes(item));
-  return key ? skillIconMap[key] : null;
-};
-
 export default function Skills() {
-  const [skills, setSkills] = useState({});
+  const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSkill, setSelectedSkill] = useState(null);
 
   useEffect(() => {
     const fetchSkills = async () => {
       try {
         const response = await skillService.getAllSkills();
-        const groupedSkills = {};
-
-        response.data.skills.forEach((skill) => {
-          if (!groupedSkills[skill.category]) {
-            groupedSkills[skill.category] = [];
-          }
-          groupedSkills[skill.category].push({
-            _id: skill._id,
-            name: skill.name,
-            proficiency: skill.proficiency,
-          });
-        });
-
-        setSkills(groupedSkills);
+        const apiSkills = Array.isArray(response?.data?.skills) ? response.data.skills : [];
+        setSkills(apiSkills.length > 0 ? apiSkills : defaultSkillSeeds);
       } catch (error) {
         console.error('Error fetching skills:', error);
+        setSkills(defaultSkillSeeds);
       } finally {
         setLoading(false);
       }
@@ -121,7 +42,25 @@ export default function Skills() {
     fetchSkills();
   }, []);
 
-  const displaySkills = Object.keys(skills).length ? skills : fallbackSkills;
+  const displaySkills = useMemo(() => groupSkillsByCategory(skills.length ? skills : defaultSkillSeeds), [skills]);
+
+  const activeSkillDetails = selectedSkill ? getSkillDetails(selectedSkill) : null;
+
+  useEffect(() => {
+    if (!selectedSkill) {
+      return undefined;
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setSelectedSkill(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedSkill]);
 
   if (loading) {
     return (
@@ -162,49 +101,57 @@ export default function Skills() {
             <p className="mt-4 text-gray-300 text-lg">Technologies and tools I use to build AI/ML and full stack web apps</p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-7">
-            {Object.entries(displaySkills).map(([category, categorySkills], index) => {
-              const theme = pickTheme(category, index);
+          <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {skillCategoryOrder.map((category) => {
+              const theme = skillCategoryMeta[category];
               const SectionIcon = theme.icon;
+              const categorySkills = displaySkills[category] || [];
 
               return (
                 <motion.article
                   key={category}
-                  whileHover={{ y: -8, scale: 1.01 }}
+                  whileHover={{ y: -6, scale: 1.01 }}
                   transition={{ duration: 0.28, ease: 'easeOut' }}
-                  className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/45 p-7"
+                  className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-5"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${theme.glowClass}`} />
 
                   <div className="relative">
                     <div className="flex items-center gap-3">
-                      <SectionIcon className="text-4xl text-cyan-300" />
+                      <SectionIcon className="text-3xl text-cyan-300" />
                       <h2
-                        className={`text-4xl lg:text-3xl font-bold bg-gradient-to-r ${theme.titleClass} bg-clip-text text-transparent`}
+                        className={`text-2xl font-bold bg-gradient-to-r ${theme.titleClass} bg-clip-text text-transparent sm:text-[1.7rem]`}
                       >
                         {category}
                       </h2>
                     </div>
 
-                    <div className="mt-7 flex flex-wrap gap-3">
+                    <div className="mt-5 space-y-3">
                       {categorySkills.map((entry) => {
-                        const name = typeof entry === 'string' ? entry : entry.name;
-                        const proficiency = typeof entry === 'string' ? null : entry.proficiency;
-                        const SkillIcon = getSkillIcon(name);
+                        const SkillIcon = resolveSkillIcon(entry);
+                        const isSelected = selectedSkill?._id ? selectedSkill._id === entry._id : selectedSkill?.name === entry.name;
 
                         return (
-                          <span
-                            key={typeof entry === 'string' ? entry : entry._id || `${category}-${entry.name}`}
-                            className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-300 ${theme.badgeClass}`}
+                          <motion.button
+                            key={entry._id || `${category}-${entry.name}`}
+                            type="button"
+                            onClick={() => setSelectedSkill(entry)}
+                            whileHover={{ y: -2 }}
+                            whileTap={{ scale: 0.99 }}
+                            className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 ${theme.badgeClass} ${
+                              isSelected ? 'border-cyan-300/60 shadow-[0_0_26px_rgba(34,211,238,0.18)]' : 'hover:border-cyan-300/35 hover:shadow-[0_0_18px_rgba(34,211,238,0.08)]'
+                            }`}
                           >
-                            {SkillIcon && <SkillIcon className="text-base" />}
-                            <span>{name}</span>
-                            {proficiency && (
-                              <span className="rounded-md bg-black/20 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em]">
-                                {proficiency}
-                              </span>
-                            )}
-                          </span>
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/15 text-white/95">
+                              {SkillIcon && (
+                                <SkillIcon className="text-sm" />
+                              )}
+                            </div>
+
+                            <span className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
+                              {entry.name}
+                            </span>
+                          </motion.button>
                         );
                       })}
                     </div>
@@ -224,6 +171,90 @@ export default function Skills() {
           </div>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {activeSkillDetails && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.button
+              type="button"
+              aria-label="Close skill details"
+              onClick={() => setSelectedSkill(null)}
+              className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 18 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="relative z-10 w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-[#0a1430] to-slate-900 shadow-[0_30px_80px_rgba(2,6,23,0.72)]"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${skillCategoryMeta[activeSkillDetails.category].glowClass} opacity-70`} />
+
+              <div className="relative p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
+                      {activeSkillDetails.category}
+                    </span>
+                    <h3 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{activeSkillDetails.name}</h3>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">{activeSkillDetails.description}</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSkill(null)}
+                    className="rounded-full border border-white/10 bg-white/5 p-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+                    aria-label="Close modal"
+                  >
+                    <FaTimes size={14} />
+                  </button>
+                </div>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:col-span-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200/80">
+                      Used in this portfolio
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{activeSkillDetails.portfolioUse}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200/80">Use Cases</p>
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                    {activeSkillDetails.useCases.map((useCase) => (
+                      <li key={useCase} className="flex gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                        <span>{useCase}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200/80">Related Tools</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {activeSkillDetails.relatedTools.map((tool) => (
+                      <span
+                        key={tool}
+                        className="inline-flex rounded-full border border-white/10 bg-slate-950/60 px-3 py-1 text-xs font-medium text-slate-200"
+                      >
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

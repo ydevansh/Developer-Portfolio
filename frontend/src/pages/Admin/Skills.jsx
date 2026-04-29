@@ -5,20 +5,9 @@ import Card from '../../components/admin/Card';
 import Button from '../../components/admin/Button';
 import Modal from '../../components/admin/Modal';
 import skillService from '../../services/skillService';
+import { groupSkillsByCategory, normalizeSkillCategory, resolveSkillIcon, skillCategoryOrder } from '../../data/skillCatalog';
 
-const skillCategories = ['Frontend', 'Backend', 'AI/Core'];
-
-const normalizeSkillCategory = (category) => {
-  if (category === 'AI/ML') {
-    return 'AI/Core';
-  }
-
-  if (category === 'Databases' || category === 'Tools') {
-    return 'Backend';
-  }
-
-  return skillCategories.includes(category) ? category : 'Backend';
-};
+const skillCategories = skillCategoryOrder;
 
 export default function Skills() {
   const categories = skillCategories;
@@ -35,6 +24,7 @@ export default function Skills() {
     name: '',
     category: 'Frontend',
     proficiency: 'Intermediate',
+    icon: '',
   });
 
   useEffect(() => {
@@ -54,14 +44,7 @@ export default function Skills() {
     }
   };
 
-  const skillsByCategory = useMemo(
-    () =>
-      categories.reduce((accumulator, category) => {
-        accumulator[category] = skills.filter((skill) => normalizeSkillCategory(skill.category) === category);
-        return accumulator;
-      }, {}),
-    [skills]
-  );
+  const skillsByCategory = useMemo(() => groupSkillsByCategory(skills), [skills]);
 
   const handleAddSkill = (category = 'Frontend') => {
     setSelectedCategory(category);
@@ -70,6 +53,7 @@ export default function Skills() {
       name: '',
       category,
       proficiency: 'Intermediate',
+      icon: '',
     });
     setIsModalOpen(true);
   };
@@ -82,6 +66,7 @@ export default function Skills() {
       name: skill.name || '',
       category: normalizedCategory,
       proficiency: skill.proficiency || 'Intermediate',
+      icon: skill.icon || '',
     });
     setIsModalOpen(true);
   };
@@ -97,7 +82,21 @@ export default function Skills() {
         name: formData.name.trim(),
         category: formData.category,
         proficiency: formData.proficiency,
+        icon: formData.icon.trim() || null,
       };
+
+      const normalizedName = payload.name.toLowerCase();
+      const duplicateSkill = skills.some(
+        (skill) =>
+          skill._id !== editingSkill?._id &&
+          normalizeSkillCategory(skill.category, skill.name) === payload.category &&
+          skill.name.trim().toLowerCase() === normalizedName
+      );
+
+      if (duplicateSkill) {
+        setError('That skill already exists in this category');
+        return;
+      }
 
       if (editingSkill) {
         await skillService.updateSkill(editingSkill._id, payload);
@@ -184,15 +183,22 @@ export default function Skills() {
                 {(skillsByCategory[category] || []).length === 0 ? (
                   <p className="text-sm text-gray-500">No skills in this category yet.</p>
                 ) : null}
-                {(skillsByCategory[category] || []).map((skill) => (
+                {(skillsByCategory[category] || []).map((skill) => {
+                  const SkillIcon = resolveSkillIcon(skill);
+
+                  return (
                   <motion.div
                     key={skill._id}
                     whileHover={{ x: 5 }}
                     className="flex items-center justify-between bg-primary-500/20 px-3 py-2 rounded-lg group"
                   >
                     <div>
-                      <p className="text-sm font-medium text-gray-200">{skill.name}</p>
+                      <div className="flex items-center gap-2">
+                        {SkillIcon && <SkillIcon className="text-sm text-cyan-300" />}
+                        <p className="text-sm font-medium text-gray-200">{skill.name}</p>
+                      </div>
                       <p className="mt-1 text-[11px] text-gray-500">{skill.proficiency || 'Intermediate'}</p>
+                      {skill.icon && <p className="mt-1 text-[11px] text-gray-500">Icon: {skill.icon}</p>}
                     </div>
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
@@ -211,7 +217,8 @@ export default function Skills() {
                       </button>
                     </div>
                   </motion.div>
-                ))}
+                  );
+                })}
               </div>
 
               <p className="text-xs text-gray-500 mt-4">
@@ -262,6 +269,19 @@ export default function Skills() {
               autoFocus
               className="w-full px-4 py-2 bg-primary-500/10 border border-primary-500/20 rounded-lg focus:outline-none focus:border-primary-500"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Icon key (optional)</label>
+            <input
+              type="text"
+              name="icon"
+              value={formData.icon}
+              onChange={(e) => setFormData((prev) => ({ ...prev, icon: e.target.value }))}
+              placeholder="e.g. SiReact or SiPython"
+              className="w-full px-4 py-2 bg-primary-500/10 border border-primary-500/20 rounded-lg focus:outline-none focus:border-primary-500"
+            />
+            <p className="mt-1 text-[11px] text-gray-500">Optional React Icons key used on the public site.</p>
           </div>
 
           <div>

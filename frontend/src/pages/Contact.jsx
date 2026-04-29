@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaArrowRight, FaLinkedin } from 'react-icons/fa';
 import contactService from '../services/contactService';
 import Seo from '../components/Seo';
 
@@ -12,8 +12,7 @@ const contactSeo = {
 };
 
 export default function Contact() {
-  const whatsappNumber = '+91 6388525760';
-  const whatsappLink = 'https://wa.me/916388525760?text=Hello%20Devansh%2C%20I%20would%20like%20to%20connect';
+  const linkedinUrl = 'https://www.linkedin.com/messaging/thread/new/?recipient=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fydevansh%2F';
 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -105,7 +104,7 @@ export default function Contact() {
     }`;
 
   return (
-    <div className="pt-32 pb-20">
+    <div className="relative overflow-hidden pt-32 pb-20">
       <Seo
         title={contactSeo.title}
         description={contactSeo.description}
@@ -113,49 +112,103 @@ export default function Contact() {
         canonicalPath="/contact"
       />
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-28 left-[-8rem] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="absolute right-[-6rem] top-10 h-72 w-72 rounded-full bg-violet-500/15 blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 h-72 w-[34rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,0.12),transparent_28%),radial-gradient(circle_at_82%_16%,rgba(168,85,247,0.14),transparent_26%),radial-gradient(circle_at_50%_92%,rgba(59,130,246,0.08),transparent_34%)]" />
+      </div>
+
+      <div className="relative mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          className="space-y-12"
+          className="space-y-6 sm:space-y-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Devansh Yadav</h1>
-            <p className="text-gray-400">
-              Feel free to reach out for collaborations, internships, or freelance work from Lucknow or remote.
-            </p>
-          </div>
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1430]/65 p-5 shadow-[0_24px_60px_rgba(2,6,23,0.35)] sm:p-6"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_45%),radial-gradient(circle_at_85%_20%,rgba(168,85,247,0.12),transparent_35%)]" />
+            <div className="relative space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+                  Get in touch
+                </span>
+                <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-slate-300">
+                  Collaboration · Internship · Freelance
+                </span>
+                <span className="inline-flex rounded-full border border-violet-300/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-medium text-violet-100">
+                  Lucknow · Remote
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                <h1 className="max-w-2xl text-2xl font-bold leading-[1.06] tracking-[-0.04em] text-white sm:text-3xl md:text-4xl">
+                  <span className="block">Contact Devansh Yadav</span>
+                  <span className="block bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+                    for useful ideas and real projects
+                  </span>
+                </h1>
+                <p className="max-w-xl text-sm leading-6 text-slate-300 sm:text-[15px]">
+                  Feel free to reach out for collaborations, internships, or freelance work from Lucknow or remote.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2.5">
+                <a
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(59,130,246,0.25)] transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  <FaLinkedin size={14} />
+                  Chat on LinkedIn
+                </a>
+
+                <a
+                  href="#contact-form"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm font-semibold text-slate-100 transition-colors duration-300 hover:border-cyan-400/35 hover:bg-cyan-500/10"
+                >
+                  Send a Message
+                  <FaArrowRight size={13} />
+                </a>
+              </div>
+            </div>
+          </motion.section>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5 sm:p-6"
+            className="rounded-2xl border border-sky-500/20 bg-sky-500/10 p-4 sm:p-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300">
-                  <FaWhatsapp size={24} />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/20 text-sky-300">
+                  <FaLinkedin size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
-                    WhatsApp
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+                    LinkedIn
                   </p>
-                  <h2 className="mt-1 text-xl font-bold text-white">{whatsappNumber}</h2>
+                  <h2 className="mt-1 text-lg font-bold text-white sm:text-xl">Devansh Yadav</h2>
                   <p className="mt-1 text-sm text-gray-400">
-                    Message me directly for faster replies and project inquiries.
+                    Message me directly for collaborations, internships, and professional opportunities.
                   </p>
                 </div>
               </div>
 
               <a
-                href={whatsappLink}
+                href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/15 px-5 py-3 text-sm font-medium text-emerald-200 transition-colors hover:bg-emerald-500/25 hover:border-emerald-400"
+                className="inline-flex items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/15 px-4 py-2.5 text-sm font-medium text-sky-200 transition-colors hover:bg-sky-500/25 hover:border-sky-400"
               >
-                Chat on WhatsApp
+                Chat on LinkedIn
               </a>
             </div>
           </motion.div>
@@ -172,7 +225,7 @@ export default function Contact() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form id="contact-form" onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">Name</label>
               <input

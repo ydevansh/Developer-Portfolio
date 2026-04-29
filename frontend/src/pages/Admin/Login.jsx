@@ -24,7 +24,7 @@ export default function Login() {
     setError('');
     try {
       const email = formData.email.trim();
-      const password = formData.password.trim();
+      const password = formData.password;
 
       await authService.login(email, password);
       navigate('/admin/dashboard');

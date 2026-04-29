@@ -15,6 +15,7 @@ import blogRoutes from './routes/blog.js';
 import testimonialRoutes from './routes/testimonials.js';
 import contactRoutes from './routes/contact.js';
 import dashboardRoutes from './routes/dashboard.js';
+import { seedDefaultSkills } from './scripts/seedSkills.js';
 
 // Load environment variables
 dotenv.config();
@@ -122,6 +123,7 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
+    await seedDefaultSkills();
 
     app.listen(PORT, () => {
       console.log(`✅ Server running on http://localhost:${PORT}`);

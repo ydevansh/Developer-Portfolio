@@ -1,25 +1,21 @@
-﻿import React from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaArrowRight, FaGraduationCap, FaWhatsapp } from 'react-icons/fa';
-import { HiOutlineCodeBracket, HiOutlineCpuChip, HiOutlineSquares2X2 } from 'react-icons/hi2';
-import {
-  SiC,
-  SiGit,
-  SiJavascript,
-  SiMysql,
-  SiNodedotjs,
-  SiNumpy,
-  SiPandas,
-  SiPython,
-  SiReact,
-  SiTailwindcss,
-  SiTensorflow,
-} from 'react-icons/si';
+import { HiOutlineCpuChip } from 'react-icons/hi2';
+import { SiPython, SiReact } from 'react-icons/si';
 import profileImage from '../assets/profile.jpg';
 import Seo from '../components/Seo';
+import skillService from '../services/skillService';
 import { generatedProjects } from '../data/portfolioContent';
 import { fallbackBlogArticles } from '../data/blogArticles';
+import {
+  defaultSkillSeeds,
+  groupSkillsByCategory,
+  resolveSkillIcon,
+  skillCategoryMeta,
+  skillCategoryOrder,
+} from '../data/skillCatalog';
 
 const homeSeo = {
   title: 'Devansh Yadav Portfolio - AI/ML Developer and Web Developer in Lucknow',
@@ -66,6 +62,33 @@ const blogPreview = [...fallbackBlogArticles]
   }));
 
 export default function Home() {
+  const [skillEntries, setSkillEntries] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSkills = async () => {
+      try {
+        const response = await skillService.getAllSkills();
+        const apiSkills = Array.isArray(response?.data?.skills) ? response.data.skills : [];
+
+        if (isMounted) {
+          setSkillEntries(apiSkills.length > 0 ? apiSkills : defaultSkillSeeds);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setSkillEntries(defaultSkillSeeds);
+        }
+      }
+    };
+
+    fetchSkills();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -86,52 +109,13 @@ export default function Home() {
     },
   };
 
-  const skillGroups = [
-    {
-      title: 'AI & Data Science',
-      icon: HiOutlineCpuChip,
-      titleClass: 'from-blue-300 to-cyan-300',
-      badgeClass:
-        'bg-blue-500/20 text-blue-100 border border-blue-400/35 hover:bg-blue-500/30 hover:border-blue-300/45',
-      glowClass: 'from-blue-500/20 via-transparent to-cyan-500/20',
-      items: [
-        { label: 'Python', icon: SiPython },
-        { label: 'Machine Learning', icon: SiTensorflow },
-        { label: 'Data Analysis', icon: HiOutlineCpuChip },
-        { label: 'Pandas', icon: SiPandas },
-        { label: 'NumPy', icon: SiNumpy },
-      ],
-    },
-    {
-      title: 'Web Development',
-      icon: HiOutlineSquares2X2,
-      titleClass: 'from-fuchsia-300 to-violet-300',
-      badgeClass:
-        'bg-violet-500/20 text-violet-100 border border-violet-400/35 hover:bg-violet-500/30 hover:border-violet-300/45',
-      glowClass: 'from-fuchsia-500/20 via-transparent to-violet-500/20',
-      items: [
-        { label: 'React', icon: SiReact },
-        { label: 'JavaScript', icon: SiJavascript },
-        { label: 'Tailwind CSS', icon: SiTailwindcss },
-        { label: 'Node.js', icon: SiNodedotjs },
-        { label: 'Git', icon: SiGit },
-      ],
-    },
-    {
-      title: 'Languages',
-      icon: HiOutlineCodeBracket,
-      titleClass: 'from-cyan-300 to-sky-300',
-      badgeClass:
-        'bg-cyan-500/20 text-cyan-100 border border-cyan-400/35 hover:bg-cyan-500/30 hover:border-cyan-300/45',
-      glowClass: 'from-cyan-500/20 via-transparent to-sky-500/20',
-      items: [
-        { label: 'Python', icon: SiPython },
-        { label: 'JavaScript', icon: SiJavascript },
-        { label: 'C', icon: SiC },
-        { label: 'SQL', icon: SiMysql },
-      ],
-    },
-  ];
+  const groupedSkills = useMemo(() => groupSkillsByCategory(skillEntries.length ? skillEntries : defaultSkillSeeds), [skillEntries]);
+
+  const skillGroups = skillCategoryOrder.map((category) => ({
+    category,
+    ...skillCategoryMeta[category],
+    items: groupedSkills[category] || [],
+  }));
 
   const experiencePreview = [
     {
@@ -410,7 +394,7 @@ export default function Home() {
                     const SectionIcon = group.icon;
                     return (
                       <motion.article
-                        key={group.title}
+                        key={group.category}
                         whileHover={{ y: -6, scale: 1.01 }}
                         transition={{ duration: 0.28, ease: 'easeOut' }}
                         className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-5 backdrop-blur-xl"
@@ -422,20 +406,21 @@ export default function Home() {
                             <h3
                               className={`text-2xl font-bold bg-gradient-to-r ${group.titleClass} bg-clip-text text-transparent sm:text-[1.7rem]`}
                             >
-                              {group.title}
+                              {group.category}
                             </h3>
                           </div>
 
                           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
                             {group.items.map((skill) => {
-                              const SkillIcon = skill.icon;
+                              const SkillIcon = resolveSkillIcon(skill);
+
                               return (
                                 <span
-                                  key={skill.label}
+                                  key={skill._id || `${group.category}-${skill.name}`}
                                   className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-300 sm:text-sm ${group.badgeClass}`}
                                 >
                                   {SkillIcon && <SkillIcon className="text-sm" />}
-                                  {skill.label}
+                                  {skill.name}
                                 </span>
                               );
                             })}
