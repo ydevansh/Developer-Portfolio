@@ -1,8 +1,8 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaArrowRight, FaGraduationCap, FaWhatsapp } from 'react-icons/fa';
-import { HiOutlineCpuChip } from 'react-icons/hi2';
+import { FaArrowRight, FaGraduationCap, FaWhatsapp, FaFire, FaLightbulb, FaCode, FaRocket } from 'react-icons/fa';
+import { HiOutlineCpuChip, HiOutlineSparkles } from 'react-icons/hi2';
 import { SiPython, SiReact } from 'react-icons/si';
 import profileImage from '../assets/profile.jpg';
 import Seo from '../components/Seo';
@@ -339,38 +339,91 @@ export default function Home() {
 
         {/* Home Sections */}
         <motion.div
-          className="mt-24 pt-16 border-t border-primary-500/20 space-y-24"
+          className="mt-20 pt-12 border-t border-primary-500/20 space-y-12"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
         >
-          <motion.section variants={itemVariants} className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <motion.section variants={itemVariants} className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary-400 mb-2">About</p>
-                <h2 className="text-3xl md:text-4xl font-bold">About Me</h2>
+                <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 mb-2 font-semibold">About Me</p>
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+                  Who I Am
+                </h2>
               </div>
               <Link
                 to="/about"
-                className="w-fit px-5 py-2.5 bg-primary-500/20 border border-primary-500 hover:bg-primary-500/30 rounded-lg transition-colors duration-300"
+                aria-label="Read more about me"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-500/40 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-cyan-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/60 hover:from-cyan-500/30 hover:to-violet-500/30"
               >
-                Read More
+                <FaArrowRight size={15} />
               </Link>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <p className="text-gray-400 leading-relaxed bg-primary-500/10 border border-primary-500/20 rounded-xl p-6">
-                I am an aspiring AI engineer with a strong foundation in Python and full stack development. I enjoy
-                building practical applications and improving through hands-on work.
-              </p>
-              <div className="bg-primary-500/10 border border-primary-500/20 rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Education Snapshot</h3>
-                <div className="space-y-3 text-gray-400">
-                  <p>BCA (2024-2027) - Babu Banarasi Das University</p>
-                  <p>AI Minor - IIT Mandi (Online)</p>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-slate-950/40 p-6 backdrop-blur-xl group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10 grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 p-2.5">
+                      <FaLightbulb className="text-xl text-cyan-400" />
+                    </div>
+                    <h3 className="text-xl font-bold sm:text-2xl">Passionate Developer</h3>
+                  </div>
+
+                  <p className="text-sm leading-6 text-slate-300 sm:text-[15px]">
+                    I&apos;m a <span className="font-semibold text-cyan-300">BCA student at Babu Banarasi Das University</span> focused on AI/ML and full-stack development. I like turning ideas into practical, clean solutions.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
+                      <FaCode className="text-cyan-300" /> Full Stack
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
+                      <FaRocket className="text-violet-300" /> Problem Solver
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
+                      <FaFire className="text-emerald-300" /> Continuous Growth
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-white/10 bg-white/5 p-3.5">
+                      <p className="text-xl font-bold text-cyan-400 sm:text-2xl">2024-2027</p>
+                      <p className="mt-1 text-xs text-slate-400 sm:text-sm">BCA Program</p>
+                    </div>
+                    <div className="rounded-lg border border-white/10 bg-white/5 p-3.5">
+                      <p className="text-xl font-bold text-violet-400 sm:text-2xl">∞</p>
+                      <p className="mt-1 text-xs text-slate-400 sm:text-sm">Always Learning</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-500/20 p-2.5">
+                      <FaGraduationCap className="text-lg text-cyan-300" />
+                    </div>
+                    <h3 className="text-lg font-bold">Education</h3>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-3">
+                    <p className="text-sm font-semibold text-cyan-300">BCA Program</p>
+                    <p className="mt-1 text-xs text-slate-400">Babu Banarasi Das University · 2024-2027</p>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-3">
+                    <p className="text-sm font-semibold text-violet-300">AI Minor</p>
+                    <p className="mt-1 text-xs text-slate-400">IIT Mandi (Online)</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.section>
 
           <motion.section variants={itemVariants} className="space-y-10">
