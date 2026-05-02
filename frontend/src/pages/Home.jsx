@@ -221,7 +221,7 @@ export default function Home() {
           animate="visible"
         >
           <motion.div variants={itemVariants} className="space-y-5">
-            <div className="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_30px_rgba(34,211,238,0.12)] backdrop-blur-sm">
+            <div className="mt-4 inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_30px_rgba(34,211,238,0.12)] backdrop-blur-sm sm:mt-0">
               Welcome to my portfolio
             </div>
 
