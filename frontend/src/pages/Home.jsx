@@ -11,16 +11,18 @@ import {
   FaRocket,
   FaGithub,
   FaLinkedin,
+  FaInstagram,
   FaTwitter,
   FaEnvelope,
 } from 'react-icons/fa';
 import { HiOutlineCpuChip, HiOutlineSparkles } from 'react-icons/hi2';
-import { SiPython, SiReact } from 'react-icons/si';
+import { SiLeetcode, SiPython, SiReact } from 'react-icons/si';
 import profileImage from '../assets/profile.jpg';
 import Seo from '../components/Seo';
 import skillService from '../services/skillService';
 import { generatedProjects } from '../data/portfolioContent';
 import { fallbackBlogArticles } from '../data/blogArticles';
+import { SITE_AUTHOR, SITE_SOCIAL_LINKS, SITE_URL } from '../data/siteMetadata';
 import {
   defaultSkillSeeds,
   groupSkillsByCategory,
@@ -188,11 +190,38 @@ export default function Home() {
     },
   ];
 
+  const homeStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    alternateName: 'Devansh Yadav',
+    url: SITE_URL,
+    image: new URL(profileImage, SITE_URL).toString(),
+    jobTitle: 'AI/ML Developer and Web Developer',
+    description: homeSeo.description,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Lucknow',
+      addressRegion: 'Uttar Pradesh',
+      addressCountry: 'IN',
+    },
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'Babu Banarasi Das University (BBDU)',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Lucknow',
+      },
+    },
+    sameAs: SITE_SOCIAL_LINKS,
+  };
+
   const socialLinks = [
     { label: 'GitHub', icon: FaGithub, href: 'https://github.com/ydevansh' },
     { label: 'LinkedIn', icon: FaLinkedin, href: 'https://www.linkedin.com/in/ydevansh/' },
+    { label: 'LeetCode', icon: SiLeetcode, href: 'https://leetcode.com/u/ydevansh/' },
+    { label: 'Instagram', icon: FaInstagram, href: 'https://www.instagram.com/codewithdeva/' },
     { label: 'Twitter', icon: FaTwitter, href: 'https://x.com/yxdevansh' },
-    { label: 'Email', icon: FaEnvelope, href: 'mailto:yaduvanshidevansh3336@gmail.com' },
   ];
 
   return (
@@ -204,6 +233,7 @@ export default function Home() {
         canonicalPath="/"
         image={profileImage}
         imageAlt="Devansh Yadav profile portrait"
+        structuredData={homeStructuredData}
       />
 
       <div className="absolute inset-0 -z-10 overflow-hidden">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaHeart } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaInstagram, FaTwitter, FaHeart } from 'react-icons/fa';
+import { SiLeetcode } from 'react-icons/si';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,8 +13,9 @@ export default function Footer() {
   const socialLinks = [
     { label: 'GitHub', icon: FaGithub, url: 'https://github.com/ydevansh' },
     { label: 'LinkedIn', icon: FaLinkedin, url: 'https://www.linkedin.com/in/ydevansh/' },
+    { label: 'LeetCode', icon: SiLeetcode, url: 'https://leetcode.com/u/ydevansh/' },
+    { label: 'Instagram', icon: FaInstagram, url: 'https://www.instagram.com/codewithdeva/' },
     { label: 'Twitter', icon: FaTwitter, url: 'https://x.com/yxdevansh' },
-    { label: 'Email', icon: FaEnvelope, url: 'mailto:yaduvanshidevansh3336@gmail.com' },
   ];
 
   return (
@@ -36,7 +38,7 @@ export default function Footer() {
 
         <div className="md:hidden mb-8 flex flex-col items-center gap-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gray-400">Connect</p>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             {socialLinks.map(({ label, icon: Icon, url }) => (
               <a
                 key={label}

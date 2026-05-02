@@ -26,6 +26,8 @@ export const SITE_KEYWORDS = [
 export const SITE_SOCIAL_LINKS = [
   'https://github.com/ydevansh',
   'https://www.linkedin.com/in/ydevansh/',
+  'https://leetcode.com/u/ydevansh/',
+  'https://www.instagram.com/codewithdeva/',
   'https://x.com/yxdevansh',
 ];
 export const SITE_THEME_COLOR = '#050816';
