@@ -1,7 +1,19 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaArrowRight, FaGraduationCap, FaWhatsapp, FaFire, FaLightbulb, FaCode, FaRocket } from 'react-icons/fa';
+import {
+  FaArrowRight,
+  FaGraduationCap,
+  FaWhatsapp,
+  FaFire,
+  FaLightbulb,
+  FaCode,
+  FaRocket,
+  FaGithub,
+  FaLinkedin,
+  FaTwitter,
+  FaEnvelope,
+} from 'react-icons/fa';
 import { HiOutlineCpuChip, HiOutlineSparkles } from 'react-icons/hi2';
 import { SiPython, SiReact } from 'react-icons/si';
 import profileImage from '../assets/profile.jpg';
@@ -176,6 +188,13 @@ export default function Home() {
     },
   ];
 
+  const socialLinks = [
+    { label: 'GitHub', icon: FaGithub, href: 'https://github.com/ydevansh' },
+    { label: 'LinkedIn', icon: FaLinkedin, href: 'https://www.linkedin.com/in/ydevansh/' },
+    { label: 'Twitter', icon: FaTwitter, href: 'https://x.com/yxdevansh' },
+    { label: 'Email', icon: FaEnvelope, href: 'mailto:yaduvanshidevansh3336@gmail.com' },
+  ];
+
   return (
     <div className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16">
       <Seo
@@ -222,6 +241,22 @@ export default function Home() {
               <motion.p variants={itemVariants} className="text-lg font-semibold text-slate-100 sm:text-xl">
                 AI/ML Developer and Web Developer in Lucknow
               </motion.p>
+
+              <motion.div variants={itemVariants} className="mx-auto mt-4 w-full max-w-[13rem] lg:hidden">
+                <div className="relative aspect-square w-full">
+                  <div className="absolute inset-0 rounded-full bg-cyan-500/18 blur-2xl scale-95" />
+                  <div className="absolute inset-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm" />
+                  <div className="relative z-10 h-full w-full rounded-full bg-gradient-to-br from-cyan-400 via-violet-500 to-fuchsia-500 p-1.5 shadow-[0_14px_36px_rgba(99,102,241,0.22)]">
+                    <div className="h-full w-full overflow-hidden rounded-full border border-white/20 bg-slate-950">
+                      <img
+                        src={profileImage}
+                        alt="Devansh Yadav portrait"
+                        className="h-full w-full object-cover object-[50%_30%]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
 
               <motion.p variants={itemVariants} className="max-w-lg text-sm leading-6 text-slate-300 sm:text-[15px]">
                 I&apos;m Devansh Yadav, a BCA student at Babu Banarasi Das University (BBDU) in Lucknow, building AI/ML
@@ -296,6 +331,24 @@ export default function Home() {
               </a>
             </motion.div>
 
+            <motion.div variants={itemVariants} className="flex items-center gap-3 md:hidden">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Connect</span>
+              <div className="flex items-center gap-2.5">
+                {socialLinks.map(({ label, icon: Icon, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10 hover:text-white"
+                  >
+                    <Icon size={15} />
+                  </a>
+                ))}
+              </div>
+            </motion.div>
+
             <motion.div
               variants={itemVariants}
               className="hidden items-center gap-3 pt-2 text-[10px] uppercase tracking-[0.28em] text-slate-400 lg:flex"
@@ -311,7 +364,7 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="relative flex justify-center lg:justify-end">
+          <motion.div variants={itemVariants} className="relative hidden justify-center lg:flex lg:justify-end">
             <div className="relative aspect-square w-full max-w-[20rem] sm:max-w-[22rem] lg:max-w-[24rem]">
               <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-3xl scale-100" />
               <div className="absolute inset-5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm" />

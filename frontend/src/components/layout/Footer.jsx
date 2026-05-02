@@ -10,10 +10,10 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { icon: FaGithub, url: 'https://github.com/ydevansh' },
-    { icon: FaLinkedin, url: 'https://www.linkedin.com/in/ydevansh/' },
-    { icon: FaTwitter, url: 'https://x.com/yxdevansh' },
-    { icon: FaEnvelope, url: 'mailto:yaduvanshidevansh3336@gmail.com' },
+    { label: 'GitHub', icon: FaGithub, url: 'https://github.com/ydevansh' },
+    { label: 'LinkedIn', icon: FaLinkedin, url: 'https://www.linkedin.com/in/ydevansh/' },
+    { label: 'Twitter', icon: FaTwitter, url: 'https://x.com/yxdevansh' },
+    { label: 'Email', icon: FaEnvelope, url: 'mailto:yaduvanshidevansh3336@gmail.com' },
   ];
 
   return (
@@ -32,6 +32,24 @@ export default function Footer() {
           <Link to="#" className="text-gray-400 hover:text-primary-500 transition-colors">
             Refund Policy
           </Link>
+        </div>
+
+        <div className="md:hidden mb-8 flex flex-col items-center gap-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gray-400">Connect</p>
+          <div className="flex items-center gap-3">
+            {socialLinks.map(({ label, icon: Icon, url }) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-400/40 hover:bg-primary-500/15 hover:text-white"
+              >
+                <Icon size={14} />
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Divider */}
