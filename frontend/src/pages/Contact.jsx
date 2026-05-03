@@ -12,7 +12,7 @@ const contactSeo = {
 };
 
 export default function Contact() {
-  const linkedinUrl = 'https://www.linkedin.com/messaging/thread/new/?recipient=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fydevansh%2F';
+  const linkedinUrl = 'https://www.linkedin.com/in/ydevansh/';
 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -166,7 +166,7 @@ export default function Contact() {
                   className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(59,130,246,0.25)] transition-transform duration-300 hover:-translate-y-0.5"
                 >
                   <FaLinkedin size={14} />
-                  Chat on LinkedIn
+                  Message me on LinkedIn
                 </a>
 
                 <a
@@ -208,7 +208,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/15 px-4 py-2.5 text-sm font-medium text-sky-200 transition-colors hover:bg-sky-500/25 hover:border-sky-400"
               >
-                Chat on LinkedIn
+                Open LinkedIn Profile
               </a>
             </div>
           </motion.div>
