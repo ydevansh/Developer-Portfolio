@@ -13,17 +13,19 @@ export const submitContactForm = async (req, res, next) => {
       read: false,
     });
 
-    // Send email notification
-    const emailSent = await sendContactEmail(name, email, 'Contact Form Submission', message);
-
-    if (!emailSent) {
-      console.warn('⚠️  Contact saved but email notification failed to send');
-    }
-
     res.status(201).json({
       success: true,
       message: 'Contact form submitted successfully',
       data: contact,
+    });
+
+    // Send email notification after the response so SMTP latency does not block the user.
+    setImmediate(() => {
+      void sendContactEmail(name, email, 'Contact Form Submission', message).then((emailSent) => {
+        if (!emailSent) {
+          console.warn('⚠️  Contact saved but email notification failed to send');
+        }
+      });
     });
   } catch (error) {
     next(error);
