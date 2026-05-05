@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   FaArrowRight,
@@ -15,7 +15,7 @@ import {
   FaTwitter,
   FaEnvelope,
 } from 'react-icons/fa';
-import { HiOutlineCpuChip, HiOutlineSparkles } from 'react-icons/hi2';
+import { HiOutlineCpuChip } from 'react-icons/hi2';
 import { SiLeetcode, SiPython, SiReact } from 'react-icons/si';
 import profileImage from '../assets/profile.jpg';
 import Seo from '../components/Seo';
@@ -77,6 +77,7 @@ const blogPreview = [...fallbackBlogArticles]
 
 export default function Home() {
   const [skillEntries, setSkillEntries] = useState([]);
+  const [expandedExperienceId, setExpandedExperienceId] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -134,26 +135,41 @@ export default function Home() {
   const experiencePreview = [
     {
       title: 'BCA Program',
-      subtitle: 'Babu Banarasi Das University, Lucknow (2024-2027)',
-      description:
-        'Bachelor of Computer Applications focused on software fundamentals, programming, and practical project building.',
-      naacText: 'NAAC rank/grade details (official reports)',
-      naacLink: 'https://bbdu.ac.in/data/disclosure/NAAC-Reports/',
+      subtitle: 'Babu Banarasi Das University, Lucknow',
+      period: '2024-2027',
+      summary: 'Bachelor of Computer Applications focused on software foundations, programming, and practical project work.',
+      chips: ['Software basics', 'Project work', 'NAAC reports'],
+      linkText: 'NAAC official reports',
+      linkHref: 'https://bbdu.ac.in/data/disclosure/NAAC-Reports/',
+      icon: FaGraduationCap,
+      accent: 'from-cyan-400 via-blue-500 to-indigo-500',
     },
     {
       title: 'AI Minor Program',
       subtitle: 'IIT Mandi (Online)',
-      description: 'Building a strong base in AI concepts and practical implementation.',
+      period: 'Ongoing',
+      summary: 'Building a strong base in AI concepts with practical implementation and guided learning.',
+      chips: ['AI concepts', 'Practical labs', 'Applied learning'],
+      icon: FaLightbulb,
+      accent: 'from-violet-400 via-fuchsia-500 to-purple-500',
     },
     {
       title: 'Full Stack Projects',
       subtitle: 'Hands-on Development',
-      description: 'Creating end-to-end web apps with modern frontend and backend tools.',
+      period: 'Build mode',
+      summary: 'Creating end-to-end web apps with modern frontend and backend tools.',
+      chips: ['React UI', 'Node backend', 'APIs'],
+      icon: FaCode,
+      accent: 'from-emerald-400 via-teal-500 to-cyan-500',
     },
     {
       title: 'Continuous Learning',
       subtitle: 'Daily Practice',
-      description: 'Improving coding, system thinking, and real-world problem solving.',
+      period: 'Every day',
+      summary: 'Improving coding, system thinking, and real-world problem solving through steady practice.',
+      chips: ['Problem solving', 'Consistency', 'Growth mindset'],
+      icon: FaFire,
+      accent: 'from-amber-400 via-orange-500 to-rose-500',
     },
   ];
 
@@ -580,39 +596,120 @@ export default function Home() {
           </motion.section>
 
           <motion.section variants={itemVariants} className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary-400 mb-2">Experience</p>
                 <h2 className="text-3xl md:text-4xl font-bold">Learning Journey</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
+                  A compact snapshot of study, AI learning, project building, and daily practice.
+                </p>
               </div>
               <Link
                 to="/experience"
-                className="w-fit px-5 py-2.5 bg-primary-500/20 border border-primary-500 hover:bg-primary-500/30 rounded-lg transition-colors duration-300"
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-400/15"
               >
-                View Experience
+                View Experience <FaArrowRight className="text-xs" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              {experiencePreview.map((item) => (
-                <div
-                  key={item.title}
-                  className="bg-primary-500/10 border border-primary-500/20 rounded-xl p-6 hover:border-primary-500/40 transition-colors duration-300"
-                >
-                  <p className="text-sm text-primary-400 mb-2">{item.subtitle}</p>
-                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{item.description}</p>
-                  {item.naacText && item.naacLink && (
-                    <a
-                      href={item.naacLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-4 text-sm text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
-                    >
-                      {item.naacText}
-                    </a>
-                  )}
-                </div>
-              ))}
+
+            <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {experiencePreview.map((item) => {
+                const ExperienceIcon = item.icon;
+                const isExpanded = expandedExperienceId === item.title;
+
+                return (
+                  <motion.article
+                    key={item.title}
+                    layout
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    className="group relative self-start overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-950/80 via-blue-950/35 to-slate-900/80 p-5 shadow-[0_18px_35px_rgba(2,6,23,0.35)] transition-colors duration-300 hover:border-cyan-400/35"
+                  >
+                    <div className={`absolute inset-0 bg-gradient-to-br ${item.accent} opacity-0 transition-opacity duration-300 group-hover:opacity-10`} />
+
+                    <div className="relative flex h-full flex-col">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${item.accent} shadow-lg shadow-cyan-500/15`}>
+                          <ExperienceIcon className="text-xl text-white" />
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[0.68rem] text-slate-300">
+                          {item.period}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 space-y-2">
+                        <p className="text-xs uppercase tracking-[0.18em] text-cyan-300/70">{item.subtitle}</p>
+                        <h3 className="text-xl font-semibold leading-tight text-white">{item.title}</h3>
+                        <p
+                          className="text-sm leading-6 text-gray-300"
+                          style={!isExpanded ? blogDescriptionClamp : undefined}
+                        >
+                          {item.summary}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setExpandedExperienceId(isExpanded ? null : item.title)}
+                        aria-expanded={isExpanded}
+                        className="mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-500/15"
+                      >
+                        {isExpanded ? 'Hide details' : 'View details'}
+                        <FaArrowRight className="text-xs" />
+                      </button>
+
+                      <AnimatePresence initial={false} mode="popLayout">
+                        {isExpanded && (
+                          <motion.div
+                            key="experience-details"
+                            initial={{ opacity: 0, y: -10, scale: 0.99 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -8, scale: 0.99 }}
+                            transition={{ duration: 0.22, ease: 'easeOut' }}
+                            className="mt-4 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm will-change-transform"
+                          >
+                            <div className="flex flex-wrap gap-2">
+                              {item.chips.map((chip) => (
+                                <span
+                                  key={`${item.title}-${chip}`}
+                                  className="rounded-full border border-white/10 bg-slate-950/35 px-2.5 py-1 text-[0.68rem] text-slate-100"
+                                >
+                                  {chip}
+                                </span>
+                              ))}
+                            </div>
+
+                            <div className="flex items-center justify-between gap-3">
+                              {item.linkHref && item.linkText ? (
+                                <a
+                                  href={item.linkHref}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300"
+                                >
+                                  {item.linkText} <FaArrowRight className="text-xs" />
+                                </a>
+                              ) : (
+                                <span className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300">
+                                  Preview milestone <FaArrowRight className="text-xs" />
+                                </span>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => setExpandedExperienceId(null)}
+                                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 transition-colors duration-300 hover:border-white/20 hover:bg-white/10"
+                              >
+                                Hide details
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.article>
+                );
+              })}
             </div>
           </motion.section>
 
