@@ -15,12 +15,8 @@ import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
-import {
-  Experience,
-  Services,
-  Testimonials,
-  NotFound,
-} from './pages/Placeholders';
+import Experience from './pages/Experience';
+import { Services, Testimonials, NotFound } from './pages/Placeholders';
 
 // Admin Pages
 import AdminLogin from './pages/Admin/Login';
