@@ -180,10 +180,6 @@ export default function Home() {
 
   const projectPreview = generatedProjects.slice(0, 3).map((project) => ({
     title: project.title,
-    description:
-      project.shortDescription.length > 130
-        ? `${project.shortDescription.slice(0, 130).trim()}...`
-        : project.shortDescription,
     image: project.imageUrl,
     technologies: project.technologies.slice(0, 3),
     githubLink: project.githubLink,
@@ -685,7 +681,7 @@ export default function Home() {
               {projectPreview.map((project) => (
                 <div
                   key={project.title}
-                  className="group overflow-hidden bg-primary-500/10 border border-primary-500/20 rounded-2xl hover:border-primary-500/45 hover:translate-y-[-4px] transition-all duration-300"
+                  className="group flex h-full min-h-[360px] flex-col overflow-hidden bg-primary-500/10 border border-primary-500/20 rounded-2xl hover:border-primary-500/45 hover:translate-y-[-4px] transition-all duration-300"
                 >
                   {project.image && (
                     <img
@@ -694,9 +690,8 @@ export default function Home() {
                       className="w-full h-36 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
-                  <div className="p-5">
+                  <div className="flex flex-1 flex-col p-5">
                     <h3 className="text-2xl md:text-xl font-semibold mb-2.5 leading-tight">{project.title}</h3>
-                    <p className="text-gray-400 leading-relaxed text-sm mb-3.5">{project.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.technologies.map((tech) => (
                         <span
@@ -707,7 +702,7 @@ export default function Home() {
                         </span>
                       ))}
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="mt-auto grid grid-cols-2 gap-2">
                       <a
                         href={project.githubLink}
                         target="_blank"
