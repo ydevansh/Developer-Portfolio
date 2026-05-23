@@ -10,6 +10,7 @@ const api = axios.create({
 
 let isRefreshing = false;
 let failedQueue = [];
+let isRedirectingToLogin = false;
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -20,6 +21,23 @@ const processQueue = (error, token = null) => {
     }
   });
   failedQueue = [];
+};
+
+const shouldRedirectToLogin = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login';
+};
+
+const redirectToLogin = () => {
+  if (!shouldRedirectToLogin() || isRedirectingToLogin) {
+    return;
+  }
+
+  isRedirectingToLogin = true;
+  window.location.replace('/admin/login');
 };
 
 // Add token to requests
@@ -64,10 +82,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        authService.logout();
-        if (window.location.pathname !== '/admin/login') {
-          window.location.href = '/admin/login';
-        }
+        authService.clearAuthData(authService.SESSION_EXPIRED_MESSAGE);
+        redirectToLogin();
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
@@ -75,10 +91,8 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      authService.logout();
-      if (window.location.pathname !== '/admin/login') {
-        window.location.href = '/admin/login';
-      }
+      authService.clearAuthData(authService.SESSION_EXPIRED_MESSAGE);
+      redirectToLogin();
     }
 
     return Promise.reject(error);

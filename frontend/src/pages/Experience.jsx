@@ -150,6 +150,7 @@ export default function Experience() {
   const selectedJourney = journeyItems.find((item) => item.id === selectedJourneyId) ?? journeyItems[0];
   const selectedJourneyIndex = journeyItems.findIndex((item) => item.id === selectedJourney.id);
   const SelectedJourneyIcon = selectedJourney.icon;
+  const visibleChips = selectedJourney.chips.slice(0, 3);
 
   const goToNextJourney = () => {
     const nextJourney = journeyItems[(selectedJourneyIndex + 1) % journeyItems.length];
@@ -184,7 +185,7 @@ export default function Experience() {
   };
 
   return (
-    <div className="relative overflow-hidden pt-28 pb-16 lg:pt-32 lg:pb-20">
+    <div className="relative overflow-hidden pt-28 pb-14 lg:pt-32 lg:pb-16">
       <Seo
         title="Experience - Learning Journey | Devansh Yadav"
         description="Explore Devansh Yadav's detailed and interactive learning journey across BCA, IIT Mandi AI Minor, full stack projects, and daily practice."
@@ -215,51 +216,51 @@ export default function Experience() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]"
+          className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]"
         >
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80">Experience</p>
-              <h1 className="mt-3 text-4xl font-bold sm:text-5xl lg:text-6xl">Learning Journey</h1>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg">
-                This page is a detailed look at how I am building myself as a developer: through BCA coursework, the IIT Mandi AI Minor, full stack project work, and a daily learning routine that keeps the momentum going.
+              <h1 className="mt-3 text-3xl font-bold sm:text-4xl lg:text-5xl">Learning Journey</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
+                A quick snapshot of how I grow as a developer through BCA academics, an AI minor, full stack projects, and daily practice.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">BCA at BBDU</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">AI Minor at IIT Mandi</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">Full Stack Projects</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">Daily Practice</span>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200">BCA at BBDU</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200">AI Minor at IIT Mandi</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200">Full Stack Projects</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200">Daily Practice</span>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/projects"
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(56,189,248,0.28)] transition-transform duration-300 hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(56,189,248,0.25)] transition-transform duration-300 hover:scale-[1.02]"
               >
                 View Projects <FaArrowRight className="text-xs" />
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10"
               >
                 Contact Me <FaArrowRight className="text-xs" />
               </Link>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 backdrop-blur-xl">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-3 backdrop-blur-xl">
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan-300/70">Focus</p>
-                <p className="mt-2 text-lg font-semibold text-white">Academic + practical growth</p>
+                <p className="mt-1.5 text-sm font-semibold text-white">Academic + practical growth</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 backdrop-blur-xl">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-3 backdrop-blur-xl">
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan-300/70">Approach</p>
-                <p className="mt-2 text-lg font-semibold text-white">Learn, build, repeat</p>
+                <p className="mt-1.5 text-sm font-semibold text-white">Learn, build, repeat</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 backdrop-blur-xl">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-3 backdrop-blur-xl">
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan-300/70">Goal</p>
-                <p className="mt-2 text-lg font-semibold text-white">Ship useful, intelligent apps</p>
+                <p className="mt-1.5 text-sm font-semibold text-white">Ship useful, intelligent apps</p>
               </div>
             </div>
           </div>
@@ -267,27 +268,27 @@ export default function Experience() {
           <motion.div
             whileHover={{ y: -4 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/65 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:p-7"
+            className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/65 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.24)] sm:p-6"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${selectedJourney.accent} opacity-10`} />
             <div className="relative flex h-full flex-col">
               <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80">Current focus</p>
-              <div className="mt-4 flex items-start justify-between gap-4">
+              <div className="mt-3 flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white sm:text-3xl">{selectedJourney.title}</h2>
-                  <p className="mt-2 text-sm text-slate-400">
+                  <h2 className="text-xl font-bold text-white sm:text-2xl">{selectedJourney.title}</h2>
+                  <p className="mt-1.5 text-xs text-slate-400 sm:text-sm">
                     {selectedJourney.subtitle} <span className="mx-2 text-slate-600">|</span> {selectedJourney.period}
                   </p>
                 </div>
-                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${selectedJourney.accent} shadow-lg shadow-cyan-500/15`}>
-                  <SelectedJourneyIcon className="text-2xl text-white" />
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${selectedJourney.accent} shadow-lg shadow-cyan-500/15`}>
+                  <SelectedJourneyIcon className="text-xl text-white" />
                 </div>
               </div>
 
-              <p className="mt-5 text-sm leading-7 text-slate-300 sm:text-base">{selectedJourney.summary}</p>
+              <p className="mt-4 text-sm leading-6 text-slate-300">{selectedJourney.summary}</p>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                {selectedJourney.chips.map((chip) => (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {visibleChips.map((chip) => (
                   <span
                     key={`${selectedJourney.id}-${chip}`}
                     className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-200"
@@ -297,26 +298,10 @@ export default function Experience() {
                 ))}
               </div>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-slate-100">
                   {selectedJourney.outcomeLabel}: {selectedJourney.outcomeValue}
                 </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={goToPreviousJourney}
-                    className="rounded-full border border-white/10 bg-white/5 px-3.5 py-2 text-sm font-medium text-slate-100 transition-colors duration-300 hover:border-cyan-400/40 hover:bg-cyan-500/10"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goToNextJourney}
-                    className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-500/15"
-                  >
-                    Next journey <FaArrowRight className="text-xs" />
-                  </button>
-                </div>
               </div>
             </div>
           </motion.div>
@@ -331,9 +316,6 @@ export default function Experience() {
                 Each card below represents a stage in my journey. Selecting one updates the detailed panel so you can read the context, the lessons, and what I am focused on next.
               </p>
             </div>
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 backdrop-blur-sm">
-              Interactive detail view <FaArrowRight className="text-xs" />
-            </span>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -409,22 +391,11 @@ export default function Experience() {
                     <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-300">{selectedJourney.detailText}</p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {selectedJourney.detailPoints.map((point) => (
                       <div key={point} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                         <p className="text-sm leading-6 text-slate-200">{point}</p>
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {selectedJourney.chips.map((chip) => (
-                      <span
-                        key={`${selectedJourney.id}-detail-${chip}`}
-                        className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-200"
-                      >
-                        {chip}
-                      </span>
                     ))}
                   </div>
                 </div>

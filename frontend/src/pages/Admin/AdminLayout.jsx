@@ -7,6 +7,7 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
+  const [authStatus, setAuthStatus] = useState({ checking: true, authenticated: false });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,7 +25,63 @@ export default function AdminLayout() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (!authService.isAuthenticated()) {
+  useEffect(() => {
+    let isActive = true;
+
+    const validateSession = async () => {
+      const status = authService.getTokenStatus();
+
+      if (!status.token) {
+        if (isActive) {
+          setAuthStatus({ checking: false, authenticated: false });
+        }
+        return;
+      }
+
+      if (!status.isValid) {
+        authService.clearAuthData(authService.SESSION_EXPIRED_MESSAGE);
+        if (isActive) {
+          setAuthStatus({ checking: false, authenticated: false });
+        }
+        return;
+      }
+
+      if (status.isExpired) {
+        try {
+          await authService.refreshToken();
+          if (isActive) {
+            setAuthStatus({ checking: false, authenticated: true });
+          }
+        } catch (error) {
+          authService.clearAuthData(authService.SESSION_EXPIRED_MESSAGE);
+          if (isActive) {
+            setAuthStatus({ checking: false, authenticated: false });
+          }
+        }
+        return;
+      }
+
+      if (isActive) {
+        setAuthStatus({ checking: false, authenticated: true });
+      }
+    };
+
+    validateSession();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  if (authStatus.checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-primary-900">
+        <div className="h-12 w-12 rounded-full border-4 border-primary-500 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!authStatus.authenticated) {
     return <Navigate to="/admin/login" replace />;
   }
 

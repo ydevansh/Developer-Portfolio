@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService';
@@ -7,7 +7,16 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const message = authService.getAuthNotice();
+    if (message) {
+      setNotice(message);
+      authService.clearAuthNotice();
+    }
+  }, []);
 
   if (authService.isAuthenticated()) {
     return <Navigate to="/admin/dashboard" replace />;
@@ -46,6 +55,16 @@ export default function Login() {
         <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-8">
           <h1 className="text-3xl font-bold mb-2">Admin Login</h1>
           <p className="text-gray-400 mb-8">Access your portfolio admin panel</p>
+
+          {notice && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-amber-500/20 border border-amber-500/40 rounded text-amber-200 text-sm"
+            >
+              {notice}
+            </motion.div>
+          )}
 
           {error && (
             <motion.div
