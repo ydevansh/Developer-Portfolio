@@ -8,7 +8,7 @@ const contactSeo = {
   title: 'Contact Devansh Yadav | AI/ML and Web Developer in Lucknow',
   description:
     'Contact Devansh Yadav for AI/ML, web development, internship, freelance, and collaboration opportunities from Lucknow or remote.',
-  keywords: ['Contact Devansh Yadav', 'Devansh Lucknow', 'Devansh BBD', 'AI/ML Developer', 'Web Developer', 'BBDU'],
+  keywords: ['Contact Devansh Me', 'Devansh Lucknow', 'Devansh BBD', 'AI/ML Developer', 'Web Developer', 'BBDU'],
 };
 
 export default function Contact() {

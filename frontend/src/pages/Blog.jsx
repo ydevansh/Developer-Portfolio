@@ -167,7 +167,7 @@ export default function Blog() {
       />
 
       <ScrollProgressBar />
-      <div className="relative overflow-hidden pt-28 pb-20">
+      <div className="relative overflow-hidden pt-32 pb-20 sm:pt-36">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-40 left-[-8%] h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
           <div className="absolute top-14 right-[-4%] h-80 w-80 rounded-full bg-violet-500/20 blur-3xl" />
