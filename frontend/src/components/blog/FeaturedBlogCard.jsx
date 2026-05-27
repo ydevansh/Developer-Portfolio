@@ -6,7 +6,7 @@ import { formatDate } from '../../utils/helpers';
 
 const featuredDescriptionClamp = {
   display: '-webkit-box',
-  WebkitLineClamp: 3,
+  WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
 };
@@ -31,22 +31,22 @@ export default function FeaturedBlogCard({ post }) {
             src={post.image}
             alt={post.title}
             loading="lazy"
-            className="h-64 w-full object-cover lg:h-full"
+            className="h-40 w-full object-cover lg:h-full"
           />
         </div>
 
-        <div className="space-y-5 p-6 sm:p-8">
+        <div className="space-y-3 p-5 sm:p-6">
           <span className="inline-flex rounded-full border border-fuchsia-300/40 bg-fuchsia-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-fuchsia-100">
             Featured
           </span>
 
-          <h2 className="text-2xl font-bold leading-tight text-white sm:text-3xl">{post.title}</h2>
+          <h2 className="text-xl font-bold leading-tight text-white sm:text-2xl">{post.title}</h2>
 
           <p className="text-gray-200/90 leading-relaxed" style={featuredDescriptionClamp}>
             {post.description}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-cyan-100/90">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-cyan-100/90">
             <span className="inline-flex items-center gap-2">
               <FaClock size={12} />
               {post.readTime}
