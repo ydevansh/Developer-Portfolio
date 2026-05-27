@@ -245,7 +245,7 @@ export default function Blog() {
               )}
 
               {regularBlogs.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-5 md:grid-cols-2">
                   {regularBlogs.map((post, index) => (
                     <BlogCard key={post.id} post={post} index={index} />
                   ))}
