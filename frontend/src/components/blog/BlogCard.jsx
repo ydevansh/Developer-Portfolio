@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaClock, FaCalendarAlt } from 'react-icons/fa';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, getOptimizedImageUrl, getOptimizedSrcSet } from '../../utils/helpers';
 
 const descriptionClamp = {
   display: '-webkit-box',
@@ -11,7 +11,11 @@ const descriptionClamp = {
   overflow: 'hidden',
 };
 
-export default function BlogCard({ post, index = 0 }) {
+function BlogCard({ post, index = 0 }) {
+  const imageSrc = getOptimizedImageUrl(post.image, { width: 640 });
+  const imageSrcSet = getOptimizedSrcSet(post.image, [320, 480, 640, 800]);
+  const imageSizes = '(min-width: 1024px) 28rem, (min-width: 768px) 45vw, 92vw';
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 18 }}
@@ -27,9 +31,13 @@ export default function BlogCard({ post, index = 0 }) {
       <div className="relative flex h-full flex-col gap-2.5">
         <div className="overflow-hidden rounded-xl border border-white/10">
           <img
-            src={post.image}
+            src={imageSrc}
+            srcSet={imageSrcSet}
+            sizes={imageSizes}
             alt={post.title}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
@@ -72,3 +80,5 @@ export default function BlogCard({ post, index = 0 }) {
     </motion.article>
   );
 }
+
+export default memo(BlogCard);

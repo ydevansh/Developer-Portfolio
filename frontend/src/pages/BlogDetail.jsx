@@ -18,7 +18,7 @@ import {
 } from '../data/blogArticles';
 import ScrollProgressBar from '../components/blog/ScrollProgressBar';
 import BackToTopButton from '../components/blog/BackToTopButton';
-import { formatDate, slugify } from '../utils/helpers';
+import { formatDate, getOptimizedImageUrl, getOptimizedSrcSet, slugify } from '../utils/helpers';
 import Seo from '../components/Seo';
 import { SITE_AUTHOR, SITE_URL } from '../data/siteMetadata';
 
@@ -351,10 +351,31 @@ export default function BlogDetail() {
     return (
       <>
         <Seo {...seoConfig} structuredData={blogStructuredData} />
-        <div className="pt-32 pb-20 text-center">
-          <div className="inline-flex items-center gap-3 rounded-full border border-cyan-300/30 bg-cyan-500/10 px-5 py-3 text-cyan-100">
-            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300" />
-            Loading article...
+        <div className="pt-32 pb-20">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="animate-pulse space-y-6">
+              <div className="h-4 w-32 rounded bg-white/[0.08]" />
+
+              <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/88 via-blue-950/58 to-slate-900/88 p-6 sm:p-8 md:p-10 shadow-[0_35px_50px_rgba(2,6,23,0.62)]">
+                <div className="h-5 w-24 rounded-full bg-white/[0.1]" />
+                <div className="mt-4 h-9 w-4/5 rounded bg-white/[0.1]" />
+                <div className="mt-4 h-4 w-full rounded bg-white/[0.08]" />
+                <div className="mt-2 h-4 w-11/12 rounded bg-white/[0.08]" />
+                <div className="mt-6 flex flex-wrap gap-4">
+                  <div className="h-4 w-24 rounded bg-white/[0.08]" />
+                  <div className="h-4 w-28 rounded bg-white/[0.08]" />
+                  <div className="h-4 w-20 rounded bg-white/[0.08]" />
+                </div>
+              </div>
+
+              <div className="h-[280px] w-full rounded-2xl border border-white/10 bg-white/[0.05] sm:h-[380px]" />
+
+              <div className="space-y-3">
+                <div className="h-4 w-full rounded bg-white/[0.08]" />
+                <div className="h-4 w-11/12 rounded bg-white/[0.08]" />
+                <div className="h-4 w-5/6 rounded bg-white/[0.08]" />
+              </div>
+            </div>
           </div>
         </div>
       </>
@@ -440,7 +461,16 @@ export default function BlogDetail() {
             </header>
 
             <div className="mt-8 overflow-hidden rounded-2xl border border-white/10">
-              <img src={post.image} alt={post.title} className="h-[280px] w-full object-cover sm:h-[380px]" />
+              <img
+                src={getOptimizedImageUrl(post.image, { width: 1400 })}
+                srcSet={getOptimizedSrcSet(post.image, [800, 1200, 1400, 1800])}
+                sizes="(min-width: 1024px) 56rem, 100vw"
+                alt={post.title}
+                loading="lazy"
+                decoding="async"
+                fetchPriority="high"
+                className="h-[280px] w-full object-cover sm:h-[380px]"
+              />
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-white/10 pb-6">
@@ -523,11 +553,18 @@ export default function BlogDetail() {
                 }
 
                 if (block.type === 'image') {
+                  const optimizedSrc = getOptimizedImageUrl(block.src, { width: 1200 });
+                  const optimizedSrcSet = getOptimizedSrcSet(block.src, [600, 900, 1200, 1600]);
+
                   return (
                     <figure key={`image-${index}`} className="space-y-2">
                       <img
-                        src={block.src}
+                        src={optimizedSrc}
+                        srcSet={optimizedSrcSet}
+                        sizes="(min-width: 1024px) 56rem, 100vw"
                         alt={block.alt}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full rounded-2xl border border-white/10 object-cover"
                       />
                       {block.alt ? <figcaption className="text-sm text-gray-400">{block.alt}</figcaption> : null}

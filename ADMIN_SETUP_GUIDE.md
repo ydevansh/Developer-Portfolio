@@ -283,9 +283,10 @@ Response:
 ### Backend (.env)
 
 ```env
+# Keep real credentials in backend/.env only; never commit that file.
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb+srv://yaduvanshidevansh3336_db_user:frCLN5XKRWkSifjp@cluster0.3tubw8e.mongodb.net/?appName=Cluster0
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/portfolio?retryWrites=true&w=majority
 
 # JWT & Session
 JWT_SECRET=your_super_secret_jwt_key_change_in_production_2024

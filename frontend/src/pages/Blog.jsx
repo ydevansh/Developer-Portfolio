@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaBrain, FaCode, FaChartLine } from 'react-icons/fa';
 import blogService from '../services/blogService';
@@ -99,6 +99,9 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+
+  const skeletonCards = useMemo(() => Array.from({ length: 4 }), []);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -120,7 +123,7 @@ export default function Blog() {
   }, []);
 
   const filteredBlogs = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const normalizedSearch = deferredSearchTerm.trim().toLowerCase();
 
     return blogs.filter((blog) => {
       const matchesFilter = activeFilter === 'All' || blog.category === activeFilter;
@@ -139,7 +142,7 @@ export default function Blog() {
 
       return searchableContent.includes(normalizedSearch);
     });
-  }, [blogs, searchTerm, activeFilter]);
+  }, [blogs, deferredSearchTerm, activeFilter]);
 
   const featuredBlog = useMemo(() => {
     if (filteredBlogs.length === 0) {
@@ -230,10 +233,47 @@ export default function Blog() {
           </motion.section>
 
           {loading ? (
-            <div className="flex justify-center py-20">
-              <div className="inline-flex items-center gap-3 rounded-full border border-cyan-300/30 bg-cyan-500/10 px-5 py-3 text-cyan-100">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300" />
-                Loading articles...
+            <div className="space-y-6">
+              <div className="animate-pulse rounded-3xl border border-cyan-300/25 bg-gradient-to-br from-slate-900/90 via-blue-950/60 to-violet-950/50 shadow-[0_30px_55px_rgba(5,10,35,0.7)]">
+                <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
+                  <div className="h-40 w-full bg-white/[0.04] lg:h-full" />
+                  <div className="space-y-4 p-5 sm:p-6">
+                    <div className="h-5 w-20 rounded-full bg-white/[0.08]" />
+                    <div className="h-7 w-3/4 rounded bg-white/[0.08]" />
+                    <div className="h-4 w-full rounded bg-white/[0.06]" />
+                    <div className="h-4 w-5/6 rounded bg-white/[0.06]" />
+                    <div className="flex flex-wrap gap-3">
+                      <div className="h-4 w-24 rounded bg-white/[0.06]" />
+                      <div className="h-4 w-28 rounded bg-white/[0.06]" />
+                      <div className="h-4 w-20 rounded bg-white/[0.06]" />
+                    </div>
+                    <div className="h-10 w-44 rounded-xl bg-white/[0.08]" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid justify-items-center gap-4 md:grid-cols-2">
+                {skeletonCards.map((_, index) => (
+                  <div
+                    key={`blog-skeleton-${index}`}
+                    className="w-full max-w-[28rem] animate-pulse rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.03] p-3 shadow-[0_24px_40px_rgba(2,6,23,0.48)]"
+                  >
+                    <div className="h-32 w-full rounded-xl bg-white/[0.05]" />
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="h-4 w-24 rounded-full bg-white/[0.06]" />
+                      <div className="h-3 w-16 rounded bg-white/[0.06]" />
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <div className="h-4 w-5/6 rounded bg-white/[0.06]" />
+                      <div className="h-4 w-full rounded bg-white/[0.06]" />
+                    </div>
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="h-3 w-20 rounded bg-white/[0.06]" />
+                      <div className="h-3 w-20 rounded bg-white/[0.06]" />
+                    </div>
+                    <div className="mt-3 h-4 w-24 rounded bg-white/[0.06]" />
+                  </div>
+                ))}
               </div>
             </div>
           ) : (

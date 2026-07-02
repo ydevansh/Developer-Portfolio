@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaClock, FaCalendarAlt } from 'react-icons/fa';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, getOptimizedImageUrl, getOptimizedSrcSet } from '../../utils/helpers';
 
 const featuredDescriptionClamp = {
   display: '-webkit-box',
@@ -11,10 +11,14 @@ const featuredDescriptionClamp = {
   overflow: 'hidden',
 };
 
-export default function FeaturedBlogCard({ post }) {
+function FeaturedBlogCard({ post }) {
   if (!post) {
     return null;
   }
+
+  const imageSrc = getOptimizedImageUrl(post.image, { width: 1200 });
+  const imageSrcSet = getOptimizedSrcSet(post.image, [640, 900, 1200, 1600]);
+  const imageSizes = '(min-width: 1024px) 55vw, 100vw';
 
   return (
     <motion.section
@@ -28,9 +32,13 @@ export default function FeaturedBlogCard({ post }) {
       <div className="relative grid gap-0 lg:grid-cols-[1.2fr_1fr]">
         <div className="overflow-hidden">
           <img
-            src={post.image}
+            src={imageSrc}
+            srcSet={imageSrcSet}
+            sizes={imageSizes}
             alt={post.title}
             loading="lazy"
+            decoding="async"
+            fetchPriority="high"
             className="h-40 w-full object-cover lg:h-full"
           />
         </div>
@@ -70,3 +78,5 @@ export default function FeaturedBlogCard({ post }) {
     </motion.section>
   );
 }
+
+export default memo(FeaturedBlogCard);
