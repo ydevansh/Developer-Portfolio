@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Background gradient: deep navy to teal -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050816;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a1628;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- DY text gradient: cyan to blue -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#67e8f9;stop-opacity:1">
+        <animate attributeName="stop-color" values="#67e8f9;#38bdf8;#818cf8;#67e8f9" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:1">
+        <animate attributeName="stop-color" values="#38bdf8;#818cf8;#67e8f9;#38bdf8" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shimmer gradient -->
+    <linearGradient id="shimmer" x1="-100%" y1="0%" x2="200%" y2="0%">
+      <stop offset="0%" style="stop-color:white;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:white;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:white;stop-opacity:0"/>
+      <animateTransform attributeName="gradientTransform" type="translate" from="-1 0" to="2 0" dur="2.5s" repeatCount="indefinite"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#bgGrad)"/>
+
+  <!-- Subtle border glow ring -->
+  <rect width="62" height="62" x="1" y="1" rx="13" ry="13" fill="none" stroke="url(#textGrad)" stroke-width="1.2" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Shimmer overlay -->
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#shimmer)"/>
+
+  <!-- DY text -->
+  <text
+    x="32"
+    y="43"
+    text-anchor="middle"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900"
+    font-size="28"
+    fill="url(#textGrad)"
+    filter="url(#glow)"
+    letter-spacing="-1"
+  >DY</text>
+</svg>
