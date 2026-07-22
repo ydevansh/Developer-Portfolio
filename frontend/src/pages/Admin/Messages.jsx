@@ -17,29 +17,39 @@ export default function Messages() {
   });
 
   useEffect(() => {
-    fetchMessages();
-  }, []);
+    let isMounted = true;
 
-  const fetchMessages = async () => {
-    try {
-      setLoading(true);
-      const response = await contactService.getAllMessages();
-      const data = response.data.data || [];
-      setMessages(data);
-      
-      // Calculate stats
-      setStats({
-        total: data.length,
-        unread: data.filter((m) => !m.read).length,
-        read: data.filter((m) => m.read).length,
-      });
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch messages');
-      console.error('Error fetching messages:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        const response = await contactService.getAllMessages();
+
+        if (!isMounted) return;
+
+        const data = response.data.data || [];
+        setMessages(data);
+
+        // Calculate stats
+        setStats({
+          total: data.length,
+          unread: data.filter((m) => !m.read).length,
+          read: data.filter((m) => m.read).length,
+        });
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err.response?.data?.message || 'Failed to fetch messages');
+        console.error('Error fetching messages:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchMessages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleDelete = async (message) => {
     if (window.confirm('Are you sure you want to delete this message?')) {

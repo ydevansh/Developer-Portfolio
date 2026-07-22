@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const placeholderPages = ['Experience', 'Services', 'Blog', 'BlogDetail', 'Testimonials', 'NotFound'];
-
+// These pages are still under development — Services and Testimonials not yet built
 export default function PlaceholderPage() {
   return (
     <div className="pt-32 pb-20">
@@ -17,11 +16,7 @@ export default function PlaceholderPage() {
   );
 }
 
-// Export individual placeholders to avoid too many files
-export function Experience() { return <PlaceholderPage />; }
 export function Services() { return <PlaceholderPage />; }
-export function Blog() { return <PlaceholderPage />; }
-export function BlogDetail() { return <PlaceholderPage />; }
 export function Testimonials() { return <PlaceholderPage />; }
 export function NotFound() {
   return (

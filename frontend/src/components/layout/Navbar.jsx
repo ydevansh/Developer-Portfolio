@@ -105,7 +105,10 @@ export default function Navbar() {
                 );
               })}
               <a
-                href="#resume"
+                href="/Devansh_Yadav_Resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
                 className="ml-20 flex items-center space-x-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors duration-300 hover:bg-primary-600"
               >
                 <span>Resume</span>
@@ -141,7 +144,10 @@ export default function Navbar() {
                 </NavLink>
               ))}
               <a
-                href="#resume"
+                href="/Devansh_Yadav_Resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
                 className="block rounded-xl px-4 py-2.5 font-medium text-primary-500 transition-colors hover:bg-white/5 hover:text-primary-400"
                 onClick={() => setMenuOpen(false)}
               >

@@ -274,7 +274,7 @@ export default function Contact() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors duration-300 disabled:opacity-50"
+              className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Sending...' : 'Send Message'}
             </button>

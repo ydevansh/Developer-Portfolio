@@ -169,7 +169,7 @@ export default function Experience() {
     alternateName: 'Devansh Yadav',
     url: SITE_URL,
     image: new URL(profileImage, SITE_URL).toString(),
-    jobTitle: 'AI/ML Developer and Web Developer',
+    jobTitle: 'Python Developer, MERN Developer and Data Science Learner',
     description:
       'A detailed learning journey showing BCA study, IIT Mandi AI Minor, full stack projects, and daily practice.',
     alumniOf: {

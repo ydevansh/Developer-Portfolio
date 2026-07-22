@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -32,15 +32,16 @@ import {
 } from '../data/skillCatalog';
 
 const homeSeo = {
-  title: 'Devansh Yadav Portfolio - AI/ML Developer and Web Developer in Lucknow',
+  title: 'Devansh Yadav Portfolio - Python Developer, MERN Developer & Data Science Learner in Lucknow',
   description:
-    'Devansh Yadav is an AI/ML Developer and Web Developer from Lucknow, studying at Babu Banarasi Das University (BBDU). Explore projects, skills, blogs, and contact details.',
+    'Devansh Yadav is a Python Developer, MERN Developer and Data Science Learner from Lucknow, studying at Babu Banarasi Das University (BBDU). Explore projects, skills, blogs, and contact details.',
   keywords: [
     'Devansh Yadav portfolio',
     'Devansh Lucknow',
     'Devansh BBD',
-    'AI/ML Developer',
-    'Web Developer',
+    'Python Developer',
+    'MERN Developer',
+    'Data Science Learner',
     'AI engineer',
     'BBDU',
     'Babu Banarasi Das University',
@@ -214,7 +215,7 @@ export default function Home() {
     alternateName: 'Devansh Yadav',
     url: SITE_URL,
     image: new URL(profileImage, SITE_URL).toString(),
-    jobTitle: 'AI/ML Developer and Web Developer',
+    jobTitle: 'Python Developer, MERN Developer and Data Science Learner',
     description: homeSeo.description,
     address: {
       '@type': 'PostalAddress',
@@ -286,7 +287,7 @@ export default function Home() {
               </motion.h1>
 
               <motion.p variants={itemVariants} className="text-lg font-semibold text-slate-100 sm:text-xl">
-                AI/ML Developer and Web Developer in Lucknow
+                Python Developer, MERN Developer & Data Science Learner in Lucknow
               </motion.p>
 
               <motion.div variants={itemVariants} className="mx-auto mt-4 w-full max-w-[13rem] lg:hidden">
@@ -306,7 +307,7 @@ export default function Home() {
               </motion.div>
 
               <motion.p variants={itemVariants} className="max-w-lg text-sm leading-6 text-slate-300 sm:text-[15px]">
-                I&apos;m Devansh Yadav, a BCA student at Babu Banarasi Das University (BBDU) in Lucknow, building AI/ML
+                I&apos;m Devansh Yadav, a BCA student at Babu Banarasi Das University (BBDU) in Lucknow, building AI, data science
                 and full stack projects with React, Node.js, Python, MongoDB, and SQL.
               </motion.p>
             </div>
@@ -477,7 +478,7 @@ export default function Home() {
                   </div>
 
                   <p className="text-sm leading-6 text-slate-300 sm:text-[15px]">
-                    I&apos;m a <span className="font-semibold text-cyan-300">BCA student at Babu Banarasi Das University</span> focused on AI/ML and full-stack development. I like turning ideas into practical, clean solutions.
+                    I&apos;m a <span className="font-semibold text-cyan-300">BCA student at Babu Banarasi Das University</span> focused on AI, data science and full-stack development. I like turning ideas into practical, clean solutions.
                   </p>
 
                   <div className="flex flex-wrap gap-2">

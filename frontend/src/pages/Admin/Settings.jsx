@@ -17,6 +17,8 @@ export default function Settings() {
 
   const [passwordChanged, setPasswordChanged] = useState(false);
   const [profileUpdated, setProfileUpdated] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [resumeFileName, setResumeFileName] = useState('Devansh_Yadav_Resume.pdf');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,19 +27,37 @@ export default function Settings() {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (
-      formData.newPassword &&
-      formData.newPassword === formData.confirmPassword
-    ) {
-      setPasswordChanged(true);
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      }));
-      setTimeout(() => setPasswordChanged(false), 3000);
+    setPasswordError('');
+
+    if (!formData.currentPassword) {
+      setPasswordError('Current password is required.');
+      return;
     }
+
+    if (!formData.newPassword) {
+      setPasswordError('New password is required.');
+      return;
+    }
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+
+    if (formData.newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters.');
+      return;
+    }
+
+    // TODO: wire up to PATCH /api/auth/change-password once backend exposes it
+    setPasswordChanged(true);
+    setFormData((prev) => ({
+      ...prev,
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    }));
+    setTimeout(() => setPasswordChanged(false), 3000);
   };
 
   const handleProfileSubmit = (e) => {
@@ -48,9 +68,17 @@ export default function Settings() {
 
   const handleResumeUpload = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      console.log('Resume uploaded:', file.name);
+    if (!file) return;
+
+    const maxSizeBytes = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSizeBytes) {
+      alert('File is too large. Maximum size is 5 MB.');
+      e.target.value = '';
+      return;
     }
+
+    // TODO: wire up to POST /api/admin/resume once backend supports file upload
+    setResumeFileName(file.name);
   };
 
   return (
@@ -152,8 +180,8 @@ export default function Settings() {
         {/* Current Resume */}
         <div className="mt-6 p-4 bg-primary-500/10 border border-primary-500/20 rounded-lg">
           <p className="text-sm text-gray-400">Current Resume</p>
-          <p className="text-white font-medium mt-2">Devansh_Yadav_Resume.pdf</p>
-          <p className="text-xs text-gray-500 mt-1">Uploaded on 2024-01-10</p>
+          <p className="text-white font-medium mt-2">{resumeFileName}</p>
+          <p className="text-xs text-gray-500 mt-1">Place your resume PDF in the /public folder to make the download link work</p>
         </div>
       </Card>
 
@@ -201,17 +229,15 @@ export default function Settings() {
             />
           </div>
 
-          {formData.newPassword &&
-            formData.confirmPassword &&
-            formData.newPassword !== formData.confirmPassword && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-red-400 text-sm"
-              >
-                Passwords do not match!
-              </motion.p>
-            )}
+          {passwordError && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-400 text-sm"
+            >
+              {passwordError}
+            </motion.p>
+          )}
 
           <Button variant="primary" type="submit" className="w-full">
             Change Password

@@ -5,7 +5,7 @@ const SESSION_ID_KEY = 'sessionId';
 const USER_KEY = 'user';
 const AUTH_NOTICE_KEY = 'authNotice';
 const SESSION_EXPIRED_MESSAGE = 'Session expired. Please login again.';
-const TOKEN_EXPIRY_SKEW_SECONDS = 3600;
+const TOKEN_EXPIRY_SKEW_SECONDS = 60; // 60-second buffer for clock drift
 
 const decodeBase64Url = (value) => {
   const normalized = value.replace(/-/g, '+').replace(/_/g, '/');

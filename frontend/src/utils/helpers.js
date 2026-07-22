@@ -1,5 +1,8 @@
 export const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-US', {
+  if (!date) return '';
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -7,6 +10,7 @@ export const formatDate = (date) => {
 };
 
 export const truncateText = (text, length = 100) => {
+  if (!text || typeof text !== 'string') return '';
   if (text.length <= length) return text;
   return text.substring(0, length) + '...';
 };
@@ -20,8 +24,11 @@ export const slugify = (text) => {
 };
 
 export const getInitials = (name) => {
+  if (!name || typeof name !== 'string') return '';
   return name
-    .split(' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
     .map((n) => n[0])
     .join('')
     .toUpperCase();

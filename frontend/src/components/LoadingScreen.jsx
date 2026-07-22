@@ -7,6 +7,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
   useEffect(() => {
     const startTime = Date.now();
     const duration = 2800; // 2.8 seconds for smooth progression
+    let completionTimeout = null;
 
     const animationInterval = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -16,11 +17,14 @@ export default function LoadingScreen({ onLoadingComplete }) {
 
       if (progressPercentage >= 100) {
         clearInterval(animationInterval);
-        setTimeout(() => onLoadingComplete(), 300);
+        completionTimeout = setTimeout(() => onLoadingComplete(), 300);
       }
     }, 16); // ~60fps
 
-    return () => clearInterval(animationInterval);
+    return () => {
+      clearInterval(animationInterval);
+      if (completionTimeout) clearTimeout(completionTimeout);
+    };
   }, [onLoadingComplete]);
 
   const containerVariants = {
