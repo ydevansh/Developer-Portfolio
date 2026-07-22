@@ -61,7 +61,7 @@ export default function Seo({
   description = SITE_DESCRIPTION,
   keywords = SITE_KEYWORDS,
   canonicalPath = '/',
-  image = profileImage,
+  image = `${SITE_URL}/og-image.png`,
   imageAlt,
   type = 'website',
   noindex = false,
