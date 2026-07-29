@@ -113,9 +113,10 @@ class LoaderErrorBoundary extends Component {
    Isolated custom hook — zero side effects outside its returned values.
    All timers, rAF IDs, and async tasks are cleaned up on unmount.
 ══════════════════════════════════════════════════════════════════════════ */
-const MIN_DURATION_MS = 4000; // hard minimum loader visibility
-const SURGE_MS        = 700;  // 92 → 100 % once both gates open
-const EXIT_MS         = 950;  // fade+zoom duration after reaching 100 %
+const MIN_DURATION_MS   = 6500; // hard minimum loader visibility
+const ASSET_MIN_WAIT_MS = 3000; // assets cannot be "done" before this
+const SURGE_MS          = 900;  // 92 → 100 % once both gates open
+const EXIT_MS           = 1100; // fade+zoom duration after reaching 100 %
 
 const LOAD_MESSAGES = [
   { at:  0, text: 'Initializing Portfolio…' },
@@ -169,11 +170,16 @@ function useLoadingEngine(onDone) {
 
     // ────────────────────────────────────────────────────────────────────────
     // Task A — asset loading
-    // We wait for: document ready, fonts, and any in-flight images.
-    // A hard fallback fires after 6 s so a stalled network never blocks us.
+    // We wait for: a mandatory minimum delay, document ready, fonts, and any
+    // in-flight images. This prevents assets that are already cached from
+    // instantly completing and making the loader feel too fast.
+    // A hard fallback fires after 9 s so a stalled network never blocks us.
     // ────────────────────────────────────────────────────────────────────────
     const loadAllAssets = async () => {
       try {
+        // 0. Mandatory minimum wait — even cached pages must wait this long
+        await new Promise((resolve) => setTimeout(resolve, ASSET_MIN_WAIT_MS));
+
         // 1. DOM fully parsed & sub-resources requested
         if (document.readyState !== 'complete') {
           await new Promise((resolve) =>
@@ -204,16 +210,18 @@ function useLoadingEngine(onDone) {
       } catch (_) {
         // Never throw — the fallback timer below covers failure cases
       } finally {
-        assetsGate = true;
-        bothOpen   = assetsGate && timerGate;
+        if (mounted) {
+          assetsGate = true;
+          bothOpen   = assetsGate && timerGate;
+        }
       }
     };
 
-    // Hard fallback: if assets take more than 6 s, let them be "done"
+    // Hard fallback: if assets take more than 9 s, let them be "done"
     const assetFallback = setTimeout(() => {
       assetsGate = true;
       bothOpen   = assetsGate && timerGate;
-    }, 6000);
+    }, 9000);
 
     loadAllAssets();
 
@@ -243,7 +251,7 @@ function useLoadingEngine(onDone) {
       if (!mounted) return;
 
       const elapsed = now - t0;
-      const t       = Math.min(elapsed / MIN_DURATION_MS, 1); // 0 → 1 over 4 s
+      const t       = Math.min(elapsed / MIN_DURATION_MS, 1); // 0 → 1 over 6.5 s
 
       let target;
 
