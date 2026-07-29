@@ -98,60 +98,48 @@ export default function Projects() {
                   />
                 )}
 
-                <div className="p-6 space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-xl font-bold">{project.title}</h3>
-                    {project.source === 'demo' && (
-                      <span className="shrink-0 rounded-full border border-cyan-400/35 bg-cyan-500/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-200">
-                        Demo
-                      </span>
-                    )}
-                  </div>
+                <div className="p-5 flex flex-col gap-4">
+                  <h3 className="text-lg font-bold leading-snug">{project.title}</h3>
 
-                  <p className="text-gray-300 text-sm leading-relaxed">{project.description}</p>
-
-                  {project.keyFeatures.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-[0.14em] text-primary-300">Key Features</p>
-                      <ul className="space-y-1.5 text-sm text-gray-300 list-disc list-inside">
-                        {project.keyFeatures.slice(0, 3).map((feature) => (
-                          <li key={`${project.id}-${feature}`}>{feature}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {project.technologies.slice(0, 6).map((tech) => (
                       <span
                         key={`${project.id}-${tech}`}
-                        className="px-2.5 py-1 rounded-full bg-primary-500/20 text-primary-100 text-xs border border-primary-400/30"
+                        className="px-2.5 py-0.5 rounded-full bg-primary-500/20 text-primary-100 text-xs border border-primary-400/30"
                       >
                         {tech}
                       </span>
                     ))}
                   </div>
 
-                  <div className="flex gap-2 pt-1">
-                    {project.githubLink && (
+                  <div className="flex gap-2 mt-auto">
+                    {project.githubLink ? (
                       <a
                         href={project.githubLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 py-2.5 bg-primary-500 hover:bg-primary-600 rounded-lg text-sm text-center font-medium transition-colors"
+                        className="flex-1 py-2.5 bg-primary-500 hover:bg-primary-600 rounded-lg text-sm text-center font-medium transition-colors duration-300"
                       >
                         GitHub
                       </a>
+                    ) : (
+                      <span className="flex-1 py-2.5 rounded-lg text-sm text-center font-medium text-slate-500 bg-white/5 border border-white/10 cursor-not-allowed">
+                        GitHub
+                      </span>
                     )}
-                    {project.deployedLink && (
+                    {project.deployedLink ? (
                       <a
                         href={project.deployedLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 py-2.5 bg-primary-500/15 border border-primary-500 hover:bg-primary-500/30 rounded-lg text-sm text-center font-medium transition-colors"
+                        className="flex-1 py-2.5 bg-gradient-to-r from-violet-500 to-cyan-500 hover:brightness-110 rounded-lg text-sm text-center font-medium transition-all duration-300"
                       >
                         Live Demo
                       </a>
+                    ) : (
+                      <span className="flex-1 py-2.5 rounded-lg text-sm text-center font-medium text-slate-500 bg-white/5 border border-white/10 cursor-not-allowed">
+                        Live Demo
+                      </span>
                     )}
                   </div>
                 </div>

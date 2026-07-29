@@ -1,5 +1,5 @@
 import './styles/globals.css';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -16,7 +16,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import Experience from './pages/Experience';
-import { Services, Testimonials, NotFound } from './pages/Placeholders';
+import Services from './pages/Services';
+import { Testimonials, NotFound } from './pages/Placeholders';
 
 // Admin Pages
 import AdminLogin from './pages/Admin/Login';
@@ -27,6 +28,39 @@ import AdminBlogs from './pages/Admin/Blogs';
 import Messages from './pages/Admin/Messages';
 import AdminSkills from './pages/Admin/Skills';
 import Settings from './pages/Admin/Settings';
+
+class AppErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('App Uncaught Error:', error, errorInfo);
+    this.setState({ errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 40, background: '#0d1117', color: '#f0f6fc', fontFamily: 'sans-serif', minHeight: '100vh' }}>
+          <h1 style={{ color: '#f85149', fontSize: 24 }}>App Runtime Error Caught</h1>
+          <p style={{ margin: '16px 0', color: '#8b949e' }}>An unexpected error occurred while rendering the page:</p>
+          <pre style={{ background: '#161b22', padding: 20, borderRadius: 8, overflowX: 'auto', color: '#ff7b72', border: '1px solid #30363d' }}>
+            {this.state.error && this.state.error.toString()}
+            {'\n'}
+            {this.state.error && this.state.error.stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function AppContent() {
   const location = useLocation();
@@ -77,20 +111,20 @@ function AppContent() {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate loading time for resources
-    const timer = setTimeout(() => setIsLoading(false), 3000);
-    return () => clearTimeout(timer);
+  // Allow LoadingScreen component to control when loading finishes completely
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false);
   }, []);
 
-  if (isLoading) {
-    return <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />;
-  }
-
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AppErrorBoundary>
+      <Router>
+        {isLoading && (
+          <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+        )}
+        <AppContent />
+      </Router>
+    </AppErrorBoundary>
   );
 }
 

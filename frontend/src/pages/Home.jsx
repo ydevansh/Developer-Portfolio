@@ -181,6 +181,7 @@ export default function Home() {
 
   const projectPreview = generatedProjects.slice(0, 3).map((project) => ({
     title: project.title,
+    description: project.shortDescription || '',
     image: project.imageUrl,
     technologies: project.technologies.slice(0, 3),
     githubLink: project.githubLink,
@@ -600,10 +601,14 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary-400 mb-2">Experience</p>
-                <h2 className="text-3xl md:text-4xl font-bold">Learning Journey</h2>
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.32em]">
+                  <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(139,92,246,0.55)]">
+                    Academic Journey
+                  </span>
+                </p>
+                <h2 className="text-3xl md:text-4xl font-bold">Education Journey</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
-                  Tap any card to open the full journey and explore the detailed Experience page.
+                  A timeline of my academic journey, certifications, and continuous learning that shaped my skills as a developer.
                 </p>
               </div>
               <Link
@@ -693,7 +698,7 @@ export default function Home() {
                   )}
                   <div className="flex flex-1 flex-col p-5">
                     <h3 className="text-2xl md:text-xl font-semibold mb-2.5 leading-tight">{project.title}</h3>
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-3">
                       {project.technologies.map((tech) => (
                         <span
                           key={`${project.title}-${tech}`}
@@ -703,6 +708,14 @@ export default function Home() {
                         </span>
                       ))}
                     </div>
+                    {project.description && (
+                      <p
+                        className="text-xs leading-5 text-slate-400 mb-3"
+                        style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' }}
+                      >
+                        {project.description}
+                      </p>
+                    )}
                     <div className="mt-auto grid grid-cols-2 gap-2">
                       <a
                         href={project.githubLink}
