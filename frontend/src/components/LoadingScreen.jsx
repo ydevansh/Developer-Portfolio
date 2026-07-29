@@ -1,102 +1,162 @@
 /**
- * LoadingScreen.jsx — Ground-up clean rewrite
+ * LoadingScreen.jsx — Neural Network AI Boot Loader
+ *
+ * Premium AI Operating System boot sequence built entirely from scratch.
+ * Inspired by Apple Intelligence, OpenAI, Anthropic, Linear, Vercel.
  *
  * Architecture
  * ────────────
- *  LoadingScreen          → public export; wraps everything in error boundary
- *    └─ LoaderErrorBoundary  → catches any crash; auto-dismisses loader safely
- *         └─ LoaderCore      → the actual loader UI
- *              ├─ useLoadingEngine()  → ALL timing/progress logic isolated here
- *              ├─ Galaxy3DBackground → lazy R3F canvas (separate Suspense)
- *              ├─ TwinkleField       → CSS-only ambient star twinkle
- *              ├─ ShootingStars      → CSS-only occasional streaks
- *              └─ LoaderHUD          → centered DY logo + rings + bar + text
+ *  LoadingScreen (public export)
+ *    └─ NeuralBoundary        → crash guard; auto-dismisses loader
+ *         └─ NeuralLoaderCore → orchestration
+ *              ├─ useLoadingEngine()  → progress counter + dual gate
+ *              ├─ useTypingStatus()   → typing state machine
+ *              ├─ NeuralCanvas        → full-screen canvas neural net (memoized)
+ *              │    ├─ poissonDisk()   → node placement algorithm
+ *              │    ├─ Node physics    → breath, activation cascade, mouse reaction
+ *              │    ├─ Edge animation  → appear/disappear connections
+ *              │    └─ Data pulses     → traveling glow particles
+ *              ├─ GlassCircle         → central glassmorphism panel + DY logo
+ *              └─ StatusArea          → typing text + smooth % counter
  *
- * Loading flow (guaranteed)
- * ─────────────────────────
- *   On mount → start Task A (asset loading) AND Task B (4 s timer) in parallel
- *   Progress bar → animates 0 → 92 % over 4 s (eased, never reaches 100 alone)
- *   Both tasks done? → surge 92 → 100 % over 0.7 s → fade+zoom exit → homepage
- *   Assets take > 6 s? → hard fallback marks them done; timer still controls min
+ * Timing contract
+ * ───────────────
+ *   MIN_MS  (4 s)   — guaranteed minimum display
+ *   HOLD_MS (1.5 s) — mandatory asset hold (prevents instant completion on cache)
+ *   Both asset gate AND min timer must open before surge begins
+ *   Hard network fallback fires at 8 s
+ *
+ *   Exit sequence
+ *   exitPhase 0 → normal animation
+ *   exitPhase 1 → 400 ms burst (all nodes activate, pulses converge to center)
+ *   exitPhase 2 → 800 ms fade (everything dissolves into homepage)
  */
 
-import {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  Component,
-  lazy,
-  Suspense,
-} from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef, memo, Component } from 'react';
+import { motion } from 'framer-motion';
 
-/* ─── lazy 3-D canvas (never blocks first paint) ─────────────────────────── */
-const Galaxy3DBackground = lazy(() => import('./3d/GalaxyCanvas'));
+/* ══════════════════════════════════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════════════════════════════════ */
+const MIN_MS        = 4000;   // minimum loader display time
+const HOLD_MS       = 1500;   // mandatory hold before assets can "complete"
+const SURGE_MS      = 700;    // counter surge 88 → 100 once both gates open
+const EXIT_TOTAL_MS = 1200;   // total exit duration before calling onDone
+const NET_TIMEOUT   = 8000;   // hard network fallback
 
-/* ══════════════════════════════════════════════════════════════════════════
-   1. ERROR BOUNDARY
-   Catches any render/runtime crash inside the loader.
-   Automatically dismisses the loader so the portfolio still opens.
-══════════════════════════════════════════════════════════════════════════ */
-class LoaderErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
+const MAX_CONN_PX   = 140;    // max connection distance in pixels
+const NODE_SPACING  = 70;     // Poisson disk minimum separation
+const MAX_PULSES    = 40;     // cap on concurrent data pulses
+
+/* Color channels (pre-split for rgba construction) */
+const C_ACCENT  = '37,99,235';    // primary blue
+const C_LIGHT   = '96,165,250';   // pulse highlight
+const C_NODE    = '147,197,253';  // node core
+
+const STATUS_MSGS = [
+  'Initializing Intelligence...',
+  'Loading Projects...',
+  'Loading Skills...',
+  'Loading Experience...',
+  'Compiling Portfolio...',
+  'Connecting Neural Modules...',
+  'Optimizing Interface...',
+  'Almost Ready...',
+  'Portfolio Ready',
+];
+
+/* ══════════════════════════════════════════════════════════════════════
+   UTILITY — Poisson Disk Sampling
+   Generates evenly distributed points without clustering or gaps.
+   Guarantees ~70–100 nodes on a typical 1080p screen.
+══════════════════════════════════════════════════════════════════════ */
+function poissonDisk(W, H, minDist) {
+  const TRIES  = 30;
+  const cell   = minDist / Math.SQRT2;
+  const cols   = Math.ceil(W / cell);
+  const rows   = Math.ceil(H / cell);
+  const grid   = new Array(cols * rows).fill(null);
+  const active = [];
+  const pts    = [];
+
+  const gIdx = (x, y) => (x / cell | 0) + (y / cell | 0) * cols;
+
+  const insert = (x, y) => {
+    const p = { x, y };
+    pts.push(p);
+    active.push(p);
+    grid[gIdx(x, y)] = p;
+  };
+
+  const valid = (x, y) => {
+    if (x < 0 || x >= W || y < 0 || y >= H) return false;
+    const gx = x / cell | 0, gy = y / cell | 0;
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const nx = gx + dx, ny = gy + dy;
+        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) continue;
+        const nb = grid[ny * cols + nx];
+        if (nb && Math.hypot(x - nb.x, y - nb.y) < minDist) return false;
+      }
+    }
+    return true;
+  };
+
+  // Seed near center to guarantee centre coverage
+  insert(W * (0.44 + Math.random() * 0.12), H * (0.44 + Math.random() * 0.12));
+
+  while (active.length) {
+    const i = active.length * Math.random() | 0;
+    const p = active[i];
+    let found = false;
+    for (let k = 0; k < TRIES; k++) {
+      const ang = Math.random() * Math.PI * 2;
+      const r   = minDist * (1 + Math.random());
+      const nx  = p.x + Math.cos(ang) * r;
+      const ny  = p.y + Math.sin(ang) * r;
+      if (valid(nx, ny)) { insert(nx, ny); found = true; }
+    }
+    if (!found) active.splice(i, 1);
+  }
+
+  return pts;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ERROR BOUNDARY
+   Auto-dismisses the loader on any render crash.
+══════════════════════════════════════════════════════════════════════ */
+class NeuralBoundary extends Component {
+  constructor(p) {
+    super(p);
     this.state = { crashed: false };
-    this._dismissTimer = null;
+    this._t    = null;
   }
 
-  static getDerivedStateFromError() {
-    return { crashed: true };
+  static getDerivedStateFromError() { return { crashed: true }; }
+
+  componentDidCatch(err) {
+    console.error('[NeuralLoader] crashed:', err);
+    this._t = setTimeout(() => this.props.onLoadingComplete?.(), 600);
   }
 
-  componentDidCatch(error, info) {
-    console.error('[LoaderErrorBoundary] Loader crashed — dismissing gracefully.', error, info);
-    // Give the user half a second to see the fallback, then open the portfolio
-    this._dismissTimer = setTimeout(() => {
-      this.props.onLoadingComplete?.();
-    }, 500);
-  }
-
-  componentWillUnmount() {
-    clearTimeout(this._dismissTimer);
-  }
+  componentWillUnmount() { clearTimeout(this._t); }
 
   render() {
     if (this.state.crashed) {
       return (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 9999,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            background: '#01050e', color: '#e2e8f0',
-            fontFamily: 'sans-serif', padding: '24px', textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: 64, height: 64, borderRadius: '50%',
-              border: '1px solid rgba(34,211,238,0.5)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#67e8f9', fontWeight: 700, fontSize: 20,
-              marginBottom: 16,
-              boxShadow: '0 0 20px rgba(0,229,255,0.3)',
-            }}
-          >
-            DY
-          </div>
-          <p style={{ fontSize: 14, color: 'rgba(103,232,249,0.7)', marginBottom: 20 }}>
-            Launching Portfolio…
-          </p>
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999, background: '#020617',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           <button
             onClick={() => this.props.onLoadingComplete?.()}
             style={{
-              padding: '8px 20px', borderRadius: 999,
-              border: '1px solid rgba(34,211,238,0.4)',
-              background: 'rgba(34,211,238,0.1)', color: '#67e8f9',
-              fontSize: 11, fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', cursor: 'pointer',
+              padding: '10px 28px', borderRadius: 999,
+              border: '1px solid rgba(37,99,235,0.4)',
+              background: 'rgba(37,99,235,0.1)',
+              color: '#93c5fd', fontSize: 13,
+              fontWeight: 600, letterSpacing: '0.08em', cursor: 'pointer',
             }}
           >
             Enter Portfolio
@@ -108,667 +168,724 @@ class LoaderErrorBoundary extends Component {
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   2. LOADING ENGINE HOOK
-   Isolated custom hook — zero side effects outside its returned values.
-   All timers, rAF IDs, and async tasks are cleaned up on unmount.
-══════════════════════════════════════════════════════════════════════════ */
-const MIN_DURATION_MS   = 6500; // hard minimum loader visibility
-const ASSET_MIN_WAIT_MS = 3000; // assets cannot be "done" before this
-const SURGE_MS          = 900;  // 92 → 100 % once both gates open
-const EXIT_MS           = 1100; // fade+zoom duration after reaching 100 %
-
-const LOAD_MESSAGES = [
-  { at:  0, text: 'Initializing Portfolio…' },
-  { at: 16, text: 'Loading Projects…'        },
-  { at: 38, text: 'Preparing Skills…'        },
-  { at: 60, text: 'Optimizing Experience…'  },
-  { at: 80, text: 'Finalizing Interface…'   },
-  { at: 94, text: 'Welcome.'                 },
-];
-
-function resolveMessage(pct) {
-  let msg = LOAD_MESSAGES[0].text;
-  for (const m of LOAD_MESSAGES) {
-    if (pct >= m.at) msg = m.text;
-  }
-  return msg;
-}
-
+/* ══════════════════════════════════════════════════════════════════════
+   HOOK — useLoadingEngine
+   Drives the progress counter and manages the dual-gate exit logic.
+   All mutable state lives in refs — React state only for UI values.
+══════════════════════════════════════════════════════════════════════ */
 function useLoadingEngine(onDone) {
-  // UI state (minimal — only what the HUD needs to render)
-  const [progress,     setProgress]     = useState(0);
-  const [displayPct,   setDisplayPct]   = useState(0);
-  const [isExiting,    setIsExiting]    = useState(false);
-  const [canvasOpacity, setCanvasOpacity] = useState({ star: 0, nebula: 0, galaxy: 0 });
+  const [counter,   setCounter]   = useState(0);
+  const [exitPhase, setExitPhase] = useState(0); // 0 | 1 | 2
 
-  // Stable ref so the rAF closure always sees latest callback
-  const onDoneRef = useRef(onDone);
+  const aliveRef      = useRef(true);
+  const displayRef    = useRef(0);
+  const surgeRef      = useRef(false);
+  const surgeStartRef = useRef(0);
+  const exitedRef     = useRef(false);
+  const onDoneRef     = useRef(onDone);
+
   useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
 
-  // Interpolation ref (avoid stale closure on displayPct)
-  const displayRef = useRef(0);
-
   useEffect(() => {
-    // ── Lifecycle guard — prevents any setState after unmount ───────────────
-    let mounted = true;
-    const safe = (fn) => { if (mounted) fn(); };
+    aliveRef.current = true;
 
-    // ── Gate flags (mutable, intentionally not state — read in rAF) ─────────
-    let assetsGate = false; // Task A complete
-    let timerGate  = false; // Task B complete
-    let bothOpen   = false; // assetsGate && timerGate
+    // Dual-gate — both must open before surge begins
+    let assetsOpen = false;
+    let timerOpen  = false;
+    const bothOpen = () => assetsOpen && timerOpen;
 
-    // ── Surge / exit tracking ────────────────────────────────────────────────
-    let surgeActive = false;
-    let surgeStart  = 0;
-    let exitTriggered = false;
-
-    // ── rAF handle ──────────────────────────────────────────────────────────
-    let rafId = 0;
-    const t0  = performance.now();
-
-    // ────────────────────────────────────────────────────────────────────────
-    // Task A — asset loading
-    // We wait for: a mandatory minimum delay, document ready, fonts, and any
-    // in-flight images. This prevents assets that are already cached from
-    // instantly completing and making the loader feel too fast.
-    // A hard fallback fires after 9 s so a stalled network never blocks us.
-    // ────────────────────────────────────────────────────────────────────────
-    const loadAllAssets = async () => {
+    // Gate A: asset loading + mandatory hold
+    const loadAssets = async () => {
       try {
-        // 0. Mandatory minimum wait — even cached pages must wait this long
-        await new Promise((resolve) => setTimeout(resolve, ASSET_MIN_WAIT_MS));
-
-        // 1. DOM fully parsed & sub-resources requested
-        if (document.readyState !== 'complete') {
-          await new Promise((resolve) =>
-            window.addEventListener('load', resolve, { once: true })
-          );
-        }
-
-        // 2. Web fonts
-        if (typeof document.fonts?.ready === 'object') {
-          await document.fonts.ready;
-        }
-
-        // 3. Images that haven't finished yet
-        const pendingImages = Array.from(document.images).filter(
-          (img) => !img.complete
-        );
-        if (pendingImages.length > 0) {
-          await Promise.all(
-            pendingImages.map(
-              (img) =>
-                new Promise((resolve) => {
-                  img.addEventListener('load',  resolve, { once: true });
-                  img.addEventListener('error', resolve, { once: true });
-                })
-            )
-          );
-        }
-      } catch (_) {
-        // Never throw — the fallback timer below covers failure cases
-      } finally {
-        if (mounted) {
-          assetsGate = true;
-          bothOpen   = assetsGate && timerGate;
-        }
-      }
+        await new Promise(r => setTimeout(r, HOLD_MS));
+        if (document.readyState !== 'complete')
+          await new Promise(r => window.addEventListener('load', r, { once: true }));
+        if (document.fonts?.ready) await document.fonts.ready;
+        const imgs = Array.from(document.images).filter(i => !i.complete);
+        if (imgs.length)
+          await Promise.all(imgs.map(img => new Promise(r => {
+            img.addEventListener('load',  r, { once: true });
+            img.addEventListener('error', r, { once: true });
+          })));
+      } catch (_) { /* silent */ }
+      finally { if (aliveRef.current) assetsOpen = true; }
     };
 
-    // Hard fallback: if assets take more than 9 s, let them be "done"
-    const assetFallback = setTimeout(() => {
-      assetsGate = true;
-      bothOpen   = assetsGate && timerGate;
-    }, 9000);
+    const netFallback = setTimeout(() => { assetsOpen = true; }, NET_TIMEOUT);
+    const minTimer    = setTimeout(() => { timerOpen  = true; }, MIN_MS);
+    loadAssets();
 
-    loadAllAssets();
-
-    // ────────────────────────────────────────────────────────────────────────
-    // Task B — minimum 4-second timer
-    // This is a real setTimeout, which cannot be bypassed by rAF timing.
-    // ────────────────────────────────────────────────────────────────────────
-    const minTimer = setTimeout(() => {
-      timerGate = true;
-      bothOpen  = assetsGate && timerGate;
-    }, MIN_DURATION_MS);
-
-    // ────────────────────────────────────────────────────────────────────────
     // Easing functions
-    // ────────────────────────────────────────────────────────────────────────
-    // Crawl: ease-out-cubic — fast start, slows toward end (feels natural)
-    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-    // Surge: ease-in-out-cubic — smooth, satisfying finish
-    const easeInOutCubic = (t) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const easeOut4 = t => 1 - Math.pow(1 - t, 4);
+    const easeIO3  = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
 
-    // ────────────────────────────────────────────────────────────────────────
-    // rAF loop
-    // Runs at ~60 fps. Drives progress bar, display counter, and 3-D fade-in.
-    // ────────────────────────────────────────────────────────────────────────
-    const tick = (now) => {
-      if (!mounted) return;
+    let raf = 0;
+    const t0 = performance.now();
 
-      const elapsed = now - t0;
-      const t       = Math.min(elapsed / MIN_DURATION_MS, 1); // 0 → 1 over 6.5 s
+    const tick = now => {
+      if (!aliveRef.current) return;
 
+      const t = Math.min((now - t0) / MIN_MS, 1);
       let target;
 
-      if (!surgeActive) {
-        // ── Crawl phase: 0 → 92 % over MIN_DURATION_MS ──────────────────────
-        // The bar is hard-capped at 92; it cannot reach 100 during this phase.
-        target = easeOutCubic(t) * 92;
-
-        // Check if we can begin the surge
-        if (bothOpen && !surgeActive) {
-          surgeActive = true;
-          surgeStart  = now;
+      if (!surgeRef.current) {
+        target = easeOut4(t) * 88;                            // crawl: 0 → 88 %
+        if (bothOpen()) {
+          surgeRef.current     = true;
+          surgeStartRef.current = now;
         }
       } else {
-        // ── Surge phase: 92 → 100 % over SURGE_MS ───────────────────────────
-        const st = Math.min((now - surgeStart) / SURGE_MS, 1);
-        target   = 92 + easeInOutCubic(st) * 8; // 92 + 8 = 100
+        const st = Math.min((now - surgeStartRef.current) / SURGE_MS, 1);
+        target = 88 + easeIO3(st) * 12;                       // surge: 88 → 100 %
       }
 
-      // Smooth interpolated display counter (10 % blend per frame ≈ 60 fps)
-      displayRef.current += (target - displayRef.current) * 0.1;
+      // Smooth lerp so counter never jumps
+      displayRef.current += (target - displayRef.current) * 0.08;
+      setCounter(Math.min(Math.round(displayRef.current), 100));
 
-      safe(() => {
-        setProgress(target);
-        setDisplayPct(displayRef.current);
-
-        // 3-D canvas fade-in cascade (staggered so galaxy builds in stages)
-        setCanvasOpacity((prev) => ({
-          star:   target >  5 ? Math.min(prev.star   + 0.04, 1) : prev.star,
-          nebula: target > 20 ? Math.min(prev.nebula + 0.03, 1) : prev.nebula,
-          galaxy: target > 38 ? Math.min(prev.galaxy + 0.025, 1) : prev.galaxy,
-        }));
-      });
-
-      // ── Exit trigger ─────────────────────────────────────────────────────
-      if (surgeActive && target >= 100 && !exitTriggered) {
-        exitTriggered = true;
-        safe(() => {
-          setProgress(100);
-          setDisplayPct(100);
-          setIsExiting(true);
-        });
-        // Wait for exit animation then call onDone
-        setTimeout(() => {
-          if (mounted) onDoneRef.current?.();
-        }, EXIT_MS);
-        return; // stop loop
+      // Trigger exit when surge reaches 100
+      if (surgeRef.current && target >= 100 && !exitedRef.current) {
+        exitedRef.current = true;
+        setCounter(100);
+        setExitPhase(1);
+        setTimeout(() => { if (aliveRef.current) setExitPhase(2); }, 400);
+        setTimeout(() => { if (aliveRef.current) onDoneRef.current?.(); }, EXIT_TOTAL_MS);
+        return; // stop rAF
       }
 
-      rafId = requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     };
 
-    rafId = requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
 
-    // ── Cleanup ──────────────────────────────────────────────────────────────
     return () => {
-      mounted = false;
-      cancelAnimationFrame(rafId);
+      aliveRef.current = false;
+      cancelAnimationFrame(raf);
       clearTimeout(minTimer);
-      clearTimeout(assetFallback);
+      clearTimeout(netFallback);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally empty — runs once on mount
+  }, []);
 
-  return { progress, displayPct, isExiting, canvasOpacity };
+  return { counter, exitPhase };
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   3. VISUAL SUB-COMPONENTS
-   Pure presentational — no logic, no timers.
-   All random values are memoized so they never change across renders.
-══════════════════════════════════════════════════════════════════════════ */
-
-/** Twinkling background stars (CSS + Framer Motion, no Three.js) */
-function TwinkleField({ count }) {
-  const stars = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        id:    i,
-        top:   `${Math.random() * 100}%`,
-        left:  `${Math.random() * 100}%`,
-        size:  Math.random() * 1.8 + 0.8,
-        delay: Math.random() * 5,
-        dur:   Math.random() * 3 + 2,
-        op:    Math.random() * 0.5 + 0.3,
-      })),
-    [count]
-  );
-
-  return (
-    <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
-      {stars.map((s) => (
-        <motion.div
-          key={s.id}
-          className="absolute rounded-full bg-white"
-          style={{ top: s.top, left: s.left, width: s.size, height: s.size }}
-          animate={{ opacity: [s.op * 0.2, s.op, s.op * 0.2] }}
-          transition={{
-            duration: s.dur,
-            delay:    s.delay,
-            repeat:   Infinity,
-            ease:     'easeInOut',
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/** Occasional shooting-star streaks */
-function ShootingStars({ count }) {
-  const streaks = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        id:     i,
-        top:    `${8 + Math.random() * 55}%`,
-        length: 70 + Math.random() * 70,
-        delay:  i * 3.2 + Math.random() * 2.5,
-        dur:    0.65 + Math.random() * 0.45,
-        gap:    7 + Math.random() * 9,
-      })),
-    [count]
-  );
-
-  return (
-    <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
-      {streaks.map((s) => (
-        <motion.div
-          key={s.id}
-          className="absolute h-px"
-          style={{
-            top:    s.top,
-            left:   '-5%',
-            width:  s.length,
-            background:
-              'linear-gradient(90deg,transparent,rgba(34,211,238,0.85),transparent)',
-            boxShadow: '0 0 5px rgba(34,211,238,0.5)',
-          }}
-          animate={{ x: ['0vw', '115vw'], opacity: [0, 1, 1, 0] }}
-          transition={{
-            duration:    s.dur,
-            delay:       s.delay,
-            repeat:      Infinity,
-            repeatDelay: s.gap,
-            ease:        'easeIn',
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/**
- * Single orbiting dot.
- * Uses CSS rotate + translate so the dot travels a perfect circle
- * around the centre of the parent container.
- */
-function OrbitDot({ radius, sizePx, periodSec, colorCls, glowColor, startDeg }) {
-  return (
-    <motion.div
-      className="absolute inset-0 pointer-events-none"
-      animate={{ rotate: [startDeg, startDeg + 360] }}
-      transition={{ duration: periodSec, repeat: Infinity, ease: 'linear' }}
-    >
-      <div
-        className={`absolute rounded-full ${colorCls}`}
-        style={{
-          width:     sizePx,
-          height:    sizePx,
-          top:       '50%',
-          left:      '50%',
-          transform: `translate(-50%, calc(-50% - ${radius}px))`,
-          boxShadow: `0 0 ${sizePx * 4}px ${glowColor}`,
-        }}
-      />
-    </motion.div>
-  );
-}
-
-/** Central DY logo with rotating energy ring and orbiting particles */
-function LogoSystem({ isExiting, galaxyOpacity, nearComplete }) {
-  const ringSize = 180; // px — outer bounding box
-
-  return (
-    <div
-      className="relative flex items-center justify-center"
-      style={{ width: ringSize, height: ringSize }}
-    >
-      {/* ── Outermost slow ring ─────────────────────────────────────────── */}
-      <motion.div
-        className="absolute inset-0 rounded-full border border-cyan-400/12"
-        animate={isExiting ? { scale: 0.04, opacity: 0 } : { rotate: 360 }}
-        transition={
-          isExiting
-            ? { duration: 0.55, ease: 'easeIn' }
-            : { rotate: { duration: 24, repeat: Infinity, ease: 'linear' } }
-        }
-      />
-
-      {/* ── Mid dashed ring ─────────────────────────────────────────────── */}
-      <motion.div
-        className="absolute rounded-full border border-dashed border-sky-400/22"
-        style={{ inset: 16 }}
-        animate={isExiting ? { scale: 2.4, opacity: 0 } : { rotate: -360 }}
-        transition={
-          isExiting
-            ? { duration: 0.65, ease: 'easeOut' }
-            : { rotate: { duration: 15, repeat: Infinity, ease: 'linear' } }
-        }
-      />
-
-      {/* ── Inner energy ring (bright, animated bead) ───────────────────── */}
-      <motion.div
-        className="absolute rounded-full border border-cyan-400/55
-                   shadow-[0_0_18px_rgba(0,229,255,0.25)]"
-        style={{ inset: 32 }}
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={
-          isExiting
-            ? { scale: 3.2, opacity: 0 }
-            : {
-                opacity: galaxyOpacity,
-                rotate:  360,
-                scale:   [1, 1.045, 1],
-              }
-        }
-        transition={
-          isExiting
-            ? { duration: 0.75, ease: 'easeOut' }
-            : {
-                rotate:  { duration: 7,   repeat: Infinity, ease: 'linear' },
-                scale:   { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
-                opacity: { duration: 0.5 },
-              }
-        }
-      >
-        {/* Glowing bead on the ring */}
-        <div
-          className="absolute -top-[5px] left-1/2 -translate-x-1/2
-                     w-[9px] h-[9px] rounded-full bg-cyan-300"
-          style={{
-            boxShadow: '0 0 8px #00e5ff, 0 0 18px rgba(0,229,255,0.55)',
-          }}
-        />
-      </motion.div>
-
-      {/* ── Orbiting particles ─────────────────────────────────────────── */}
-      {!isExiting && (
-        <>
-          <OrbitDot radius={60} sizePx={5}  periodSec={5.5}  colorCls="bg-cyan-300"   glowColor="rgba(0,229,255,0.9)"   startDeg={0}   />
-          <OrbitDot radius={60} sizePx={3}  periodSec={5.5}  colorCls="bg-sky-200"    glowColor="rgba(56,189,248,0.65)" startDeg={120} />
-          <OrbitDot radius={60} sizePx={4}  periodSec={5.5}  colorCls="bg-blue-300"   glowColor="rgba(96,165,250,0.7)"  startDeg={240} />
-          <OrbitDot radius={74} sizePx={3}  periodSec={10.5} colorCls="bg-violet-300" glowColor="rgba(167,139,250,0.6)" startDeg={55}  />
-          <OrbitDot radius={74} sizePx={2}  periodSec={10.5} colorCls="bg-indigo-200" glowColor="rgba(129,140,248,0.5)" startDeg={195} />
-        </>
-      )}
-
-      {/* ── DY core logo ────────────────────────────────────────────────── */}
-      <motion.div
-        className={[
-          'relative z-10 flex items-center justify-center rounded-full',
-          'bg-gradient-to-br from-[#0b1f42]/95 via-[#051228]/96 to-[#020914]/98',
-          'border backdrop-blur-xl transition-all duration-500',
-          nearComplete
-            ? 'border-cyan-300 shadow-[0_0_55px_rgba(0,229,255,0.85),0_0_110px_rgba(0,229,255,0.35),inset_0_0_28px_rgba(0,229,255,0.12)]'
-            : 'border-cyan-400/38 shadow-[0_0_32px_rgba(0,229,255,0.32),inset_0_0_16px_rgba(0,229,255,0.06)]',
-        ].join(' ')}
-        style={{ width: 92, height: 92 }}
-        initial={{ opacity: 0, scale: 0.45 }}
-        animate={
-          isExiting
-            ? { scale: [1, 1.18, 3], opacity: [1, 1, 0] }
-            : { opacity: Math.min(galaxyOpacity + 0.45, 1), scale: 1, y: [0, -7, 0] }
-        }
-        transition={
-          isExiting
-            ? { duration: 0.85, ease: 'easeInOut', times: [0, 0.25, 1] }
-            : {
-                opacity: { duration: 0.55 },
-                scale:   { duration: 0.5 },
-                y:       { duration: 4.5, repeat: Infinity, ease: 'easeInOut' },
-              }
-        }
-      >
-        {/* Breathing inner pulse ring */}
-        <motion.div
-          className="absolute inset-0 rounded-full border border-cyan-400/28"
-          animate={{ scale: [1, 1.16, 1], opacity: [0.35, 0.75, 0.35] }}
-          transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        <span
-          className={[
-            'font-heading font-extrabold text-[26px] sm:text-[30px] tracking-tight',
-            'bg-gradient-to-r from-cyan-200 via-sky-200 to-blue-300 bg-clip-text text-transparent',
-            'transition-all duration-500',
-            nearComplete
-              ? 'drop-shadow-[0_0_18px_rgba(0,229,255,0.95)]'
-              : 'drop-shadow-[0_0_10px_rgba(0,229,255,0.65)]',
-          ].join(' ')}
-        >
-          DY
-        </span>
-      </motion.div>
-    </div>
-  );
-}
-
-/** Progress bar with shimmer bead and scanline */
-function ProgressBar({ progress }) {
-  const pct = Math.min(Math.max(progress, 0), 100);
-
-  return (
-    <div className="relative h-[3px] w-full rounded-full overflow-hidden
-                    bg-slate-950/90 border border-white/[0.06]">
-      {/* Fill */}
-      <motion.div
-        className="absolute inset-y-0 left-0 rounded-full
-                   bg-gradient-to-r from-blue-600 via-cyan-400 to-sky-200"
-        style={{ width: `${pct}%` }}
-        transition={{ duration: 0.12, ease: 'linear' }}
-      />
-
-      {/* Leading glow bead */}
-      {pct > 1 && pct < 99.8 && (
-        <motion.div
-          className="absolute top-0 h-full w-5 rounded-full"
-          style={{
-            left:       `calc(${pct}% - 10px)`,
-            background: 'radial-gradient(ellipse,rgba(0,229,255,1) 0%,transparent 75%)',
-            filter:     'blur(2px)',
-          }}
-          animate={{ opacity: [0.55, 1, 0.55] }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      )}
-
-      {/* Scanline shimmer */}
-      <motion.div
-        className="absolute inset-y-0 w-7
-                   bg-gradient-to-r from-transparent via-white/25 to-transparent"
-        animate={{ x: ['-100%', '160%'] }}
-        transition={{ duration: 1.7, repeat: Infinity, ease: 'linear', repeatDelay: 0.5 }}
-      />
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   4. LOADER CORE
-   Consumes useLoadingEngine and composes all visual sub-components.
-   No loading logic lives here — pure composition.
-══════════════════════════════════════════════════════════════════════════ */
-function LoaderCore({ onLoadingComplete }) {
-  const { progress, displayPct, isExiting, canvasOpacity } =
-    useLoadingEngine(onLoadingComplete);
-
-  const isMobile = useIsMobile();
-
-  // Message cross-fade key
-  const [msgKey,    setMsgKey]    = useState(0);
-  const prevMsgRef                = useRef('');
-  const currentMsg                = resolveMessage(progress);
+/* ══════════════════════════════════════════════════════════════════════
+   HOOK — useTypingStatus
+   State machine: typing → hold → deleting → next message → repeat.
+   Fully independent of progress counter (time-based, natural pacing).
+══════════════════════════════════════════════════════════════════════ */
+function useTypingStatus() {
+  const [text,  setText]  = useState('');
+  const [blink, setBlink] = useState(true);
+  const [idx,   setIdx]   = useState(0);
+  const [phase, setPhase] = useState('typing'); // typing | hold | delete
+  const alive = useRef(true);
 
   useEffect(() => {
-    if (currentMsg !== prevMsgRef.current) {
-      prevMsgRef.current = currentMsg;
-      setMsgKey((k) => k + 1);
-    }
-  }, [currentMsg]);
+    alive.current = true;
+    return () => { alive.current = false; };
+  }, []);
 
-  const nearComplete = progress >= 94 || isExiting;
+  // Cursor blink
+  useEffect(() => {
+    const id = setInterval(() => { if (alive.current) setBlink(v => !v); }, 520);
+    return () => clearInterval(id);
+  }, []);
+
+  // Typing state machine
+  useEffect(() => {
+    const msg = STATUS_MSGS[idx] ?? '';
+    let t;
+
+    if (phase === 'typing') {
+      if (text.length < msg.length) {
+        t = setTimeout(() => {
+          if (alive.current) setText(msg.slice(0, text.length + 1));
+        }, 40 + Math.random() * 20);
+      } else {
+        t = setTimeout(() => { if (alive.current) setPhase('hold'); }, 800);
+      }
+    } else if (phase === 'hold') {
+      t = setTimeout(() => { if (alive.current) setPhase('delete'); }, 1100);
+    } else {
+      if (text.length > 0) {
+        t = setTimeout(() => {
+          if (alive.current) setText(s => s.slice(0, -1));
+        }, 18);
+      } else {
+        setIdx(i => (i + 1) % STATUS_MSGS.length);
+        setPhase('typing');
+      }
+    }
+
+    return () => clearTimeout(t);
+  }, [phase, text, idx]);
+
+  return { text, blink };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENT — NeuralCanvas
+   HTML5 Canvas neural network animation. Memoized — React never
+   re-renders this component due to mouse movement or typing changes.
+   Mouse is tracked internally via direct ref mutation (no React state).
+══════════════════════════════════════════════════════════════════════ */
+const NeuralCanvas = memo(function NeuralCanvas({ exitPhase }) {
+  const cvRef    = useRef(null);
+  const worldRef = useRef(null);
+
+  /* ── Build the world once on mount ─────────────────────────────── */
+  useEffect(() => {
+    const cv  = cvRef.current;
+    if (!cv) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W   = window.innerWidth;
+    const H   = window.innerHeight;
+    cv.style.width  = `${W}px`;
+    cv.style.height = `${H}px`;
+    cv.width  = W * dpr;
+    cv.height = H * dpr;
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // Generate node positions via Poisson disk, cap at 95
+    const pts   = poissonDisk(W, H, NODE_SPACING).slice(0, 95);
+    const nodes = pts.map(p => ({
+      x:    p.x,
+      y:    p.y,
+      xR:   p.x / W,   // fraction — for proportional resize
+      yR:   p.y / H,
+      r:    2 + Math.random() * 1.8,
+      ph:   Math.random() * Math.PI * 2,   // breath phase offset
+      phS:  0.28 + Math.random() * 0.55,   // breath speed
+      base: 0.2  + Math.random() * 0.32,   // resting brightness
+      act:  0,                              // activation level 0–1
+      actD: 0.011 + Math.random() * 0.009, // activation decay per tick
+      actT: (Math.random() * 150) | 0,     // activation timer
+      actI: (55 + Math.random() * 115) | 0,// activation interval (ticks)
+      glow: 0,                             // computed each frame
+    }));
+
+    // Build edges between nearby nodes
+    const edges = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const d = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+        if (d < MAX_CONN_PX) {
+          edges.push({
+            a:   i,
+            b:   j,
+            str: 1 - d / MAX_CONN_PX,            // strength: closer = stronger
+            op:  0,                               // current opacity (lerped)
+            top: Math.random() < 0.4 ? 0.08 + Math.random() * 0.28 : 0, // target
+            ct:  (Math.random() * 180) | 0,      // change timer
+            ci:  (90 + Math.random() * 210) | 0, // change interval
+          });
+        }
+      }
+    }
+
+    // Data pulse particles
+    const pulses = [];
+    const spawn  = () => {
+      if (pulses.length >= MAX_PULSES || !edges.length) return;
+      const ei = (Math.random() * edges.length) | 0;
+      pulses.push({
+        ei,
+        t:   0,
+        sp:  0.004 + Math.random() * 0.005,
+        dir: Math.random() < 0.5 ? 1 : -1,
+        sz:  1.8 + Math.random() * 2,
+      });
+    };
+    for (let k = 0; k < 20; k++) spawn();
+
+    // Static starfield — generated once, covers the full screen
+    const STAR_COUNT = 200;
+    const stars = Array.from({ length: STAR_COUNT }, () => ({
+      xR:  Math.random(),          // fraction of W (remaps on resize)
+      yR:  Math.random(),          // fraction of H
+      r:   0.4 + Math.random() * 1.1,
+      op:  0.12 + Math.random() * 0.45,
+      ph:  Math.random() * Math.PI * 2,  // twinkle phase
+      phS: 0.2 + Math.random() * 0.6,   // twinkle speed
+    }));
+
+    worldRef.current = {
+      ctx, W, H, dpr,
+      nodes, edges, pulses, spawn, stars,
+      tick:      0,
+      mx:        W / 2, // mouse x
+      my:        H / 2, // mouse y
+      exitPhase: 0,
+      exitT:     0,     // 0→1 progress through fade-out
+    };
+  }, []);
+
+  /* ── Mouse tracking — directly mutates world, no React state ───── */
+  useEffect(() => {
+    const onMove = e => {
+      if (!worldRef.current) return;
+      const x = e.clientX ?? e.touches?.[0]?.clientX;
+      const y = e.clientY ?? e.touches?.[0]?.clientY;
+      if (x != null) { worldRef.current.mx = x; worldRef.current.my = y; }
+    };
+    window.addEventListener('mousemove', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchmove', onMove);
+    };
+  }, []);
+
+  /* ── exitPhase sync ─────────────────────────────────────────────── */
+  useEffect(() => {
+    if (worldRef.current) worldRef.current.exitPhase = exitPhase;
+  }, [exitPhase]);
+
+  /* ── Resize — resets canvas and remaps node positions ──────────── */
+  useEffect(() => {
+    const onResize = () => {
+      const w  = worldRef.current;
+      const cv = cvRef.current;
+      if (!w || !cv) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W   = window.innerWidth;
+      const H   = window.innerHeight;
+      cv.style.width  = `${W}px`;
+      cv.style.height = `${H}px`;
+      cv.width  = W * dpr;
+      cv.height = H * dpr;
+      w.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // reset + apply dpr
+      w.W = W;
+      w.H = H;
+      w.nodes.forEach(n => { n.x = n.xR * W; n.y = n.yR * H; });
+      // Stars store fractions too — no extra work needed, they read xR/yR in draw loop
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  /* ── Animation loop ─────────────────────────────────────────────── */
+  useEffect(() => {
+    let alive = true;
+    let raf   = 0;
+    const t0  = performance.now();
+
+    const frame = now => {
+      if (!alive || !worldRef.current) return;
+      const w = worldRef.current;
+      const { ctx, W, H, nodes, edges, pulses, spawn } = w;
+      w.tick++;
+
+      const sec    = (now - t0) / 1000;
+      const burst  = w.exitPhase === 1; // phase 1: all nodes activate
+      let   xAlpha = 1;                 // network visibility multiplier
+
+      if (w.exitPhase === 2) {
+        w.exitT = Math.min(w.exitT + 0.018, 1);
+        xAlpha  = Math.max(0, 1 - w.exitT * 1.5);
+      }
+
+      /* ── Background ───────────────────────────────────────────── */
+      ctx.clearRect(0, 0, W, H);
+
+      // Deep navy radial gradient
+      const bg = ctx.createRadialGradient(W*.5, H*.42, 0, W*.5, H*.5, Math.max(W,H)*.75);
+      bg.addColorStop(0,    '#0c1d3a');
+      bg.addColorStop(0.45, '#06112a');
+      bg.addColorStop(1,    '#020617');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtly moving ambient glow (alive, non-distracting)
+      const gx = W*.5 + Math.sin(sec*.21) * W*.06;
+      const gy = H*.45 + Math.cos(sec*.17) * H*.05;
+      const ag = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.min(W,H)*.45);
+      ag.addColorStop(0, `rgba(${C_ACCENT},.055)`);
+      ag.addColorStop(1, `rgba(${C_ACCENT},0)`);
+      ctx.fillStyle = ag;
+      ctx.fillRect(0, 0, W, H);
+
+      // Vignette
+      const vg = ctx.createRadialGradient(W/2, H/2, Math.min(W,H)*.3, W/2, H/2, Math.max(W,H)*.8);
+      vg.addColorStop(0, 'rgba(2,6,23,0)');
+      vg.addColorStop(1, 'rgba(2,6,23,.68)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+
+      /* ── Stars ────────────────────────────────────────────────── */
+      w.stars.forEach(s => {
+        s.ph += s.phS * 0.016;  // advance twinkle phase
+        const twinkle = 0.45 + 0.55 * Math.sin(s.ph);
+        const alpha   = s.op * twinkle * xAlpha;
+        if (alpha < 0.02) return;
+        const sx = s.xR * W;
+        const sy = s.yR * H;
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,220,255,${alpha})`;
+        ctx.fill();
+      });
+
+      /* ── Node physics ─────────────────────────────────────────── */
+      const { mx, my } = w;
+
+      nodes.forEach((n, i) => {
+        // Breathing oscillation
+        n.ph += n.phS * 0.016;
+        const breath = 0.5 + 0.5 * Math.sin(n.ph);
+
+        // Mouse proximity boost
+        const md        = Math.hypot(n.x - mx, n.y - my);
+        const mouseBoost = Math.max(0, 1 - md / 105) * 0.55;
+
+        // Spontaneous activation (neuron firing)
+        n.actT++;
+        if (!burst && n.actT >= n.actI) {
+          n.act = 0.72 + Math.random() * 0.28;
+          // Spread activation to nearby connected nodes
+          edges.forEach(e => {
+            if (e.a !== i && e.b !== i) return;
+            const ni = e.a === i ? e.b : e.a;
+            if (Math.random() < 0.55)
+              nodes[ni].act = Math.max(nodes[ni].act, 0.4 + Math.random() * 0.3);
+          });
+          n.actT = 0;
+          n.actI = (55 + Math.random() * 115) | 0;
+        }
+
+        // Decay or burst-activate
+        n.act  = burst
+          ? Math.min(1, n.act + 0.06)
+          : Math.max(0, n.act - n.actD);
+
+        // Final glow value used for drawing
+        n.glow = Math.min(1, n.base * (0.55 + breath * 0.45) + n.act * 0.7 + mouseBoost);
+      });
+
+      /* ── Edge animation ───────────────────────────────────────── */
+      edges.forEach(e => {
+        e.ct++;
+        if (e.ct >= e.ci) {
+          e.top = burst
+            ? 0.4 + Math.random() * 0.5
+            : Math.random() < 0.42
+              ? 0.07 + Math.random() * 0.3 * e.str
+              : 0;
+          e.ct = 0;
+          e.ci = (80 + Math.random() * 200) | 0;
+        }
+        e.op += (e.top - e.op) * 0.025; // smooth lerp
+      });
+
+      /* ── Draw edges ───────────────────────────────────────────── */
+      edges.forEach(e => {
+        const alpha = e.op * xAlpha;
+        if (alpha < 0.012) return;
+
+        const na = nodes[e.a], nb = nodes[e.b];
+        const nodeGlow = (na.glow + nb.glow) * 0.5;
+        const fa = Math.min(alpha * (0.5 + nodeGlow * 0.7), 1);
+
+        ctx.beginPath();
+        ctx.moveTo(na.x, na.y);
+        ctx.lineTo(nb.x, nb.y);
+
+        // Wide soft glow pass
+        ctx.strokeStyle = `rgba(${C_ACCENT},${fa * 0.28})`;
+        ctx.lineWidth   = 3;
+        ctx.stroke();
+
+        // Crisp centre line
+        ctx.strokeStyle = `rgba(${C_LIGHT},${fa * 0.52})`;
+        ctx.lineWidth   = 0.8;
+        ctx.stroke();
+      });
+
+      /* ── Spawn + draw data pulses ─────────────────────────────── */
+      if (w.tick % 7 === 0 && !burst) spawn();
+
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const p  = pulses[i];
+        const e  = edges[p.ei];
+        if (!e || e.op < 0.06) { pulses.splice(i, 1); continue; }
+
+        p.t += p.sp * p.dir;
+        if (p.t < 0 || p.t > 1) { pulses.splice(i, 1); continue; }
+
+        const na = nodes[e.a], nb = nodes[e.b];
+        let px = na.x + (nb.x - na.x) * p.t;
+        let py = na.y + (nb.y - na.y) * p.t;
+
+        // During exit burst, steer pulses toward center
+        if (burst) {
+          px += (W / 2 - px) * 0.08;
+          py += (H / 2 - py) * 0.08;
+        }
+
+        const pa = e.op * xAlpha;
+        if (pa < 0.05) continue;
+
+        // Glow halo (radial gradient, no canvas filter)
+        const gr = ctx.createRadialGradient(px, py, 0, px, py, p.sz * 3.5);
+        gr.addColorStop(0,   `rgba(${C_LIGHT},${pa * 0.48})`);
+        gr.addColorStop(0.5, `rgba(${C_ACCENT},${pa * 0.15})`);
+        gr.addColorStop(1,   `rgba(${C_ACCENT},0)`);
+        ctx.beginPath();
+        ctx.arc(px, py, p.sz * 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = gr;
+        ctx.fill();
+
+        // Bright core dot
+        ctx.beginPath();
+        ctx.arc(px, py, p.sz * 0.65, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${pa * 0.92})`;
+        ctx.fill();
+      }
+
+      /* ── Draw nodes ───────────────────────────────────────────── */
+      nodes.forEach(n => {
+        const b = n.glow * xAlpha;
+        if (b < 0.04) return;
+
+        // Outer glow (radial gradient, avoids expensive canvas blur filter)
+        const glowR = n.r * (3 + b * 3.5);
+        const ng    = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, glowR);
+        ng.addColorStop(0,   `rgba(${C_ACCENT},${b * 0.58})`);
+        ng.addColorStop(0.3, `rgba(${C_ACCENT},${b * 0.18})`);
+        ng.addColorStop(1,   `rgba(${C_ACCENT},0)`);
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = ng;
+        ctx.fill();
+
+        // Bright core dot
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * (0.75 + b * 0.5), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${C_NODE},${Math.min(b * 1.2, 1)})`;
+        ctx.fill();
+      });
+
+      raf = requestAnimationFrame(frame);
+    };
+
+    raf = requestAnimationFrame(frame);
+    return () => { alive = false; cancelAnimationFrame(raf); };
+  }, []);
+
+  return (
+    <canvas
+      ref={cvRef}
+      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
+    />
+  );
+});
+
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENT — GlassCircle
+   Central glassmorphism circle with DY logo, breathing ring,
+   light reflection sweep, and dynamic glow on completion.
+══════════════════════════════════════════════════════════════════════ */
+function GlassCircle({ counter, exitPhase }) {
+  const bright = counter >= 88;
+  const burst  = exitPhase === 1;
+  const fading = exitPhase === 2;
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center
-                 overflow-hidden bg-[#01050e] select-none"
-      initial={{ opacity: 1, scale: 1 }}
-      animate={isExiting ? { opacity: 0, scale: 1.055 } : { opacity: 1, scale: 1 }}
-      transition={{ duration: EXIT_MS / 1000, ease: [0.4, 0, 0.2, 1] }}
+      style={{ position: 'relative', zIndex: 2 }}
+      initial={{ opacity: 0, scale: 0.84 }}
+      animate={
+        fading ? { opacity: 0, scale: 0.88 }
+        : burst  ? { opacity: 1, scale: 1.05 }
+        : { opacity: 1, scale: 1, y: [0, -3, 0] }
+      }
+      transition={
+        fading ? { duration: 0.9, ease: [0.4, 0, 0.2, 1] }
+        : burst  ? { duration: 0.4, ease: 'easeOut' }
+        : {
+            opacity: { duration: 0.9, ease: 'easeOut' },
+            scale:   { duration: 0.7, ease: [0.34, 1.56, 0.64, 1] },
+            y:       { duration: 3.5, repeat: Infinity, ease: 'easeInOut' },
+          }
+      }
     >
-      {/* ── 3-D galaxy background (lazy + suspense fallback) ──────────── */}
-      <Suspense
-        fallback={
-          <div className="absolute inset-0 bg-[#01050e] pointer-events-none z-0" />
-        }
-      >
-        <Galaxy3DBackground
-          starOpacity={canvasOpacity.star}
-          nebulaOpacity={canvasOpacity.nebula}
-          galaxyOpacity={canvasOpacity.galaxy}
-          isCollapsing={isExiting}
-          isMobile={isMobile}
-        />
-      </Suspense>
+      {/* Gradient border ring */}
+      <div style={{
+        position: 'absolute', inset: -1.5, borderRadius: '50%',
+        background: burst || bright
+          ? 'conic-gradient(from 0deg,rgba(37,99,235,.72),rgba(96,165,250,.52),rgba(37,99,235,.72))'
+          : 'conic-gradient(from 0deg,rgba(37,99,235,.32),rgba(59,130,246,.16),rgba(37,99,235,.32))',
+        padding: 1.5,
+        transition: 'background 0.55s ease',
+      }}>
+        <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#020617' }} />
+      </div>
 
-      {/* ── Ambient CSS effects ───────────────────────────────────────── */}
-      <TwinkleField  count={isMobile ? 14 : 26} />
-      <ShootingStars count={isMobile ?  2 :  4} />
+      {/* Glass surface */}
+      <div style={{
+        width: 184, height: 184, borderRadius: '50%',
+        position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(148deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,.04) 55%,rgba(255,255,255,.015) 100%)',
+        backdropFilter: 'blur(22px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(22px) saturate(160%)',
+        border: `1px solid rgba(255,255,255,${bright ? 0.17 : 0.09})`,
+        boxShadow: burst || bright
+          ? '0 0 52px rgba(37,99,235,.42),0 0 104px rgba(37,99,235,.16),inset 0 1px 0 rgba(255,255,255,.16)'
+          : '0 0 28px rgba(37,99,235,.18),0 0 60px rgba(37,99,235,.07),inset 0 1px 0 rgba(255,255,255,.08)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'box-shadow 0.5s ease, border-color 0.5s ease',
+      }}>
+        {/* Top edge highlight */}
+        <div style={{
+          position: 'absolute', top: 0, left: '14%', width: '72%', height: 1,
+          background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent)',
+        }} />
 
-      {/* ── Center HUD ───────────────────────────────────────────────── */}
-      <div className="relative z-[2] flex flex-col items-center px-4
-                      w-full max-w-[300px] sm:max-w-[340px]">
-
-        {/* Logo + orbital system */}
-        <div className="mb-8">
-          <LogoSystem
-            isExiting={isExiting}
-            galaxyOpacity={canvasOpacity.galaxy}
-            nearComplete={nearComplete}
-          />
-        </div>
-
-        {/* Name + title */}
+        {/* Light sweep */}
         <motion.div
-          className="text-center mb-7"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{
-            opacity: Math.min(canvasOpacity.galaxy * 2, 1),
-            y:       canvasOpacity.galaxy > 0.08 ? 0 : 18,
+          style={{
+            position: 'absolute', top: '-25%', left: '-10%',
+            width: '40%', height: '150%',
+            background: 'linear-gradient(110deg,transparent 30%,rgba(255,255,255,.048) 50%,transparent 70%)',
+            transform: 'skewX(-12deg)', pointerEvents: 'none',
           }}
-          transition={{ duration: 0.75, ease: 'easeOut' }}
-        >
-          <h1 className="text-xl sm:text-2xl font-bold font-heading tracking-tight
-                         bg-gradient-to-r from-slate-100 via-cyan-100 to-blue-200
-                         bg-clip-text text-transparent leading-tight">
-            Devansh Yadav
-          </h1>
-          <p className="text-[10px] sm:text-[11px] font-semibold uppercase
-                        tracking-[0.3em] text-cyan-300/72 mt-1.5">
-            Full Stack · AI Developer
-          </p>
-        </motion.div>
+          animate={{ x: ['-50%', '310%'] }}
+          transition={{ duration: 2.5, delay: 1.5, repeat: Infinity, repeatDelay: 5.5, ease: [0.4, 0, 0.6, 1] }}
+        />
 
-        {/* Progress bar + status row */}
-        <div className="w-full space-y-2">
-          <ProgressBar progress={progress} />
-
-          <div className="flex items-center justify-between px-0.5">
-            {/* Dynamic message — cross-fades on change */}
-            <div className="h-4 overflow-hidden flex-1 mr-3">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={msgKey}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.22 }}
-                  className="block text-[10px] font-semibold uppercase
-                             tracking-[0.22em] text-cyan-200/80 whitespace-nowrap"
-                >
-                  {currentMsg}
-                </motion.span>
-              </AnimatePresence>
-            </div>
-
-            {/* Smooth percentage counter */}
-            <span className="font-mono text-[11px] font-bold text-cyan-300
-                             tracking-wide tabular-nums">
-              {Math.min(Math.round(displayPct), 100)}%
-            </span>
-          </div>
-        </div>
-
-        {/* Pulsing dot indicator */}
+        {/* Breathing inner ring */}
         <motion.div
-          className="mt-6 flex items-center gap-1.5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: Math.min(canvasOpacity.galaxy * 2.2, 0.65) }}
-          transition={{ duration: 0.7 }}
+          style={{
+            position: 'absolute', inset: 14, borderRadius: '50%',
+            border: `1px solid rgba(37,99,235,${bright ? 0.52 : 0.22})`,
+            transition: 'border-color 0.5s ease',
+          }}
+          animate={{ scale: [1, 1.05, 1], opacity: [0.4, 0.88, 0.4] }}
+          transition={{ duration: 2.7, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* DY logo — uses solid color + textShadow to avoid the
+            background-clip flash that causes the white square.
+            Never has a background rectangle, so never flashes. */}
+        <motion.span
+          style={{
+            fontFamily: '"Inter","SF Pro Display",-apple-system,BlinkMacSystemFont,sans-serif',
+            fontSize: 44, fontWeight: 800, letterSpacing: '-0.03em',
+            color: burst || bright ? '#bfdbfe' : '#93c5fd',
+            textShadow: burst || bright
+              ? '0 0 18px rgba(96,165,250,0.95), 0 0 40px rgba(59,130,246,0.65), 0 0 70px rgba(37,99,235,0.4)'
+              : '0 0 10px rgba(96,165,250,0.6), 0 0 24px rgba(59,130,246,0.35)',
+            userSelect: 'none', position: 'relative', zIndex: 1,
+            transition: 'color 0.5s ease, text-shadow 0.5s ease',
+          }}
+          animate={{ scale: [1, 1.022, 1] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {[0, 1, 2, 3, 4].map((i) => (
-            <motion.div
-              key={i}
-              className="rounded-full bg-cyan-400"
-              style={{ width: i === 2 ? 6 : 4, height: i === 2 ? 6 : 4 }}
-              animate={{ opacity: [0.18, 1, 0.18], scale: [0.8, 1.25, 0.8] }}
-              transition={{
-                duration: 1.5,
-                delay:    i * 0.18,
-                repeat:   Infinity,
-                ease:     'easeInOut',
-              }}
-            />
-          ))}
-        </motion.div>
+          DY
+        </motion.span>
       </div>
     </motion.div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   5. UTILITY HOOK — mobile detection
-══════════════════════════════════════════════════════════════════════════ */
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENT — StatusArea
+   Typing message with blinking cursor + smooth percentage counter.
+══════════════════════════════════════════════════════════════════════ */
+function StatusArea({ counter, exitPhase, text, blink }) {
+  return (
+    <motion.div
+      style={{
+        position: 'relative', zIndex: 2, marginTop: 34,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+      }}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: exitPhase === 2 ? 0 : 1, y: 0 }}
+      transition={{
+        duration: exitPhase === 2 ? 0.5 : 0.75,
+        delay:    exitPhase === 2 ? 0 : 0.55,
+        ease:     'easeOut',
+      }}
+    >
+      {/* Typing text row */}
+      <div style={{
+        height: 19, display: 'flex', alignItems: 'center',
+        justifyContent: 'center', minWidth: 248,
+      }}>
+        <span style={{
+          fontFamily: '"Inter","SF Pro Display",-apple-system,sans-serif',
+          fontSize: 11, fontWeight: 500, letterSpacing: '0.13em',
+          color: 'rgba(148,163,184,.88)', textTransform: 'uppercase',
+          whiteSpace: 'nowrap',
+        }}>
+          {text}
+          <span style={{
+            display: 'inline-block', width: 1.5, height: 10.5,
+            background: blink ? 'rgba(148,163,184,.85)' : 'transparent',
+            marginLeft: 2, verticalAlign: 'middle',
+            borderRadius: 1, transition: 'background 0.08s',
+          }} />
+        </span>
+      </div>
+
+      {/* Percentage counter */}
+      <div style={{
+        fontFamily: '"Inter",monospace',
+        fontSize: 12.5, fontWeight: 600,
+        letterSpacing: '0.1em',
+        color: 'rgba(148,163,184,.58)',
+        fontVariantNumeric: 'tabular-nums',
+      }}>
+        {String(counter).padStart(2, '0')}%
+      </div>
+    </motion.div>
   );
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', check, { passive: true });
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  return isMobile;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   6. PUBLIC EXPORT
-   App.jsx imports this. The interface is unchanged:
-     <LoadingScreen onLoadingComplete={fn} />
-══════════════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENT — NeuralLoaderCore
+   Orchestrates all sub-components. Passes exit phase to canvas and UI.
+══════════════════════════════════════════════════════════════════════ */
+function NeuralLoaderCore({ onLoadingComplete }) {
+  const { counter, exitPhase } = useLoadingEngine(onLoadingComplete);
+  const { text, blink }        = useTypingStatus();
+
+  return (
+    <motion.div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+      animate={ exitPhase === 2 ? { opacity: 0 } : { opacity: 1 } }
+      transition={{ duration: 0.85, ease: [0.4, 0, 0.2, 1] }}
+    >
+      {/* Canvas neural network (memoized — does not re-render on state changes) */}
+      <NeuralCanvas exitPhase={exitPhase} />
+
+      {/* Glass panel */}
+      <GlassCircle counter={counter} exitPhase={exitPhase} />
+
+      {/* Status text + percentage */}
+      <StatusArea counter={counter} exitPhase={exitPhase} text={text} blink={blink} />
+    </motion.div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PUBLIC EXPORT
+   Interface unchanged: <LoadingScreen onLoadingComplete={fn} />
+   App.jsx requires no modifications.
+══════════════════════════════════════════════════════════════════════ */
 export default function LoadingScreen({ onLoadingComplete }) {
   return (
-    <LoaderErrorBoundary onLoadingComplete={onLoadingComplete}>
-      <LoaderCore onLoadingComplete={onLoadingComplete} />
-    </LoaderErrorBoundary>
+    <NeuralBoundary onLoadingComplete={onLoadingComplete}>
+      <NeuralLoaderCore onLoadingComplete={onLoadingComplete} />
+    </NeuralBoundary>
   );
 }
