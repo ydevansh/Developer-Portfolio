@@ -236,7 +236,7 @@ function ResumeCTA({ onView }) {
             <div>
               <h3 className="text-lg font-bold text-white leading-tight">My Resume</h3>
               <p className="text-sm text-slate-400 mt-0.5">
-                MERN-Stack &amp; AI/ML Developer · Updated July 2026
+                MERN-Stack &amp; Python Developer · Updated July 2026
               </p>
             </div>
           </div>
@@ -281,7 +281,7 @@ function ResumeCTA({ onView }) {
         {/* Quick stats row */}
         <div className="mt-6 pt-5 border-t border-white/8 grid grid-cols-3 gap-4">
           {[
-            { label: 'Experience', value: '2+ Years' },
+            { label: 'Status', value: 'Open for Work' },
             { label: 'Projects', value: '10+' },
             { label: 'Certifications', value: '6+' },
           ].map(({ label, value }) => (
