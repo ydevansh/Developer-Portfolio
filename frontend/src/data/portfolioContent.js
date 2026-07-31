@@ -1,19 +1,20 @@
+import portfolioPreview from '../assets/portfolio-preview.png';
+
 export const generatedProjects = [
   {
-    title: 'AI Resume Analyzer Pro',
+    title: 'Developer Portfolio',
     shortDescription:
-      'An AI-powered full stack app that analyzes resumes against role requirements and returns personalized suggestions. Built to help students and job seekers improve ATS readiness and interview outcomes.',
-    technologies: ['React', 'Node.js', 'Express', 'Python', 'FastAPI', 'MongoDB', 'OpenAI API'],
+      'A modern, full-stack MERN portfolio website with a powerful admin dashboard for content management. Features dynamic project/blog/skills management, JWT auth, email notifications, and premium animations — deployed on Vercel.',
+    technologies: ['React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'Node.js', 'Express', 'MongoDB', 'JWT'],
     keyFeatures: [
-      'Resume scoring engine with section-wise feedback',
-      'Skill gap detection against selected job role',
-      'AI suggestions for stronger bullets and summaries',
-      'Downloadable improvement report with progress tracking',
+      'Admin dashboard with full CRUD for projects, skills, blogs & experience',
+      'Dynamic content stored in MongoDB Atlas, managed via secure admin panel',
+      'Contact form with Nodemailer email notifications on submission',
+      'SEO-optimised pages with meta tags, smooth animations and responsive design',
     ],
-    githubLink: 'https://github.com/devansh-dev/ai-resume-analyzer-pro',
-    liveDemoLink: 'https://ai-resume-analyzer-pro-demo.vercel.app',
-    imageUrl:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+    githubLink: 'https://github.com/ydevansh/Developer-Portfolio',
+    liveDemoLink: 'https://ydevansh.vercel.app/',
+    imageUrl: portfolioPreview,
   },
   {
     title: 'SmartOps Admin Dashboard',

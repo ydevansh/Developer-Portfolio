@@ -5,6 +5,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import ScrollToTop from './components/common/ScrollToTop';
+import AuroraBackground from './components/AuroraBackground';
 
 // Public Pages
 import Home from './pages/Home';
@@ -69,7 +70,9 @@ function AppContent() {
   return (
     <>
       <ScrollToTop />
-      <div className="min-h-screen bg-gradient-to-b from-primary-900 via-dark to-primary-900 flex flex-col">
+      {/* Fixed aurora canvas — renders behind everything, persists across routes */}
+      {!isAdminRoute && <AuroraBackground />}
+      <div className="min-h-screen flex flex-col" style={{ position: 'relative', zIndex: 1 }}>
         {!isAdminRoute && <Navbar />}
         <main className="flex-grow">
           <Routes>
@@ -109,10 +112,16 @@ function AppContent() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  // Show loader only on the very first visit of the session.
+  // sessionStorage is cleared when the tab is closed, so opening a new tab
+  // or a brand-new browser session will always show the loader again.
+  const [isLoading, setIsLoading] = useState(
+    () => !sessionStorage.getItem('hasSeenLoader')
+  );
 
-  // Allow LoadingScreen component to control when loading finishes completely
   const handleLoadingComplete = useCallback(() => {
+    // Mark that the loader has been seen for this session
+    sessionStorage.setItem('hasSeenLoader', 'true');
     setIsLoading(false);
   }, []);
 
