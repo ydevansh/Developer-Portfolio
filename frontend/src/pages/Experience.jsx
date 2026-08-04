@@ -215,8 +215,11 @@ export default function Experience() {
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="border-b border-white/10 pb-10 sm:pb-12"
         >
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-cyan-300/80">Experience</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+            Experience &amp; Journey
+          </div>
+          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
             Learning, building, and getting better every day.
           </h1>
           <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">

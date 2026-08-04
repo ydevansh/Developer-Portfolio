@@ -13,12 +13,13 @@ import FeaturedBlogCard from '../components/blog/FeaturedBlogCard';
 import ScrollProgressBar from '../components/blog/ScrollProgressBar';
 import BackToTopButton from '../components/blog/BackToTopButton';
 import Seo from '../components/Seo';
+import { buildBreadcrumbSchema, buildCollectionSchema } from '../data/seoSchemas';
 
 const blogSeo = {
-  title: 'Blog | Devansh Yadav',
+  title: 'Blog | Devansh Yadav on AI, Web Development & Student Projects',
   description:
-    'Read Devansh Yadav’s blog about AI/ML, web development, React, Node.js, and student projects from Lucknow and BBDU.',
-  keywords: ['Devansh Yadav blog', 'AI/ML', 'Web Development', 'React', 'Node.js', 'Lucknow', 'BBDU'],
+    'Read Devansh Yadav’s blog about AI, machine learning, web development, React, Node.js, and student projects from Lucknow and BBDU.',
+  keywords: ['Devansh Yadav blog', 'AI blog', 'Web Development', 'React', 'Node.js', 'Lucknow', 'BBDU'],
 };
 
 const normalizeText = (value) => (typeof value === 'string' ? value.trim() : '');
@@ -160,6 +161,22 @@ export default function Blog() {
     return filteredBlogs.filter((blog) => blog.slug !== featuredBlog.slug);
   }, [featuredBlog, filteredBlogs]);
 
+  const structuredData = useMemo(() => [
+    buildBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Blog', path: '/blog' },
+    ], '/blog'),
+    buildCollectionSchema({
+      name: 'Devansh Yadav Blog',
+      description: blogSeo.description,
+      currentPath: '/blog',
+      items: blogs.map((post) => ({
+        name: post.title,
+        url: `/blog/${post.slug}`,
+      })),
+    }),
+  ], [blogs]);
+
   return (
     <>
       <Seo
@@ -167,6 +184,7 @@ export default function Blog() {
         description={blogSeo.description}
         keywords={blogSeo.keywords}
         canonicalPath="/blog"
+        structuredData={structuredData}
       />
 
       <ScrollProgressBar />
@@ -184,8 +202,11 @@ export default function Blog() {
             transition={{ duration: 0.5 }}
             className="mb-12 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/85 via-blue-950/60 to-slate-900/85 p-7 sm:p-10 shadow-[0_35px_55px_rgba(5,10,30,0.7)]"
           >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">Insights & Articles</p>
-            <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">Devansh Yadav Blog</h1>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-3">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+              Insights &amp; Articles
+            </div>
+            <h1 className="text-4xl font-bold leading-tight sm:text-5xl bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">Devansh Yadav Blog</h1>
             <p className="mt-4 max-w-3xl text-base leading-relaxed text-gray-300 sm:text-lg">
               Sharing my journey in AI/ML, web development, and real-world coding experiences from Lucknow and BBDU.
             </p>

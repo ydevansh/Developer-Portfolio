@@ -22,7 +22,7 @@ import Seo from '../components/Seo';
 import skillService from '../services/skillService';
 import { generatedProjects } from '../data/portfolioContent';
 import { fallbackBlogArticles } from '../data/blogArticles';
-import { SITE_AUTHOR, SITE_SOCIAL_LINKS, SITE_URL } from '../data/siteMetadata';
+import { buildBreadcrumbSchema } from '../data/seoSchemas';
 import {
   defaultSkillSeeds,
   groupSkillsByCategory,
@@ -32,23 +32,29 @@ import {
 } from '../data/skillCatalog';
 
 const homeSeo = {
-  title: 'Devansh Yadav Portfolio - Python Developer, MERN Developer & Data Science Learner in Lucknow',
+  title: 'Devansh Yadav Portfolio | Python Developer, MERN Stack Developer & AI Student in Lucknow',
   description:
-    'Devansh Yadav is a Python Developer, MERN Developer and Data Science Learner from Lucknow, studying at Babu Banarasi Das University (BBDU). Explore projects, skills, blogs, and contact details.',
+    'Devansh Yadav, also known as Deva Yadav, is a Python Developer, MERN Stack Developer, and AI & Data Science learner from Lucknow. Explore projects, skills, blog posts, and contact details.',
   keywords: [
     'Devansh Yadav portfolio',
-    'Devansh Yadav Lucknow',
-    'Devansh Yadav BBDU',
+    'Deva Yadav',
+    'Devansh Lucknow',
+    'Devansh Yadav Developer',
     'Python Developer',
-    'MERN Developer',
-    'Data Science Learner',
-    'AI engineer',
+    'MERN Stack Developer',
+    'Full Stack Developer',
+    'React Developer',
+    'Node.js Developer',
+    'AI Developer',
+    'Machine Learning Developer',
+    'Data Science Student',
+    'BCA Student',
+    'BBDU',
     'Babu Banarasi Das University',
     'Lucknow',
-    'React developer',
-    'Node.js developer',
-    'Python developer',
-    'portfolio',
+    'Developer in Lucknow',
+    'Portfolio Website',
+    'Full Stack Developer Portfolio',
   ],
 };
 
@@ -209,32 +215,7 @@ export default function Home() {
   ];
 
   const homeStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    '@id': `${SITE_URL}/#person`,
-    name: SITE_AUTHOR,
-    alternateName: 'Devansh Yadav',
-    url: SITE_URL,
-    image: new URL(profileImage, SITE_URL).toString(),
-    jobTitle: 'Python Developer, MERN Developer and Data Science Learner',
-    description: homeSeo.description,
-    knowsLanguage: 'en',
-    inLanguage: 'en-US',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Lucknow',
-      addressRegion: 'Uttar Pradesh',
-      addressCountry: 'IN',
-    },
-    alumniOf: {
-      '@type': 'CollegeOrUniversity',
-      name: 'Babu Banarasi Das University (BBDU)',
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Lucknow',
-      },
-    },
-    sameAs: SITE_SOCIAL_LINKS,
+    ...buildBreadcrumbSchema([{ name: 'Home', path: '/' }], '/'),
   };
 
   const socialLinks = [
@@ -452,14 +433,13 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] mb-2 font-semibold flex items-center gap-2">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
-                  <span className="text-cyan-400">About Me</span>
-                </p>
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+                  About Me
+                </div>
                 <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
                   Who I Am
                 </h2>
-                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-cyan-400 via-violet-400 to-transparent" />
               </div>
               <Link
                 to="/about"
@@ -607,17 +587,13 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.32em] flex items-center gap-2">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
-                  <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300 bg-clip-text text-transparent">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.32em]">
+                  <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(139,92,246,0.55)]">
                     Academic Journey
                   </span>
                 </p>
-                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-300 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(251,191,36,0.18)]">
-                  Education Journey
-                </h2>
-                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-transparent" />
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
+                <h2 className="text-3xl md:text-4xl font-bold">Education Journey</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
                   A timeline of my academic journey, certifications, and continuous learning that shaped my skills as a developer.
                 </p>
               </div>
@@ -683,14 +659,11 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] mb-2 font-semibold flex items-center gap-2">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.9)]" />
-                  <span className="text-violet-400">Projects</span>
-                </p>
-                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-300 via-indigo-200 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(139,92,246,0.18)]">
-                  Featured Projects
-                </h2>
-                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-violet-400 via-indigo-400 to-transparent" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+                  Projects
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold">Featured Projects</h2>
               </div>
               <Link
                 to="/projects"
@@ -772,15 +745,12 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] mb-2 font-semibold flex items-center gap-2">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.9)]" />
-                  <span className="text-rose-400">Blog</span>
-                </p>
-                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-rose-300 via-pink-200 to-violet-300 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(244,114,182,0.18)]">
-                  Latest Blogs
-                </h2>
-                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-rose-400 via-pink-400 to-transparent" />
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
+                <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-200 shadow-[0_0_20px_rgba(168,85,247,0.15)] backdrop-blur-md mb-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.8)] animate-pulse" />
+                  Blog
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold">Latest Blogs</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
                   A small preview of recent writing on AI, web development, and practical project building.
                 </p>
               </div>

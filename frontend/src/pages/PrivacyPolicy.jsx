@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
           transition={{ duration: 0.6 }}
         >
           <header className="space-y-3 border-b border-primary-500/20 pb-6">
-            <h1 className="text-3xl md:text-4xl font-bold text-white">Privacy Policy</h1>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">Privacy Policy</h1>
             <p className="text-sm text-gray-400">Last Updated: April 23, 2026</p>
             <p className="text-gray-300 leading-relaxed">
               This Privacy Policy explains how information is collected, used, and protected when you visit this personal developer

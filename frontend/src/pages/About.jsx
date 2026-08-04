@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaPenNib, FaDownload, FaEye, FaFilePdf, FaTimes, FaExpand } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { buildBreadcrumbSchema } from '../data/seoSchemas';
 
 /* ──────────────────────────────────────────────────────
    Resume PDF path — update this if the filename changes
@@ -300,10 +301,10 @@ function ResumeCTA({ onView }) {
    SEO config
 ────────────────────────────────────────────────────── */
 const aboutSeo = {
-  title: 'About Devansh Yadav | AI/ML Developer from Lucknow',
+  title: 'About Devansh Yadav | BCA Student, AI Minor Learner & Full Stack Developer',
   description:
-    'Learn about Devansh Yadav, an AI/ML Developer and Web Developer from Lucknow who studies at Babu Banarasi Das University (BBDU) and builds practical projects.',
-  keywords: ['Devansh Yadav', 'Devansh Lucknow', 'Devansh BBD', 'AI/ML Developer', 'Web Developer', 'BBDU'],
+    'Learn about Devansh Yadav, also known as Deva Yadav, a BCA student at Babu Banarasi Das University who is building a strong path in Python, MERN, React, and AI.',
+  keywords: ['Devansh Yadav', 'Deva Yadav', 'BCA Student', 'BBDU', 'Python Developer', 'MERN Stack Developer', 'AI Developer'],
 };
 
 /* ──────────────────────────────────────────────────────
@@ -336,6 +337,10 @@ export default function About() {
         description={aboutSeo.description}
         keywords={aboutSeo.keywords}
         canonicalPath="/about"
+        structuredData={buildBreadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'About', path: '/about' },
+        ], '/about')}
       />
 
       {/* Resume modal */}
@@ -363,7 +368,11 @@ export default function About() {
               animate={{ opacity: [0.15, 0.45, 0.15], x: ['-8%', '8%', '-8%'] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <h1 className="text-4xl md:text-5xl font-bold">About Devansh Yadav</h1>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+              Who I Am
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">About Devansh Yadav</h1>
           </div>
 
           {/* Bio + Education */}
@@ -377,7 +386,7 @@ export default function About() {
             />
 
             <div className="space-y-4 pt-8">
-              <h2 className="text-2xl font-bold text-white">Education</h2>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">Education</h2>
               <div className="space-y-3">
                 <div>
                   <h3 className="font-semibold text-white">BCA - Babu Banarasi Das University (BBDU), Lucknow</h3>

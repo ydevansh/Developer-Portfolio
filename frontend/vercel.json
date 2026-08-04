@@ -1,17 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install --legacy-peer-deps",
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Content-Language",
-          "value": "en"
-        }
-      ]
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",

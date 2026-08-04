@@ -22,19 +22,21 @@ import {
 import { HiOutlineCpuChip } from 'react-icons/hi2';
 import { SiReact, SiNodedotjs, SiMongodb, SiPython, SiTailwindcss, SiFastapi } from 'react-icons/si';
 import Seo from '../components/Seo';
+import { buildBreadcrumbSchema, buildFaqSchema } from '../data/seoSchemas';
 
 /* ─────────────────────────────── SEO ─────────────────────────────── */
 const servicesSeo = {
-  title: 'Services | Devansh Yadav – Full Stack, AI & Web Development',
+  title: 'Services | Full Stack Development, AI Integration & Portfolio Websites',
   description:
-    'Hire Devansh Yadav for Full Stack web development, React frontends, Node.js APIs, and AI integrations. Based in Lucknow, available for freelance and internships.',
+    'Hire Devansh Yadav for Full Stack web development, React frontends, Node.js APIs, Python backends, and AI integrations from Lucknow.',
   keywords: [
-    'hire Devansh Yadav',
-    'full stack developer Lucknow',
-    'React developer freelance',
-    'AI integration developer',
-    'Node.js developer',
-    'web development services India',
+    'Devansh Yadav services',
+    'Full Stack Developer Lucknow',
+    'React Developer',
+    'Node.js Developer',
+    'Python Developer',
+    'AI Developer',
+    'Portfolio Website',
   ],
 };
 
@@ -149,6 +151,25 @@ const featuredServices = [
     accent: 'from-amber-400 via-orange-500 to-rose-500',
     glow: 'rgba(245,158,11,0.18)',
     tech: ['Python', 'FastAPI', 'OpenAI', 'React'],
+  },
+];
+
+const servicesFaq = [
+  {
+    question: 'What services does Devansh Yadav offer?',
+    answer: 'I build portfolio websites, React frontends, Node.js APIs, full stack applications, and AI integrations for students, freelancers, and small businesses.',
+  },
+  {
+    question: 'Do you work remotely?',
+    answer: 'Yes. I work remotely with clients and collaborators across India and can support projects in Lucknow or anywhere else online.',
+  },
+  {
+    question: 'Can you improve an existing website?',
+    answer: 'Yes. I can refactor existing code, improve SEO, simplify the content structure, and optimize performance without changing the core brand or functionality.',
+  },
+  {
+    question: 'Do you build student projects?',
+    answer: 'Yes. I create clean, deployment-ready student projects with admin panels, authentication, dashboards, and documented features.',
   },
 ];
 
@@ -439,6 +460,14 @@ export default function Services() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
   };
 
+  const structuredData = [
+    buildBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Services', path: '/services' },
+    ], '/services'),
+    buildFaqSchema(servicesFaq, '/services'),
+  ];
+
   return (
     <div className="relative overflow-hidden pb-20 pt-28 lg:pt-32">
       <Seo
@@ -446,6 +475,7 @@ export default function Services() {
         description={servicesSeo.description}
         keywords={servicesSeo.keywords}
         canonicalPath="/services"
+        structuredData={structuredData}
       />
 
       {/* Ambient glow orbs */}
@@ -465,7 +495,10 @@ export default function Services() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
           className="border-b border-white/10 pb-12"
         >
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-cyan-300/80">Services</p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+            Services
+          </div>
           <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Services I{' '}
             <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
@@ -504,8 +537,11 @@ export default function Services() {
           className="space-y-6"
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-cyan-300/80">What do you need?</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Choose Your Goal</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+              What do you need?
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent sm:text-3xl">Choose Your Goal</h2>
             <p className="mt-2 text-sm text-slate-400">Click a card to see the full details for that goal.</p>
           </div>
 
@@ -616,8 +652,11 @@ export default function Services() {
           className="space-y-6"
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-violet-300/80">Budgeting tool</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Project Cost Estimator</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-200 shadow-[0_0_20px_rgba(168,85,247,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.8)] animate-pulse" />
+              Budgeting tool
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent sm:text-3xl">Project Cost Estimator</h2>
             <p className="mt-2 text-sm text-slate-400">Configure your requirements and see a live estimate.</p>
           </div>
 
@@ -769,8 +808,11 @@ export default function Services() {
           className="space-y-6"
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-emerald-300/80">AI-powered planner</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Describe Your Idea</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200 shadow-[0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+              AI-powered planner
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent sm:text-3xl">Describe Your Idea</h2>
             <p className="mt-2 text-sm text-slate-400">Tell me what you want to build, and I&apos;ll break it down for you.</p>
           </div>
 
@@ -882,8 +924,11 @@ export default function Services() {
           ref={processRef}
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-cyan-300/80">How I work</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Development Process</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+              How I work
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-300 via-sky-300 to-indigo-300 bg-clip-text text-transparent sm:text-3xl">Development Process</h2>
             <p className="mt-2 text-sm text-slate-400">A structured workflow ensuring quality at every stage.</p>
           </div>
 
@@ -907,8 +952,11 @@ export default function Services() {
           ref={compareRef}
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-violet-300/80">Why Devansh?</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Why Choose Me</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-200 shadow-[0_0_20px_rgba(168,85,247,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.8)] animate-pulse" />
+              Why Devansh?
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent sm:text-3xl">Why Choose Me</h2>
             <p className="mt-2 text-sm text-slate-400">How I compare to generic freelancers.</p>
           </div>
 
@@ -954,8 +1002,11 @@ export default function Services() {
           ref={statsRef}
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-cyan-300/80">By the numbers</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">The Stats</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+              By the numbers
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-300 via-teal-300 to-emerald-300 bg-clip-text text-transparent sm:text-3xl">The Stats</h2>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {statsData.map((item) => (
@@ -974,8 +1025,11 @@ export default function Services() {
           ref={featuredRef}
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-fuchsia-300/80">What I build</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Featured Services</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.15)] backdrop-blur-md mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_8px_rgba(217,70,239,0.8)] animate-pulse" />
+              What I build
+            </div>
+            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent sm:text-3xl">Featured Services</h2>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

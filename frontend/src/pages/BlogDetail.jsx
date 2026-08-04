@@ -20,7 +20,7 @@ import ScrollProgressBar from '../components/blog/ScrollProgressBar';
 import BackToTopButton from '../components/blog/BackToTopButton';
 import { formatDate, getOptimizedImageUrl, getOptimizedSrcSet, slugify } from '../utils/helpers';
 import Seo from '../components/Seo';
-import { SITE_AUTHOR, SITE_URL } from '../data/siteMetadata';
+import { buildBreadcrumbSchema, buildBlogPostingSchema } from '../data/seoSchemas';
 
 const normalizeText = (value) => (typeof value === 'string' ? value.trim() : '');
 
@@ -311,26 +311,17 @@ export default function BlogDetail() {
       return null;
     }
 
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: post.description,
-      image: [post.image],
-      datePublished: post.publishedAt,
-      dateModified: post.publishedAt,
-      author: {
-        '@type': 'Person',
-        name: SITE_AUTHOR,
-        url: SITE_URL,
-      },
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': new URL(`/blog/${post.slug}`, SITE_URL).toString(),
-      },
-      articleSection: post.category,
-      keywords: Array.isArray(post.tags) ? post.tags.join(', ') : '',
-    };
+    return [
+      buildBreadcrumbSchema([
+        { name: 'Home', path: '/' },
+        { name: 'Blog', path: '/blog' },
+        { name: post.title, path: `/blog/${post.slug}` },
+      ], `/blog/${post.slug}`),
+      buildBlogPostingSchema({
+        post,
+        currentPath: `/blog/${post.slug}`,
+      }),
+    ];
   }, [post]);
 
   const handleCopy = async () => {

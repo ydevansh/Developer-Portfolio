@@ -3,15 +3,39 @@ import { motion } from 'framer-motion';
 import { FaArrowRight, FaLinkedin } from 'react-icons/fa';
 import contactService from '../services/contactService';
 import Seo from '../components/Seo';
+import { buildBreadcrumbSchema, buildFaqSchema } from '../data/seoSchemas';
 
 const contactSeo = {
-  title: 'Contact Devansh Yadav | AI/ML and Web Developer in Lucknow',
+  title: 'Contact Devansh Yadav | Hire a Python, MERN & React Developer in Lucknow',
   description:
-    'Contact Me for AI/ML, web development, internship, freelance, and collaboration opportunities from Lucknow or remote.',
-  keywords: ['Contact Devansh Yadav', 'Devansh Lucknow', 'Devansh BBD', 'AI/ML Developer', 'Web Developer', 'BBDU'],
+    'Contact Devansh Yadav for freelancing, internships, collaboration, full stack development, and AI projects from Lucknow or remotely.',
+  keywords: ['Contact Devansh Yadav', 'Deva Yadav', 'Python Developer', 'MERN Stack Developer', 'React Developer', 'Lucknow'],
 };
 
+const contactFaq = [
+  {
+    question: 'How quickly does Devansh Yadav reply?',
+    answer: 'I usually reply as soon as possible and try to respond within one to two working days depending on the request.',
+  },
+  {
+    question: 'What can I contact Devansh Yadav for?',
+    answer: 'You can contact me for internships, freelance work, portfolio websites, full stack development, AI integration, and student project help.',
+  },
+  {
+    question: 'Do you work with remote clients?',
+    answer: 'Yes. I am open to remote collaboration across India and can also work on location-specific projects in Lucknow and Uttar Pradesh.',
+  },
+];
+
 export default function Contact() {
+  const structuredData = [
+    buildBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Contact', path: '/contact' },
+    ], '/contact'),
+    buildFaqSchema(contactFaq, '/contact'),
+  ];
+
   const linkedinUrl = 'https://www.linkedin.com/in/ydevansh/';
 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -110,6 +134,7 @@ export default function Contact() {
         description={contactSeo.description}
         keywords={contactSeo.keywords}
         canonicalPath="/contact"
+        structuredData={structuredData}
       />
 
       <div className="absolute inset-0 -z-10 overflow-hidden">
