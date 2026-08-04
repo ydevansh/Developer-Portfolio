@@ -450,10 +450,14 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-cyan-400 mb-2 font-semibold">About Me</p>
+                <p className="text-xs uppercase tracking-[0.2em] mb-2 font-semibold flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+                  <span className="text-cyan-400">About Me</span>
+                </p>
                 <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
                   Who I Am
                 </h2>
+                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-cyan-400 via-violet-400 to-transparent" />
               </div>
               <Link
                 to="/about"
@@ -601,13 +605,17 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.32em]">
-                  <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(139,92,246,0.55)]">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.32em] flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
+                  <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300 bg-clip-text text-transparent">
                     Academic Journey
                   </span>
                 </p>
-                <h2 className="text-3xl md:text-4xl font-bold">Education Journey</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-300 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(251,191,36,0.18)]">
+                  Education Journey
+                </h2>
+                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-transparent" />
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
                   A timeline of my academic journey, certifications, and continuous learning that shaped my skills as a developer.
                 </p>
               </div>
@@ -673,8 +681,14 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary-400 mb-2">Projects</p>
-                <h2 className="text-3xl md:text-4xl font-bold">Featured Projects</h2>
+                <p className="text-xs uppercase tracking-[0.2em] mb-2 font-semibold flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.9)]" />
+                  <span className="text-violet-400">Projects</span>
+                </p>
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-300 via-indigo-200 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(139,92,246,0.18)]">
+                  Featured Projects
+                </h2>
+                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-violet-400 via-indigo-400 to-transparent" />
               </div>
               <Link
                 to="/projects"
@@ -756,9 +770,15 @@ export default function Home() {
           <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary-400 mb-2">Blog</p>
-                <h2 className="text-3xl md:text-4xl font-bold">Latest Blogs</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
+                <p className="text-xs uppercase tracking-[0.2em] mb-2 font-semibold flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.9)]" />
+                  <span className="text-rose-400">Blog</span>
+                </p>
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-rose-300 via-pink-200 to-violet-300 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(244,114,182,0.18)]">
+                  Latest Blogs
+                </h2>
+                <div className="mt-2 h-0.5 w-14 rounded-full bg-gradient-to-r from-rose-400 via-pink-400 to-transparent" />
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
                   A small preview of recent writing on AI, web development, and practical project building.
                 </p>
               </div>

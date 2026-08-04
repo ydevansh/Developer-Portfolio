@@ -140,8 +140,9 @@ function ResumeDropdown({ size = 'md', onAction }) {
 
 /* ── Navbar ─────────────────────────────────────────────────────── */
 export default function Navbar() {
-  const [menuOpen, setMenuOpen]           = useState(false);
+  const [menuOpen, setMenuOpen]               = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [mobileResumeOpen, setMobileResumeOpen] = useState(false);
 
   const navLinks = [
     { name: 'Home',       path: '/' },
@@ -303,14 +304,15 @@ export default function Navbar() {
           {/* Mobile / Tablet Dropdown Menu */}
           {menuOpen && (
             <div className="border-t border-white/10 py-3 xl:hidden">
-              <div className="grid grid-cols-2 gap-1 sm:grid-cols-4">
+              {/* Single vertical column of nav links */}
+              <div className="flex flex-col gap-1">
                 {navLinks.map((link) => (
                   <NavLink
                     key={link.name}
                     to={link.path}
                     end={link.path === '/'}
                     className={({ isActive }) =>
-                      `rounded-xl px-4 py-2.5 text-sm font-medium text-center transition-colors ${
+                      `rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
                         isActive
                           ? 'bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-cyan-400/20 text-white'
                           : 'text-gray-300 hover:bg-white/5 hover:text-white'
@@ -325,6 +327,7 @@ export default function Navbar() {
 
               {/* Mobile bottom row */}
               <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+                {/* Social icons */}
                 <div className="flex items-center gap-3">
                   {socialLinks.map((social) => {
                     const Icon = social.icon;
@@ -343,31 +346,52 @@ export default function Navbar() {
                   })}
                 </div>
 
-                {/* Resume inline options — mobile (no floating dropdown, two flat buttons) */}
-                <div className="flex items-center gap-2">
-                  <a
-                    id="mobile-resume-view"
-                    href={RESUME_PATH}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/6
-                      px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
-                  >
-                    <FaEye size={11} />
-                    View
-                  </a>
-                  <a
-                    id="mobile-resume-download"
-                    href={RESUME_PATH}
-                    download={RESUME_FILENAME}
-                    onClick={() => setMenuOpen(false)}
+                {/* Resume toggle — tap to reveal View & Download */}
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    id="mobile-resume-toggle"
+                    type="button"
+                    onClick={() => setMobileResumeOpen(v => !v)}
                     className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2
                       text-xs font-semibold text-white hover:bg-primary-600 transition-colors"
                   >
-                    <FaDownload size={11} />
-                    Download
-                  </a>
+                    <FaFilePdf size={11} />
+                    Resume
+                    <span
+                      className="transition-transform duration-200"
+                      style={{ display: 'inline-block', transform: mobileResumeOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    >
+                      ▾
+                    </span>
+                  </button>
+
+                  {mobileResumeOpen && (
+                    <div className="flex items-center gap-2">
+                      <a
+                        id="mobile-resume-view"
+                        href={RESUME_PATH}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => { setMenuOpen(false); setMobileResumeOpen(false); }}
+                        className="flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/6
+                          px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                      >
+                        <FaEye size={11} />
+                        View
+                      </a>
+                      <a
+                        id="mobile-resume-download"
+                        href={RESUME_PATH}
+                        download={RESUME_FILENAME}
+                        onClick={() => { setMenuOpen(false); setMobileResumeOpen(false); }}
+                        className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/20
+                          px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/30 transition-colors"
+                      >
+                        <FaDownload size={11} />
+                        Download
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

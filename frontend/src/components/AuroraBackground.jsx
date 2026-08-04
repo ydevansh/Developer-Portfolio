@@ -1,5 +1,5 @@
 /**
- * AuroraBackground.jsx — v1.2 "Calm Water"
+ * AuroraBackground.jsx — v2.0 "Fluid Water"
  *
  * Premium HTML5 Canvas background for the portfolio.
  * Renders on a fixed full-screen canvas behind all page content (z-index: 0).
@@ -9,12 +9,16 @@
  *  • Deep navy (#020617 → #0F172A) base
  *  • Soft aurora blobs (blue / cyan / violet) — slow organic drift
  *  • Tiny glowing star-particles with twinkling & gentle drift
- *  • Subtle water-touch ripples — soft, concentric, fade naturally
+ *  • Realistic fluid water simulation — heightfield-based displacement
+ *    – Cursor "pushes" the water surface like a finger dragging across it
+ *    – Waves stretch & blend directionally behind cursor motion
+ *    – Natural inertia: water keeps moving after cursor stops
+ *    – No circles, no rings — pure fluid distortion
  *  • Scroll parallax on aurora blobs
  *  • Performance:
- *      – 60 FPS target; low-end halves particle count
+ *      – 60 FPS target; low-end halves particle count & grid resolution
  *      – RAF paused when tab is hidden (Page Visibility API)
- *      – prefers-reduced-motion: ripples disabled, slower aurora
+ *      – prefers-reduced-motion: fluid disabled, slower aurora
  *  • Zero Three.js / WebGL — pure 2D Canvas API
  *  • No memory leaks: all listeners removed on unmount
  */
@@ -25,12 +29,12 @@ import { useEffect, useRef, memo } from 'react';
    AURORA BLOBS
 ══════════════════════════════════════════════════════════════════════ */
 const AURORA_BLOBS = [
-  { h: 210, s: 0.55, size: 0.55, ox: 0.20, oy: 0.28, sp: 0.00013 },
-  { h: 225, s: 0.50, size: 0.50, ox: 0.70, oy: 0.22, sp: 0.00011 },
-  { h: 195, s: 0.60, size: 0.48, ox: 0.50, oy: 0.60, sp: 0.00017 },
-  { h: 260, s: 0.45, size: 0.42, ox: 0.15, oy: 0.75, sp: 0.00010 },
-  { h: 240, s: 0.52, size: 0.40, ox: 0.82, oy: 0.65, sp: 0.00014 },
-  { h: 185, s: 0.58, size: 0.35, ox: 0.40, oy: 0.90, sp: 0.00016 },
+  { h: 210, s: 0.55, size: 0.55, ox: 0.20, oy: 0.28, sp: 0.000055 },
+  { h: 225, s: 0.50, size: 0.50, ox: 0.70, oy: 0.22, sp: 0.000045 },
+  { h: 195, s: 0.60, size: 0.48, ox: 0.50, oy: 0.60, sp: 0.000070 },
+  { h: 260, s: 0.45, size: 0.42, ox: 0.15, oy: 0.75, sp: 0.000040 },
+  { h: 240, s: 0.52, size: 0.40, ox: 0.82, oy: 0.65, sp: 0.000058 },
+  { h: 185, s: 0.58, size: 0.35, ox: 0.40, oy: 0.90, sp: 0.000065 },
 ];
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -40,18 +44,30 @@ const PARTICLE_COUNT_HI   = 120;
 const PARTICLE_COUNT_LO   = 55;
 const SCROLL_PARALLAX_FAC = 0.18;
 
-// Ripple tuning
-const RIPPLE_LIFETIME  = 2600;   // ms a ripple lives
-const RIPPLE_MAX_R     = 180;    // final outer radius in px
-const RIPPLE_SPAWN_GAP = 90;     // min ms between spawns
-const RIPPLE_MIN_SPEED = 3;      // px movement needed to spawn
-const RIPPLE_POOL      = 14;     // max concurrent ripples
+/* ── Fluid simulation grid ──
+   A coarse heightfield grid — each cell stores a water height value.
+   The wave PDE propagates these values organically across neighbours.
+   Rendered with overlapping soft radial gradients → smooth fluid look.
+*/
+const GRID_COLS_HI = 80;
+const GRID_COLS_LO = 40;
+
+// Wave physics — balanced "smooth & gentle" feel
+const WAVE_DAMPING  = 0.982;  // per-step energy retention
+const WAVE_SPEED    = 0.07;   // propagation speed — calm but visible
+const PUSH_RADIUS   = 0.042;  // cursor influence radius (fraction of diag-cells)
+const PUSH_STRENGTH = 0.07;   // gentle but noticeable push
+const INERTIA_LERP  = 0.014;  // trail lags smoothly behind cursor
+
+// Render
+const FLUID_OPACITY = 0.25;   // balanced water effect blend
 
 /* ══════════════════════════════════════════════════════════════════════
    HELPERS
 ══════════════════════════════════════════════════════════════════════ */
-const lerp = (a, b, t) => a + (b - a) * t;
-const rand = (lo, hi)  => lo + Math.random() * (hi - lo);
+const lerp  = (a, b, t) => a + (b - a) * t;
+const rand  = (lo, hi)  => lo + Math.random() * (hi - lo);
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function isLowEndDevice() {
   try {
@@ -76,23 +92,96 @@ function makeParticle(W, H) {
     r: rand(0.6, 2.0),
     baseAlpha: rand(0.20, 0.65),
     alpha: 0,
-    twinkleSpeed: rand(0.0004, 0.0014),
+    twinkleSpeed: rand(0.0002, 0.0007),
     twinklePhase: rand(0, Math.PI * 2),
-    vx: rand(-0.07, 0.07),
-    vy: rand(-0.07, 0.07),
+    vx: rand(-0.025, 0.025),
+    vy: rand(-0.025, 0.025),
   };
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   RIPPLE
-   Each ripple has:
-     x, y    — spawn point
-     born    — timestamp
-     strength — 0..1 (scales with cursor speed at spawn)
+   FLUID GRID — 2D wave equation
 ══════════════════════════════════════════════════════════════════════ */
-function makeRipple(x, y, speed) {
-  const s = Math.min(1, (speed - RIPPLE_MIN_SPEED) / 25); // 0..1
-  return { x, y, born: performance.now(), strength: 0.35 + s * 0.45 };
+function makeFluidGrid(cols, rows) {
+  const n = cols * rows;
+  return {
+    cols, rows,
+    cur:  new Float32Array(n),
+    prev: new Float32Array(n),
+  };
+}
+
+/**
+ * stepFluid — advance the wave equation one tick.
+ * 2D wave PDE:  next[i] = (2*cur[i] - prev[i]) + c² * Laplacian(cur[i])
+ * Damping simulates viscosity/energy loss.
+ */
+function stepFluid(g) {
+  const { cols, rows, cur, prev } = g;
+  const c2 = WAVE_SPEED * WAVE_SPEED * 4;
+  const next = prev; // reuse prev buffer
+
+  for (let r = 1; r < rows - 1; r++) {
+    for (let c = 1; c < cols - 1; c++) {
+      const i   = r * cols + c;
+      const lap = cur[i - 1] + cur[i + 1] + cur[i - cols] + cur[i + cols] - 4 * cur[i];
+      next[i] = clamp((2 * cur[i] - prev[i] + c2 * lap) * WAVE_DAMPING, -1, 1);
+    }
+  }
+
+  // Absorb at edges (Dirichlet: height = 0)
+  for (let c = 0; c < cols; c++) {
+    next[c] = 0;
+    next[(rows - 1) * cols + c] = 0;
+  }
+  for (let r = 0; r < rows; r++) {
+    next[r * cols] = 0;
+    next[r * cols + cols - 1] = 0;
+  }
+
+  g.prev = g.cur;
+  g.cur  = next;
+}
+
+/**
+ * disturbFluid — apply directional cursor wake to the grid.
+ * The wake is an elongated ellipse in the direction of travel so it
+ * looks like a finger dragging through water, not a circle stamp.
+ */
+function disturbFluid(g, nx, ny, vx, vy, speed) {
+  const { cols, rows, cur } = g;
+  const cx = nx * (cols - 1);
+  const cy = ny * (rows - 1);
+
+  const baseR  = Math.max(cols, rows) * PUSH_RADIUS;
+  const aspect = 1 + speed * 3.5; // elongate along motion direction
+
+  const mag = Math.hypot(vx, vy) || 1;
+  const ux = vx / mag, uy = vy / mag;
+  const px = -uy, py = ux; // perpendicular
+
+  const radiusSq = baseR * baseR;
+  const searchR  = Math.ceil(baseR * (1 + aspect));
+  const ci = Math.round(cx), ri = Math.round(cy);
+
+  for (let r = Math.max(1, ri - searchR); r < Math.min(rows - 1, ri + searchR); r++) {
+    for (let c = Math.max(1, ci - searchR); c < Math.min(cols - 1, ci + searchR); c++) {
+      const dx = c - cx, dy = r - cy;
+
+      // Project onto wake axes
+      const along = dx * ux + dy * uy;
+      const perp  = dx * px + dy * py;
+
+      // Elliptical gaussian: wide along motion, narrow across
+      const distSq = (along * along) / (aspect * aspect) + (perp * perp);
+      if (distSq > radiusSq) continue;
+
+      const t = 1 - distSq / radiusSq;
+      const influence = t * t * (3 - 2 * t); // smoothstep
+      const force = -PUSH_STRENGTH * influence * speed;
+      cur[r * cols + c] = clamp(cur[r * cols + c] + force, -1, 1);
+    }
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -109,22 +198,25 @@ function AuroraBackground() {
     const reduced = prefersReducedMotion();
     const lowEnd  = isLowEndDevice();
     const PCOUNT  = lowEnd ? PARTICLE_COUNT_LO : PARTICLE_COUNT_HI;
+    const GCOLS   = lowEnd ? GRID_COLS_LO : GRID_COLS_HI;
 
     let W = 0, H = 0, diag = 0;
-    let rafId    = null;
-    let lastTime = performance.now();
-    let scrollY  = 0;
+    let rafId  = null;
+    let scrollY = 0;
 
-    // Cursor state
-    let mouseX = -999, mouseY = -999;
-    let prevX  = -999, prevY  = -999;
-    let lastSpawn = 0;
+    // Cursor state (screen pixels, -1 = off-screen)
+    let mouseX = -1, mouseY = -1;
 
-    // Inertia glow trail (lags behind real cursor)
-    let trailX = -999, trailY = -999;
+    // Inertia trail — lags behind real cursor for continuous disturbance
+    let trailX = -1, trailY = -1;
+    let tvx = 0, tvy = 0;
 
     let particles = [];
-    const ripples = [];
+    let grid = null;
+
+    // Off-screen canvas for fluid rendering
+    let offCanvas = null;
+    let offCtx    = null;
 
     /* ── Resize ── */
     function resize() {
@@ -132,12 +224,22 @@ function AuroraBackground() {
       W = window.innerWidth;
       H = window.innerHeight;
       diag = Math.hypot(W, H);
+
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
       canvas.style.width  = `${W}px`;
       canvas.style.height = `${H}px`;
       ctx.scale(dpr, dpr);
+
       particles = Array.from({ length: PCOUNT }, () => makeParticle(W, H));
+
+      const rows = Math.max(4, Math.round(GCOLS * (H / W)));
+      grid = makeFluidGrid(GCOLS, rows);
+
+      offCanvas = document.createElement('canvas');
+      offCanvas.width  = W;
+      offCanvas.height = H;
+      offCtx = offCanvas.getContext('2d');
     }
 
     /* ── Aurora blobs ── */
@@ -145,8 +247,8 @@ function AuroraBackground() {
       const shift = scrollY * SCROLL_PARALLAX_FAC;
       AURORA_BLOBS.forEach((b) => {
         const spd = b.sp * (reduced ? 0.3 : 1.0);
-        const cx  = b.ox * W + Math.sin(now * spd)        * W * 0.22;
-        const cy  = b.oy * H + Math.cos(now * spd * 0.73) * H * 0.18
+        const cx  = b.ox * W + Math.sin(now * spd)        * W * 0.12;
+        const cy  = b.oy * H + Math.cos(now * spd * 0.73) * H * 0.10
                     - shift * (0.5 + b.oy);
         const rr  = diag * b.size;
         const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
@@ -156,103 +258,103 @@ function AuroraBackground() {
         g.addColorStop(1,    'hsla(0,0%,0%,0)');
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.ellipse(cx, cy, rr, rr * 0.62, Math.sin(now * 0.00005) * 0.4, 0, Math.PI * 2);
+        ctx.ellipse(cx, cy, rr, rr * 0.62, Math.sin(now * 0.000018) * 0.4, 0, Math.PI * 2);
         ctx.fill();
       });
     }
 
-    /* ── Ripples ──────────────────────────────────────────────────────
-       Each ripple renders three concentric soft rings with slight phase
-       offsets so they look like natural water harmonics, not circles.
+    /* ── Update fluid physics + cursor force ── */
+    function updateFluid() {
+      if (reduced || !grid) return;
 
-       Easing: ease-out cubic for radius (fast start, slow end)
-       Opacity: rises briefly then falls — mimics real water energy decay
-    ──────────────────────────────────────────────────────────────────── */
-    function drawRipples(now) {
-      if (reduced) return;
+      stepFluid(grid);
 
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const rp  = ripples[i];
-        const age = now - rp.born;
-        if (age >= RIPPLE_LIFETIME) { ripples.splice(i, 1); continue; }
+      if (mouseX >= 0) {
+        if (trailX < 0) { trailX = mouseX; trailY = mouseY; }
 
-        const t = age / RIPPLE_LIFETIME;           // 0 → 1 linear lifetime
+        const oldTX = trailX, oldTY = trailY;
+        trailX = lerp(trailX, mouseX, INERTIA_LERP);
+        trailY = lerp(trailY, mouseY, INERTIA_LERP);
 
-        // Ease-out cubic: radius grows quickly at start, slow at end
-        const eased = 1 - Math.pow(1 - t, 3);
-        const R     = eased * RIPPLE_MAX_R;
+        tvx = (trailX - oldTX) / W;
+        tvy = (trailY - oldTY) / H;
+        const speed = Math.hypot(tvx, tvy) * 60;
 
-        // Opacity: brief peak ~15% of life, then smooth fade
-        const fade  = Math.pow(1 - t, 1.8) * Math.min(1, t / 0.06);
-        const alpha = rp.strength * fade;
-
-        if (alpha < 0.003 || R < 1) continue;
-
-        // ── Ring 1 — primary wave front ──
-        const lw1 = lerp(1.6, 0.3, t);
-        ctx.beginPath();
-        ctx.arc(rp.x, rp.y, R, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(140,200,255,${alpha * 0.55})`;
-        ctx.lineWidth   = lw1;
-        ctx.stroke();
-
-        // ── Ring 2 — inner harmonic (60% radius, slight phase lag) ──
-        if (R > 14) {
-          const R2  = R * 0.60;
-          const lw2 = lerp(1.1, 0.2, t);
-          ctx.beginPath();
-          ctx.arc(rp.x, rp.y, R2, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(160,215,255,${alpha * 0.35})`;
-          ctx.lineWidth   = lw2;
-          ctx.stroke();
+        if (speed > 0.001) {
+          const nx = trailX / W;
+          const ny = trailY / H;
+          disturbFluid(grid, nx, ny, tvx, tvy, Math.min(0.7, speed * 2.5));
         }
-
-        // ── Ring 3 — tertiary echo (30% radius) ──
-        if (R > 32) {
-          const R3  = R * 0.30;
-          ctx.beginPath();
-          ctx.arc(rp.x, rp.y, R3, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(180,225,255,${alpha * 0.18})`;
-          ctx.lineWidth   = lerp(0.8, 0.1, t);
-          ctx.stroke();
-        }
-
-        // ── Soft inner fill — displaced water surface glow ──
-        const fillR = R * 0.22;
-        if (fillR > 3) {
-          const gf = ctx.createRadialGradient(rp.x, rp.y, 0, rp.x, rp.y, fillR);
-          gf.addColorStop(0,   `rgba(160,220,255,${alpha * 0.12})`);
-          gf.addColorStop(1,   'rgba(120,190,255,0)');
-          ctx.fillStyle = gf;
-          ctx.beginPath();
-          ctx.arc(rp.x, rp.y, fillR, 0, Math.PI * 2);
-          ctx.fill();
+      } else {
+        tvx *= 0.96;
+        tvy *= 0.96;
+        if (trailX >= 0) {
+          // Slowly decay trail position off-screen
+          trailX += tvx * W;
+          trailY += tvy * H;
+          if (trailX < 0 || trailX > W || trailY < 0 || trailY > H) {
+            trailX = -1;
+            trailY = -1;
+          }
         }
       }
     }
 
-    /* ── Cursor trail glow (inertia-lagged) ──
-       A very soft ambient glow that follows the cursor with a slight
-       delay. Adds depth and the "lens on water" feel.
-    ── */
-    function drawTrail() {
-      if (mouseX < -900) return;
+    /* ── Render fluid heightfield ──
+       Each active grid cell is drawn as a soft, large radial gradient.
+       Crests → cool blue highlight; Troughs → deeper blue-violet shadow.
+       Gradients overlap → smooth organic surface with no visible grid.
+       Composited with 'screen' so it blends naturally with aurora. ── */
+    function drawFluid() {
+      if (reduced || !grid || !offCtx) return;
 
-      // Seed trail on first move
-      if (trailX < -900) { trailX = mouseX; trailY = mouseY; }
+      const { cols, rows, cur } = grid;
+      const cw = W / (cols - 1);
+      const ch = H / (rows - 1);
 
-      // Lerp trail toward actual cursor (8% per frame ≈ ~150ms lag at 60fps)
-      trailX = lerp(trailX, mouseX, 0.08);
-      trailY = lerp(trailY, mouseY, 0.08);
+      offCtx.clearRect(0, 0, W, H);
 
-      const gr = ctx.createRadialGradient(trailX, trailY, 0, trailX, trailY, 72);
-      gr.addColorStop(0,   'rgba(120,195,255,0.07)');
-      gr.addColorStop(0.5, 'rgba(100,175,255,0.03)');
-      gr.addColorStop(1,   'rgba(80,150,255,0)');
-      ctx.fillStyle = gr;
-      ctx.beginPath();
-      ctx.arc(trailX, trailY, 72, 0, Math.PI * 2);
-      ctx.fill();
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const h = cur[r * cols + c];
+          if (Math.abs(h) < 0.008) continue;
+
+          const px = c * cw;
+          const py = r * ch;
+          const radius = Math.max(cw, ch) * 1.6;
+          const intensity = Math.abs(h);
+
+          let r0, g0, b0, a0;
+          if (h > 0) {
+            // Crest — bright blue-white highlight
+            r0 = Math.round(140 + intensity * 80);
+            g0 = Math.round(200 + intensity * 40);
+            b0 = 255;
+            a0 = intensity * 0.30;
+          } else {
+            // Trough — deeper blue-violet shadow
+            r0 = Math.round(Math.max(0, 60  - intensity * 20));
+            g0 = Math.round(100 + intensity * 30);
+            b0 = Math.round(200 + intensity * 40);
+            a0 = intensity * 0.22;
+          }
+
+          const grd = offCtx.createRadialGradient(px, py, 0, px, py, radius);
+          grd.addColorStop(0,   `rgba(${r0},${g0},${b0},${a0.toFixed(3)})`);
+          grd.addColorStop(0.5, `rgba(${Math.round(r0 * 0.7)},${Math.round(g0 * 0.7)},${b0},${(a0 * 0.4).toFixed(3)})`);
+          grd.addColorStop(1,   'rgba(0,0,0,0)');
+          offCtx.fillStyle = grd;
+          offCtx.beginPath();
+          offCtx.arc(px, py, radius, 0, Math.PI * 2);
+          offCtx.fill();
+        }
+      }
+
+      ctx.save();
+      ctx.globalAlpha = FLUID_OPACITY;
+      ctx.globalCompositeOperation = 'screen';
+      ctx.drawImage(offCanvas, 0, 0);
+      ctx.restore();
     }
 
     /* ── Particles ── */
@@ -284,11 +386,9 @@ function AuroraBackground() {
     /* ── Render loop ── */
     function render(now) {
       rafId = requestAnimationFrame(render);
-      lastTime = now;
 
       ctx.clearRect(0, 0, W, H);
 
-      // Base gradient
       const base = ctx.createLinearGradient(0, 0, 0, H);
       base.addColorStop(0,   '#020617');
       base.addColorStop(0.5, '#060d21');
@@ -297,60 +397,28 @@ function AuroraBackground() {
       ctx.fillRect(0, 0, W, H);
 
       drawAurora(now);
-      drawRipples(now);
-      drawTrail();
+      updateFluid();
+      drawFluid();
       drawParticles(now);
     }
 
     /* ── Events ── */
-    function onMouseMove(e) {
-      const now = performance.now();
-      const cx  = e.clientX, cy = e.clientY;
-
-      // Compute speed from last recorded position
-      const speed = (prevX < -900)
-        ? 0
-        : Math.hypot(cx - prevX, cy - prevY);
-
-      mouseX = cx; mouseY = cy;
-
-      // Spawn ripple if cursor moved enough and cooldown passed
-      if (!reduced && speed > RIPPLE_MIN_SPEED && now - lastSpawn > RIPPLE_SPAWN_GAP) {
-        ripples.push(makeRipple(cx, cy, speed));
-        if (ripples.length > RIPPLE_POOL) ripples.shift();
-        lastSpawn = now;
-      }
-
-      prevX = cx; prevY = cy;
-    }
-
-    function onMouseLeave() { mouseX = -999; mouseY = -999; }
+    function onMouseMove(e)  { mouseX = e.clientX; mouseY = e.clientY; }
+    function onMouseLeave()  { mouseX = -1; mouseY = -1; }
 
     function onTouchMove(e) {
-      const t   = e.touches[0];
-      const now = performance.now();
-      const speed = (prevX < -900)
-        ? 0
-        : Math.hypot(t.clientX - prevX, t.clientY - prevY);
-
-      mouseX = t.clientX; mouseY = t.clientY;
-
-      if (!reduced && speed > RIPPLE_MIN_SPEED && now - lastSpawn > RIPPLE_SPAWN_GAP + 30) {
-        ripples.push(makeRipple(t.clientX, t.clientY, speed));
-        if (ripples.length > RIPPLE_POOL) ripples.shift();
-        lastSpawn = now;
-      }
-      prevX = t.clientX; prevY = t.clientY;
+      const t = e.touches[0];
+      mouseX = t.clientX;
+      mouseY = t.clientY;
     }
 
-    function onTouchEnd() { mouseX = -999; mouseY = -999; }
-    function onScroll()   { scrollY = window.scrollY; }
+    function onTouchEnd()  { mouseX = -1; mouseY = -1; }
+    function onScroll()    { scrollY = window.scrollY; }
 
     function onVisibilityChange() {
       if (document.hidden) {
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
       } else {
-        lastTime = performance.now();
         if (!rafId) rafId = requestAnimationFrame(render);
       }
     }
