@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   FaArrowRight,
   FaBars,
@@ -164,6 +165,27 @@ export default function Navbar() {
 
   return (
     <header className="fixed left-0 top-0 z-50 w-full">
+      {/* Keyframes for animated active tab */}
+      <style>{`
+        @keyframes navGradientShift {
+          0%   { background-position: 0%   50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0%   50%; }
+        }
+        @keyframes navGlowBreathe {
+          0%, 100% {
+            box-shadow:
+              0 0 0 1px rgba(139,92,246,0.24),
+              0 4px 18px rgba(139,92,246,0.18);
+          }
+          50% {
+            box-shadow:
+              0 0 0 1px rgba(99,102,241,0.40),
+              0 4px 26px rgba(139,92,246,0.34),
+              0 0 14px rgba(6,182,212,0.16);
+          }
+        }
+      `}</style>
       {/* Announcement Bar */}
       {showAnnouncement && (
         <div className="border-b border-emerald-500/15 bg-slate-950/95 backdrop-blur-md">
@@ -219,15 +241,45 @@ export default function Navbar() {
                   key={link.name}
                   to={link.path}
                   end={link.path === '/'}
-                  className={({ isActive }) =>
-                    `rounded-full px-3 py-1.5 text-[13px] font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 text-white shadow-[0_8px_24px_rgba(139,92,246,0.3)]'
-                        : 'text-gray-300 hover:bg-white/6 hover:text-white'
-                    }`
-                  }
                 >
-                  {link.name}
+                  {({ isActive }) => (
+                    /* inline-flex + items-center guarantees underline is always
+                       horizontally centred under the pill — no absolute positioning needed */
+                    <div className="inline-flex flex-col items-center gap-[3px]">
+                      {/* Pill — animated gradient when active, plain hover when inactive */}
+                      <span
+                        className={`rounded-full px-3 py-1.5 text-[13px] transition-colors duration-200 ${
+                          isActive
+                            ? 'text-white font-semibold'
+                            : 'font-medium text-gray-300 hover:bg-white/6 hover:text-white'
+                        }`}
+                        style={isActive ? {
+                          background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6)',
+                          backgroundSize: '300% 300%',
+                          animation: 'navGradientShift 5s ease infinite, navGlowBreathe 3.5s ease-in-out infinite',
+                        } : {}}
+                      >
+                        {link.name}
+                      </span>
+
+                      {/* Reserve fixed space so inactive tabs don't shift layout */}
+                      <div style={{ height: 2, width: 30 }}>
+                        {isActive && (
+                          <motion.div
+                            layoutId="desktop-nav-underline"
+                            className="rounded-full"
+                            style={{
+                              height: 2,
+                              width: 30,
+                              background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4)',
+                              boxShadow: '0 0 7px 1px rgba(139,92,246,0.55), 0 0 3px rgba(6,182,212,0.32)',
+                            }}
+                            transition={{ type: 'spring', stiffness: 360, damping: 34 }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -312,12 +364,15 @@ export default function Navbar() {
                     to={link.path}
                     end={link.path === '/'}
                     className={({ isActive }) =>
-                      `rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                      `rounded-xl px-4 py-3 text-sm transition-colors ${
                         isActive
-                          ? 'bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-cyan-400/20 text-white'
-                          : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          ? 'font-semibold text-white border border-violet-400/30'
+                          : 'font-medium text-gray-300 hover:bg-white/5 hover:text-white'
                       }`
                     }
+                    style={({ isActive }) => isActive ? {
+                      background: 'linear-gradient(135deg, rgba(59,130,246,0.18), rgba(139,92,246,0.18), rgba(6,182,212,0.12))',
+                    } : {}}
                     onClick={() => setMenuOpen(false)}
                   >
                     {link.name}
