@@ -1,5 +1,5 @@
 import './styles/globals.css';
-import React, { useState, useEffect, useCallback, Component } from 'react';
+import React, { useState, useEffect, useCallback, Component, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -8,17 +8,18 @@ import ScrollToTop from './components/common/ScrollToTop';
 import AuroraBackground from './components/AuroraBackground';
 
 // Public Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import SkillsPage from './pages/Skills';
-import Projects from './pages/Projects';
-import Contact from './pages/Contact';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail';
-import Experience from './pages/Experience';
-import Services from './pages/Services';
-import { Testimonials, NotFound } from './pages/Placeholders';
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const SkillsPage = lazy(() => import('./pages/Skills'));
+const Projects = lazy(() => import('./pages/Projects'));
+const Contact = lazy(() => import('./pages/Contact'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogDetail = lazy(() => import('./pages/BlogDetail'));
+const Experience = lazy(() => import('./pages/Experience'));
+const Services = lazy(() => import('./pages/Services'));
+const Testimonials = lazy(() => import('./pages/Placeholders').then((module) => ({ default: module.Testimonials })));
+const NotFound = lazy(() => import('./pages/Placeholders').then((module) => ({ default: module.NotFound })));
 
 // Admin Pages
 import AdminLogin from './pages/Admin/Login';
@@ -75,35 +76,37 @@ function AppContent() {
       <div className="min-h-screen flex flex-col" style={{ position: 'relative', zIndex: 1 }}>
         {!isAdminRoute && <Navbar />}
         <main className="flex-grow">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/skills" element={<SkillsPage />} />
-            <Route path="/experience" element={<Experience />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogDetail />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Suspense fallback={<LoadingScreen onLoadingComplete={() => {}} />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/skills" element={<SkillsPage />} />
+              <Route path="/experience" element={<Experience />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogDetail />} />
+              <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/*" element={<AdminLayout />}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="projects" element={<AdminProjects />} />
-              <Route path="blogs" element={<AdminBlogs />} />
-              <Route path="messages" element={<Messages />} />
-              <Route path="skills" element={<AdminSkills />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/*" element={<AdminLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="projects" element={<AdminProjects />} />
+                <Route path="blogs" element={<AdminBlogs />} />
+                <Route path="messages" element={<Messages />} />
+                <Route path="skills" element={<AdminSkills />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </main>
         {!isAdminRoute && <Footer />}
       </div>
