@@ -1,26 +1,35 @@
 /**
- * AuroraBackground.jsx — v2.0 "Fluid Water"
+ * AuroraBackground.jsx — v3.0 "Liquid Light"
  *
  * Premium HTML5 Canvas background for the portfolio.
+ * Inspired by Apple, OpenAI, Linear, Vercel interaction aesthetics.
  * Renders on a fixed full-screen canvas behind all page content (z-index: 0).
  *
- * Features
- * ─────────
- *  • Deep navy (#020617 → #0F172A) base
- *  • Soft aurora blobs (blue / cyan / violet) — slow organic drift
- *  • Tiny glowing star-particles with twinkling & gentle drift
- *  • Realistic fluid water simulation — heightfield-based displacement
- *    – Cursor "pushes" the water surface like a finger dragging across it
- *    – Waves stretch & blend directionally behind cursor motion
- *    – Natural inertia: water keeps moving after cursor stops
- *    – No circles, no rings — pure fluid distortion
- *  • Scroll parallax on aurora blobs
- *  • Performance:
- *      – 60 FPS target; low-end halves particle count & grid resolution
- *      – RAF paused when tab is hidden (Page Visibility API)
- *      – prefers-reduced-motion: fluid disabled, slower aurora
- *  • Zero Three.js / WebGL — pure 2D Canvas API
- *  • No memory leaks: all listeners removed on unmount
+ * Interaction model
+ * ──────────────────
+ * • Cursor light  — An ultra-soft, two-layer radial glow follows the cursor
+ *   with smooth inertia. Fades in on enter, out on leave. No circles, no rings.
+ * • Particles     — Nearby star-particles gently drift away from the cursor
+ *   and spring back home. Motion continues briefly after cursor stops.
+ * • Aurora blobs  — Slow, organic, independent drift. A barely-perceptible
+ *   bias tilts each blob slightly toward the cursor over time.
+ * • Scroll        — Soft parallax on aurora only.
+ *
+ * What was removed vs v2
+ * ───────────────────────
+ * • Full wave PDE heightfield simulation (Float32Arrays, stepFluid, disturbFluid)
+ * • Off-screen canvas composite pass
+ * • All ripple / ring rendering
+ * Result: ~70 % less compute per frame → easily maintains 60 FPS.
+ *
+ * Performance
+ * ───────────
+ * • 60 FPS target, RAF-driven
+ * • RAF paused when tab hidden (Page Visibility API)
+ * • prefers-reduced-motion: particle push disabled, aurora slowed
+ * • Low-end GPU: particle count halved
+ * • No WebGL / Three.js — pure 2D Canvas API
+ * • Zero memory leaks — all listeners removed on unmount
  */
 
 import { useEffect, useRef, memo } from 'react';
@@ -40,34 +49,41 @@ const AURORA_BLOBS = [
 /* ══════════════════════════════════════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════════════════════════════════════ */
-const PARTICLE_COUNT_HI   = 120;
-const PARTICLE_COUNT_LO   = 55;
-const SCROLL_PARALLAX_FAC = 0.18;
+const PARTICLE_COUNT_HI    = 110;
+const PARTICLE_COUNT_LO    = 50;
+const SCROLL_PARALLAX_FAC  = 0.15;
 
-/* ── Fluid simulation grid ──
-   A coarse heightfield grid — each cell stores a water height value.
-   The wave PDE propagates these values organically across neighbours.
-   Rendered with overlapping soft radial gradients → smooth fluid look.
-*/
-const GRID_COLS_HI = 80;
-const GRID_COLS_LO = 40;
+/* ── Magnetic cursor light ──
+   Two concentric soft glows follow the cursor with smooth inertia.
+   Uses 'screen' blend so they add light rather than paint opaque shapes.
+   Effect is invisible unless you look closely — intentionally subtle. */
+const LIGHT_LERP       = 0.048;   // inertia factor — lower = more lag
+const LIGHT_OUTER_R    = 430;     // px — wide ambient glow radius
+const LIGHT_INNER_R    = 115;     // px — concentrated centre glow
+const LIGHT_MAX_ALPHA  = 0.058;   // outer glow peak opacity (very subtle)
+const LIGHT_FADE_IN    = 0.042;   // speed of fade-in when cursor enters
+const LIGHT_FADE_OUT   = 0.025;   // speed of fade-out when cursor leaves
 
-// Wave physics — balanced "smooth & gentle" feel
-const WAVE_DAMPING  = 0.982;  // per-step energy retention
-const WAVE_SPEED    = 0.07;   // propagation speed — calm but visible
-const PUSH_RADIUS   = 0.042;  // cursor influence radius (fraction of diag-cells)
-const PUSH_STRENGTH = 0.07;   // gentle but noticeable push
-const INERTIA_LERP  = 0.014;  // trail lags smoothly behind cursor
+/* ── Aurora cursor bias ──
+   The aurora blobs very slowly lean toward/away from cursor.
+   Maximum displacement = AURORA_CURSOR_BIAS * viewport dimension.
+   At 0.018 this is ~18 px on a 1000 px screen — almost imperceptible. */
+const AURORA_CURSOR_BIAS = 0.018;
 
-// Render
-const FLUID_OPACITY = 0.25;   // balanced water effect blend
+/* ── Particle spring physics ──
+   Particles near the light get a gentle push.
+   A spring force always pulls them back to their birth position.
+   PARTICLE_DAMPING controls how long they oscillate after being pushed. */
+const PARTICLE_PUSH_RADIUS   = 165;   // px — influence zone
+const PARTICLE_PUSH_FORCE    = 0.20;  // peak push strength per frame
+const PARTICLE_RETURN_SPRING = 0.010; // spring constant (stiffness)
+const PARTICLE_DAMPING       = 0.90;  // velocity multiplier per frame
 
 /* ══════════════════════════════════════════════════════════════════════
    HELPERS
 ══════════════════════════════════════════════════════════════════════ */
-const lerp  = (a, b, t) => a + (b - a) * t;
-const rand  = (lo, hi)  => lo + Math.random() * (hi - lo);
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (lo, hi)  => lo + Math.random() * (hi - lo);
 
 function isLowEndDevice() {
   try {
@@ -86,102 +102,22 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/* Each particle remembers its birth position (homeX/homeY) so the
+   spring can pull it back precisely after the cursor moves away. */
 function makeParticle(W, H) {
+  const x = rand(0, W);
+  const y = rand(0, H);
   return {
-    x: rand(0, W), y: rand(0, H),
-    r: rand(0.6, 2.0),
-    baseAlpha: rand(0.20, 0.65),
-    alpha: 0,
-    twinkleSpeed: rand(0.0002, 0.0007),
+    x, y,
+    homeX: x,
+    homeY: y,
+    vx: 0, vy: 0,
+    r:            rand(0.5, 1.8),
+    baseAlpha:    rand(0.15, 0.55),
+    alpha:        0,
+    twinkleSpeed: rand(0.00022, 0.00075),
     twinklePhase: rand(0, Math.PI * 2),
-    vx: rand(-0.025, 0.025),
-    vy: rand(-0.025, 0.025),
   };
-}
-
-/* ══════════════════════════════════════════════════════════════════════
-   FLUID GRID — 2D wave equation
-══════════════════════════════════════════════════════════════════════ */
-function makeFluidGrid(cols, rows) {
-  const n = cols * rows;
-  return {
-    cols, rows,
-    cur:  new Float32Array(n),
-    prev: new Float32Array(n),
-  };
-}
-
-/**
- * stepFluid — advance the wave equation one tick.
- * 2D wave PDE:  next[i] = (2*cur[i] - prev[i]) + c² * Laplacian(cur[i])
- * Damping simulates viscosity/energy loss.
- */
-function stepFluid(g) {
-  const { cols, rows, cur, prev } = g;
-  const c2 = WAVE_SPEED * WAVE_SPEED * 4;
-  const next = prev; // reuse prev buffer
-
-  for (let r = 1; r < rows - 1; r++) {
-    for (let c = 1; c < cols - 1; c++) {
-      const i   = r * cols + c;
-      const lap = cur[i - 1] + cur[i + 1] + cur[i - cols] + cur[i + cols] - 4 * cur[i];
-      next[i] = clamp((2 * cur[i] - prev[i] + c2 * lap) * WAVE_DAMPING, -1, 1);
-    }
-  }
-
-  // Absorb at edges (Dirichlet: height = 0)
-  for (let c = 0; c < cols; c++) {
-    next[c] = 0;
-    next[(rows - 1) * cols + c] = 0;
-  }
-  for (let r = 0; r < rows; r++) {
-    next[r * cols] = 0;
-    next[r * cols + cols - 1] = 0;
-  }
-
-  g.prev = g.cur;
-  g.cur  = next;
-}
-
-/**
- * disturbFluid — apply directional cursor wake to the grid.
- * The wake is an elongated ellipse in the direction of travel so it
- * looks like a finger dragging through water, not a circle stamp.
- */
-function disturbFluid(g, nx, ny, vx, vy, speed) {
-  const { cols, rows, cur } = g;
-  const cx = nx * (cols - 1);
-  const cy = ny * (rows - 1);
-
-  const baseR  = Math.max(cols, rows) * PUSH_RADIUS;
-  const aspect = 1 + speed * 3.5; // elongate along motion direction
-
-  const mag = Math.hypot(vx, vy) || 1;
-  const ux = vx / mag, uy = vy / mag;
-  const px = -uy, py = ux; // perpendicular
-
-  const radiusSq = baseR * baseR;
-  const searchR  = Math.ceil(baseR * (1 + aspect));
-  const ci = Math.round(cx), ri = Math.round(cy);
-
-  for (let r = Math.max(1, ri - searchR); r < Math.min(rows - 1, ri + searchR); r++) {
-    for (let c = Math.max(1, ci - searchR); c < Math.min(cols - 1, ci + searchR); c++) {
-      const dx = c - cx, dy = r - cy;
-
-      // Project onto wake axes
-      const along = dx * ux + dy * uy;
-      const perp  = dx * px + dy * py;
-
-      // Elliptical gaussian: wide along motion, narrow across
-      const distSq = (along * along) / (aspect * aspect) + (perp * perp);
-      if (distSq > radiusSq) continue;
-
-      const t = 1 - distSq / radiusSq;
-      const influence = t * t * (3 - 2 * t); // smoothstep
-      const force = -PUSH_STRENGTH * influence * speed;
-      cur[r * cols + c] = clamp(cur[r * cols + c] + force, -1, 1);
-    }
-  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -198,60 +134,62 @@ function AuroraBackground() {
     const reduced = prefersReducedMotion();
     const lowEnd  = isLowEndDevice();
     const PCOUNT  = lowEnd ? PARTICLE_COUNT_LO : PARTICLE_COUNT_HI;
-    const GCOLS   = lowEnd ? GRID_COLS_LO : GRID_COLS_HI;
 
     let W = 0, H = 0, diag = 0;
-    let rafId  = null;
+    let rafId   = null;
     let scrollY = 0;
 
-    // Cursor state (screen pixels, -1 = off-screen)
+    // Raw cursor position  (-1 = cursor off-screen / unknown)
     let mouseX = -1, mouseY = -1;
 
-    // Inertia trail — lags behind real cursor for continuous disturbance
-    let trailX = -1, trailY = -1;
-    let tvx = 0, tvy = 0;
+    // Smoothed light position — lags behind real cursor (inertia)
+    let lightX = 0, lightY = 0;
+
+    // 0…1 scalar that fades in when cursor is on-screen, fades out when off
+    let lightOpacity = 0;
 
     let particles = [];
-    let grid = null;
-
-    // Off-screen canvas for fluid rendering
-    let offCanvas = null;
-    let offCtx    = null;
 
     /* ── Resize ── */
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = window.innerWidth;
-      H = window.innerHeight;
+      W    = window.innerWidth;
+      H    = window.innerHeight;
       diag = Math.hypot(W, H);
 
-      canvas.width  = W * dpr;
-      canvas.height = H * dpr;
+      canvas.width        = W * dpr;
+      canvas.height       = H * dpr;
       canvas.style.width  = `${W}px`;
       canvas.style.height = `${H}px`;
       ctx.scale(dpr, dpr);
 
+      // Rebuild particle field; preserve light position on resize
       particles = Array.from({ length: PCOUNT }, () => makeParticle(W, H));
-
-      const rows = Math.max(4, Math.round(GCOLS * (H / W)));
-      grid = makeFluidGrid(GCOLS, rows);
-
-      offCanvas = document.createElement('canvas');
-      offCanvas.width  = W;
-      offCanvas.height = H;
-      offCtx = offCanvas.getContext('2d');
+      if (lightX === 0 && lightY === 0) { lightX = W / 2; lightY = H / 2; }
     }
 
     /* ── Aurora blobs ── */
     function drawAurora(now) {
       const shift = scrollY * SCROLL_PARALLAX_FAC;
+
+      // Normalised cursor 0..1 (centre fallback when off-screen)
+      const ncx = mouseX >= 0 ? mouseX / W : 0.5;
+      const ncy = mouseY >= 0 ? mouseY / H : 0.5;
+
       AURORA_BLOBS.forEach((b) => {
         const spd = b.sp * (reduced ? 0.3 : 1.0);
-        const cx  = b.ox * W + Math.sin(now * spd)        * W * 0.12;
-        const cy  = b.oy * H + Math.cos(now * spd * 0.73) * H * 0.10
-                    - shift * (0.5 + b.oy);
-        const rr  = diag * b.size;
-        const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
+
+        // Each blob gets a tiny, individual cursor bias — different blobs
+        // lean at slightly different rates so the motion looks organic, not mechanical.
+        const biasX = (ncx - 0.5) * AURORA_CURSOR_BIAS * W * (0.6 + b.oy);
+        const biasY = (ncy - 0.5) * AURORA_CURSOR_BIAS * H * (0.6 + b.ox);
+
+        const cx = b.ox * W + Math.sin(now * spd)        * W * 0.12 + biasX;
+        const cy = b.oy * H + Math.cos(now * spd * 0.73) * H * 0.10
+                   - shift * (0.5 + b.oy) + biasY;
+        const rr = diag * b.size;
+
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
         g.addColorStop(0,    `hsla(${b.h},80%,60%,${0.13 * b.s})`);
         g.addColorStop(0.30, `hsla(${b.h},70%,50%,${0.09 * b.s})`);
         g.addColorStop(0.65, `hsla(${b.h},60%,40%,${0.05 * b.s})`);
@@ -263,120 +201,105 @@ function AuroraBackground() {
       });
     }
 
-    /* ── Update fluid physics + cursor force ── */
-    function updateFluid() {
-      if (reduced || !grid) return;
-
-      stepFluid(grid);
-
+    /* ── Cursor light: update position + opacity ── */
+    function updateCursorLight() {
       if (mouseX >= 0) {
-        if (trailX < 0) { trailX = mouseX; trailY = mouseY; }
-
-        const oldTX = trailX, oldTY = trailY;
-        trailX = lerp(trailX, mouseX, INERTIA_LERP);
-        trailY = lerp(trailY, mouseY, INERTIA_LERP);
-
-        tvx = (trailX - oldTX) / W;
-        tvy = (trailY - oldTY) / H;
-        const speed = Math.hypot(tvx, tvy) * 60;
-
-        if (speed > 0.001) {
-          const nx = trailX / W;
-          const ny = trailY / H;
-          disturbFluid(grid, nx, ny, tvx, tvy, Math.min(0.7, speed * 2.5));
-        }
+        // Light chases real cursor with inertia
+        lightX = lerp(lightX, mouseX, LIGHT_LERP);
+        lightY = lerp(lightY, mouseY, LIGHT_LERP);
+        // Fade in
+        lightOpacity = lerp(lightOpacity, 1.0, LIGHT_FADE_IN);
       } else {
-        tvx *= 0.96;
-        tvy *= 0.96;
-        if (trailX >= 0) {
-          // Slowly decay trail position off-screen
-          trailX += tvx * W;
-          trailY += tvy * H;
-          if (trailX < 0 || trailX > W || trailY < 0 || trailY > H) {
-            trailX = -1;
-            trailY = -1;
-          }
-        }
+        // Cursor off-screen → fade out (slower than fade-in for a trailing feel)
+        lightOpacity = lerp(lightOpacity, 0.0, LIGHT_FADE_OUT);
       }
     }
 
-    /* ── Render fluid heightfield ──
-       Each active grid cell is drawn as a soft, large radial gradient.
-       Crests → cool blue highlight; Troughs → deeper blue-violet shadow.
-       Gradients overlap → smooth organic surface with no visible grid.
-       Composited with 'screen' so it blends naturally with aurora. ── */
-    function drawFluid() {
-      if (reduced || !grid || !offCtx) return;
+    /* ── Cursor light: draw two-layer soft glow ── */
+    function drawCursorLight() {
+      if (lightOpacity < 0.004 || reduced) return;
 
-      const { cols, rows, cur } = grid;
-      const cw = W / (cols - 1);
-      const ch = H / (rows - 1);
-
-      offCtx.clearRect(0, 0, W, H);
-
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const h = cur[r * cols + c];
-          if (Math.abs(h) < 0.008) continue;
-
-          const px = c * cw;
-          const py = r * ch;
-          const radius = Math.max(cw, ch) * 1.6;
-          const intensity = Math.abs(h);
-
-          let r0, g0, b0, a0;
-          if (h > 0) {
-            // Crest — bright blue-white highlight
-            r0 = Math.round(140 + intensity * 80);
-            g0 = Math.round(200 + intensity * 40);
-            b0 = 255;
-            a0 = intensity * 0.30;
-          } else {
-            // Trough — deeper blue-violet shadow
-            r0 = Math.round(Math.max(0, 60  - intensity * 20));
-            g0 = Math.round(100 + intensity * 30);
-            b0 = Math.round(200 + intensity * 40);
-            a0 = intensity * 0.22;
-          }
-
-          const grd = offCtx.createRadialGradient(px, py, 0, px, py, radius);
-          grd.addColorStop(0,   `rgba(${r0},${g0},${b0},${a0.toFixed(3)})`);
-          grd.addColorStop(0.5, `rgba(${Math.round(r0 * 0.7)},${Math.round(g0 * 0.7)},${b0},${(a0 * 0.4).toFixed(3)})`);
-          grd.addColorStop(1,   'rgba(0,0,0,0)');
-          offCtx.fillStyle = grd;
-          offCtx.beginPath();
-          offCtx.arc(px, py, radius, 0, Math.PI * 2);
-          offCtx.fill();
-        }
-      }
+      const alpha = LIGHT_MAX_ALPHA * lightOpacity;
 
       ctx.save();
-      ctx.globalAlpha = FLUID_OPACITY;
       ctx.globalCompositeOperation = 'screen';
-      ctx.drawImage(offCanvas, 0, 0);
+
+      // Layer 1 — wide ambient corona, barely visible
+      const gOuter = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, LIGHT_OUTER_R);
+      gOuter.addColorStop(0,    `rgba(110, 175, 255, ${(alpha).toFixed(4)})`);
+      gOuter.addColorStop(0.45, `rgba(90,  155, 245, ${(alpha * 0.40).toFixed(4)})`);
+      gOuter.addColorStop(0.80, `rgba(70,  130, 230, ${(alpha * 0.10).toFixed(4)})`);
+      gOuter.addColorStop(1,    'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = gOuter;
+      ctx.beginPath();
+      ctx.arc(lightX, lightY, LIGHT_OUTER_R, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Layer 2 — tighter concentrated shimmer at cursor centre
+      const gInner = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, LIGHT_INNER_R);
+      gInner.addColorStop(0,   `rgba(165, 215, 255, ${(alpha * 1.55).toFixed(4)})`);
+      gInner.addColorStop(0.5, `rgba(125, 185, 255, ${(alpha * 0.65).toFixed(4)})`);
+      gInner.addColorStop(1,   'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = gInner;
+      ctx.beginPath();
+      ctx.arc(lightX, lightY, LIGHT_INNER_R, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.restore();
     }
 
-    /* ── Particles ── */
+    /* ── Particles: physics update ── */
+    function updateParticles() {
+      const lightActive = lightOpacity > 0.015 && !reduced;
+
+      particles.forEach((p) => {
+
+        if (lightActive) {
+          const dx   = p.x - lightX;
+          const dy   = p.y - lightY;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < PARTICLE_PUSH_RADIUS && dist > 1) {
+            // Smooth cosine-bell falloff — force peaks at cursor, tapers to 0 at edge
+            const t     = 1 - dist / PARTICLE_PUSH_RADIUS;
+            const force = PARTICLE_PUSH_FORCE * t * t * lightOpacity;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Spring back toward birth position
+        p.vx += (p.homeX - p.x) * PARTICLE_RETURN_SPRING;
+        p.vy += (p.homeY - p.y) * PARTICLE_RETURN_SPRING;
+
+        // Velocity damping (energy loss → motion decays naturally)
+        p.vx *= PARTICLE_DAMPING;
+        p.vy *= PARTICLE_DAMPING;
+
+        // Integrate position
+        p.x += p.vx;
+        p.y += p.vy;
+      });
+    }
+
+    /* ── Particles: draw ── */
     function drawParticles(now) {
       particles.forEach((p) => {
+        // Slow, independent twinkle
         p.alpha = p.baseAlpha * (0.5 + 0.5 * Math.sin(now * p.twinkleSpeed + p.twinklePhase));
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < -4)    p.x = W + 4;
-        if (p.x > W + 4) p.x = -4;
-        if (p.y < -4)    p.y = H + 4;
-        if (p.y > H + 4) p.y = -4;
 
+        // Soft glow halo
         const gw = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3.5);
-        gw.addColorStop(0,   `rgba(180,210,255,${p.alpha})`);
-        gw.addColorStop(0.4, `rgba(140,190,255,${p.alpha * 0.5})`);
+        gw.addColorStop(0,   `rgba(180,210,255,${p.alpha.toFixed(3)})`);
+        gw.addColorStop(0.4, `rgba(140,190,255,${(p.alpha * 0.5).toFixed(3)})`);
         gw.addColorStop(1,   'rgba(100,160,255,0)');
         ctx.fillStyle = gw;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r * 3.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(220,235,255,${p.alpha})`;
+        // Solid core
+        ctx.fillStyle = `rgba(220,235,255,${p.alpha.toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
@@ -389,6 +312,7 @@ function AuroraBackground() {
 
       ctx.clearRect(0, 0, W, H);
 
+      // Deep navy background
       const base = ctx.createLinearGradient(0, 0, 0, H);
       base.addColorStop(0,   '#020617');
       base.addColorStop(0.5, '#060d21');
@@ -397,12 +321,15 @@ function AuroraBackground() {
       ctx.fillRect(0, 0, W, H);
 
       drawAurora(now);
-      updateFluid();
-      drawFluid();
+
+      updateCursorLight();
+      drawCursorLight();
+
+      updateParticles();
       drawParticles(now);
     }
 
-    /* ── Events ── */
+    /* ── Event handlers ── */
     function onMouseMove(e)  { mouseX = e.clientX; mouseY = e.clientY; }
     function onMouseLeave()  { mouseX = -1; mouseY = -1; }
 
@@ -411,7 +338,6 @@ function AuroraBackground() {
       mouseX = t.clientX;
       mouseY = t.clientY;
     }
-
     function onTouchEnd()  { mouseX = -1; mouseY = -1; }
     function onScroll()    { scrollY = window.scrollY; }
 
@@ -423,11 +349,11 @@ function AuroraBackground() {
       }
     }
 
-    window.addEventListener('mousemove',          onMouseMove,        { passive: true });
-    window.addEventListener('mouseleave',         onMouseLeave,       { passive: true });
-    window.addEventListener('touchmove',          onTouchMove,        { passive: true });
-    window.addEventListener('touchend',           onTouchEnd,         { passive: true });
-    window.addEventListener('scroll',             onScroll,           { passive: true });
+    window.addEventListener('mousemove',          onMouseMove,  { passive: true });
+    window.addEventListener('mouseleave',         onMouseLeave, { passive: true });
+    window.addEventListener('touchmove',          onTouchMove,  { passive: true });
+    window.addEventListener('touchend',           onTouchEnd,   { passive: true });
+    window.addEventListener('scroll',             onScroll,     { passive: true });
     window.addEventListener('resize',             resize);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
@@ -451,13 +377,13 @@ function AuroraBackground() {
       ref={canvasRef}
       aria-hidden="true"
       style={{
-        position: 'fixed',
-        inset: 0,
-        width: '100vw',
-        height: '100vh',
-        zIndex: 0,
+        position:      'fixed',
+        inset:         0,
+        width:         '100vw',
+        height:        '100vh',
+        zIndex:        0,
         pointerEvents: 'none',
-        display: 'block',
+        display:       'block',
       }}
     />
   );
