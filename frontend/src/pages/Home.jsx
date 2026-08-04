@@ -271,7 +271,7 @@ export default function Home() {
               </motion.h1>
 
               <motion.p variants={itemVariants} className="text-lg font-semibold text-slate-100 sm:text-xl">
-                Python Developer, MERN Developer & Data Science Learner in Lucknow
+                Python Developer, MERN Developer & Data Science Learner
               </motion.p>
 
               <motion.div variants={itemVariants} className="mx-auto mt-4 w-full max-w-[13rem] lg:hidden">

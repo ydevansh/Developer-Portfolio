@@ -198,7 +198,6 @@ function AuroraBackground() {
         currentX, currentY, lightRadius
       );
 
-      // Subtle sky/cyan soft light beam
       const alphaPeak = (0.09 + speedIntensity * 0.04) * glowAlpha;
       spotGrd.addColorStop(0,    `rgba(56, 189, 248, ${alphaPeak.toFixed(3)})`);
       spotGrd.addColorStop(0.3,  `rgba(99, 102, 241, ${(alphaPeak * 0.5).toFixed(3)})`);

@@ -112,8 +112,6 @@ function AppContent() {
       </div>
     </>
   );
-}
-
 function App() {
   // Show loader only on the very first visit of the session.
   // sessionStorage is cleared when the tab is closed, so opening a new tab
