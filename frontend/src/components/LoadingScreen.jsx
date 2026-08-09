@@ -170,8 +170,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
                         ? "drop-shadow(0 0 18px rgba(56,182,255,0.7)) drop-shadow(0 0 48px rgba(56,182,255,0.28))"
                         : "drop-shadow(0 0 11px rgba(56,182,255,0.48)) drop-shadow(0 0 30px rgba(56,182,255,0.16))",
                       transition:    "filter 0.9s ease",
-                      // Reserve width so layout doesn't shift during typing
-                      minWidth:      `${NAME.length * 0.62}em`,
+
                     }}
                   >
                     {NAME.slice(0, nChars)}
