@@ -107,9 +107,14 @@ function createSunTexture(size = 512) {
   const ctx = canvas.getContext('2d');
   const cx = size / 2, cy = size / 2;
 
-  const g = ctx.createRadialGradient(cx, cy, size * 0.1, cx, cy, size * 0.48);
+  // Clear canvas so no residual black shows through
+  ctx.clearRect(0, 0, size, size);
+
+  // Inner radius = 0 → solid fill from center, no black hole
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.48);
   g.addColorStop(0,    '#ffffff');
-  g.addColorStop(0.55, '#fef08a');
+  g.addColorStop(0.35, '#fff7c0');
+  g.addColorStop(0.60, '#fef08a');
   g.addColorStop(0.80, '#f97316');
   g.addColorStop(0.95, '#ef4444');
   g.addColorStop(1,    'rgba(185, 28, 28, 0)');
