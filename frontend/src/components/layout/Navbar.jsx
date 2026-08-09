@@ -203,11 +203,13 @@ export default function Navbar() {
           <div className="flex h-14 items-center justify-between gap-4">
 
             {/* Logo */}
-            <Link to="/" className="group flex shrink-0 items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-primary-500 to-secondary text-[13px] font-bold text-white shadow-[0_8px_20px_rgba(0,116,217,0.3)]">
-                DY
-              </div>
-              <span className="hidden text-lg font-bold bg-gradient-to-r from-primary-500 to-secondary bg-clip-text text-transparent sm:inline">
+            <Link to="/" className="group flex shrink-0 items-center">
+              <span
+                data-loader-target="brand-text"
+                className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-500 via-sky-400 to-secondary bg-clip-text text-transparent
+                           transition-all duration-300 group-hover:brightness-125 group-hover:drop-shadow-[0_0_12px_rgba(0,116,217,0.7)]
+                           select-none"
+              >
                 Devansh
               </span>
             </Link>

@@ -73,7 +73,10 @@ function AppContent() {
       <ScrollToTop />
       {/* Fixed aurora canvas — renders behind everything, persists across routes */}
       {!isAdminRoute && <AuroraBackground />}
-      <div className="min-h-screen flex flex-col" style={{ position: 'relative', zIndex: 1 }}>
+      <div
+        className="min-h-screen flex flex-col"
+        style={{ position: 'relative', zIndex: 1 }}
+      >
         {!isAdminRoute && <Navbar />}
         <main className="flex-grow">
           <Suspense fallback={<LoadingScreen onLoadingComplete={() => {}} />}>
@@ -115,23 +118,34 @@ function AppContent() {
 }
 
 function App() {
-  // Show loader only on the very first visit of the session.
-  // sessionStorage is cleared when the tab is closed, so opening a new tab
-  // or a brand-new browser session will always show the loader again.
-  const [isLoading, setIsLoading] = useState(
-    () => !sessionStorage.getItem('hasSeenLoader')
-  );
+  // Show loader on every true page load (including refresh).
+  // Use a runtime flag set by the loader on completion — cleared on each hard navigation.
+  // sessionStorage persists across SPA navigations but resets on tab close / new tab.
+  // We additionally check performance entries to detect hard reloads vs SPA nav.
+  const [needsLoader] = useState(() => {
+    // If this is a hard navigation (first load or refresh), always show loader.
+    const entries = performance.getEntriesByType?.('navigation') ?? [];
+    const navType  = entries[0]?.type ?? 'navigate';
+    // navType: 'navigate' = fresh load, 'reload' = F5, 'back_forward' = history
+    // For navigate + reload we always show loader.
+    // For back_forward we skip (user hit back button — don't re-play).
+    if (navType === 'back_forward') {
+      return false;
+    }
+    // For genuine page loads, clear stale flag and show loader.
+    sessionStorage.removeItem('hasSeenLoader');
+    return true;
+  });
 
   const handleLoadingComplete = useCallback(() => {
-    // Mark that the loader has been seen for this session
     sessionStorage.setItem('hasSeenLoader', 'true');
-    setIsLoading(false);
   }, []);
 
   return (
     <AppErrorBoundary>
       <Router>
-        {isLoading && (
+        {/* LoadingScreen self-unmounts when done — App never force-removes it */}
+        {needsLoader && (
           <LoadingScreen onLoadingComplete={handleLoadingComplete} />
         )}
         <AppContent />
