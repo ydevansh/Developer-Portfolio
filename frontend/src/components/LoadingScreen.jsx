@@ -1,53 +1,44 @@
 /**
- * LoadingScreen — Premium Cinematic Edition v2
+ * LoadingScreen � Premium Cinematic Edition v2 (fixed)
  *
- * Flow: logo → type "Devansh" → type "Yadav" → hold → exit → done
- *
- * New vs v1:
- *  • 38 floating glowing particles
- *  • Subtle HUD grid overlay
- *  • Horizontal scan-line sweep (one-shot)
- *  • Corner bracket decorations
- *  • 3 orbital SVG rings (cw + ccw + inner-dashed)
- *  • Live progress arc tied to total typing progress
- *  • "Yadav" second-line typewriter (lighter weight)
- *  • "Developer · Designer · Creator" subtitle on hold
- *  • Animated divider line between name + subtitle
- *  • Exit: scale + blur collapse instead of plain fade
+ * Fixes applied:
+ *  - Particles: use fixed positioning + CSS x/y transform (not animated top/left)
+ *  - Progress arc: corrected SVG viewport geometry
+ *  - Yadav second line: uses motion.animate instead of AnimatePresence for reliability
+ *  - Corner brackets: explicit border per corner (no rotate hack)
+ *  - Cursor: only shown during its own typing phase
+ *  - Name rows: minHeight instead of fixed height prevents clipping
  */
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ─── tunables ─────────────────────────────────────────────────────────────────
-const NAME1        = "Devansh";
-const NAME2        = "Yadav";
-const LOGO_HOLD    = 900;   // ms before typing starts
-const CHAR_MS      = 105;   // ms per character
-const JITTER_MS    = 22;    // ± jitter
-const INTER_PAUSE  = 280;   // ms gap between NAME1 done → NAME2 start
-const POST_TYPE    = 750;   // ms hold after fully typed
-const EXIT_S       = 1.1;   // exit duration (s)
-const N_PARTICLES  = 38;
+const NAME1       = "Devansh";
+const NAME2       = "Yadav";
+const LOGO_HOLD   = 900;
+const CHAR_MS     = 105;
+const JITTER_MS   = 22;
+const INTER_PAUSE = 280;
+const POST_TYPE   = 800;
+const EXIT_S      = 1.1;
+const N_PARTICLES = 30;
 
-// ─── stable particle seed ────────────────────────────────────────────────────
 function useParticles() {
   return useMemo(() =>
     Array.from({ length: N_PARTICLES }, (_, i) => ({
       id:     i,
-      x:      Math.random() * 100,
-      y:      20 + Math.random() * 72,
-      size:   1.2 + Math.random() * 2.8,
-      baseOp: 0.12 + Math.random() * 0.40,
-      dur:    7 + Math.random() * 11,
-      delay:  Math.random() * 6,
-      driftX: (Math.random() - 0.5) * 8,
-      riseVh: 10 + Math.random() * 20,
+      startX: 5 + Math.random() * 90,
+      startY: 10 + Math.random() * 80,
+      size:   1.0 + Math.random() * 2.5,
+      op:     0.15 + Math.random() * 0.45,
+      dur:    8 + Math.random() * 10,
+      delay:  Math.random() * 7,
+      driftX: (Math.random() - 0.5) * 5,
+      riseY:  12 + Math.random() * 22,
     })),
   []);
 }
 
-// ─── main component ───────────────────────────────────────────────────────────
 export default function LoadingScreen({ onLoadingComplete }) {
   const [phase, setPhase] = useState("logo");
   const [n1,    setN1]    = useState(0);
@@ -57,14 +48,12 @@ export default function LoadingScreen({ onLoadingComplete }) {
   const doneRef = useRef(onLoadingComplete);
   useEffect(() => { doneRef.current = onLoadingComplete; }, [onLoadingComplete]);
 
-  // logo → typing1
   useEffect(() => {
     if (phase !== "logo") return;
     const t = setTimeout(() => setPhase("typing1"), LOGO_HOLD);
     return () => clearTimeout(t);
   }, [phase]);
 
-  // typing1: fill NAME1 char by char
   useEffect(() => {
     if (phase !== "typing1") return;
     if (n1 >= NAME1.length) {
@@ -76,7 +65,6 @@ export default function LoadingScreen({ onLoadingComplete }) {
     return () => clearTimeout(t);
   }, [phase, n1]);
 
-  // typing2: fill NAME2 char by char
   useEffect(() => {
     if (phase !== "typing2") return;
     if (n2 >= NAME2.length) {
@@ -88,7 +76,6 @@ export default function LoadingScreen({ onLoadingComplete }) {
     return () => clearTimeout(t);
   }, [phase, n2]);
 
-  // hold → exit
   useEffect(() => {
     if (phase !== "hold") return;
     const t = setTimeout(() => { setPhase("exit"); setShow(false); }, POST_TYPE);
@@ -108,15 +95,15 @@ export default function LoadingScreen({ onLoadingComplete }) {
   const showCursor1 = phase === "typing1";
   const showCursor2 = phase === "typing2";
   const showName2   = phase === "typing2" || phase === "hold" || phase === "exit";
-  const progress    = (n1 + n2) / (NAME1.length + NAME2.length);
+  const progress    = Math.min((n1 + n2) / (NAME1.length + NAME2.length), 1);
 
   return (
     <AnimatePresence onExitComplete={handleExitComplete}>
       {show && (
         <motion.div
-          key="cinematic-loader"
+          key="loader-root"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.06, filter: "blur(14px)" }}
+          exit={{ opacity: 0, scale: 1.05, filter: "blur(12px)" }}
           transition={{ duration: EXIT_S, ease: [0.4, 0, 0.2, 1] }}
           style={{
             position:       "fixed",
@@ -131,173 +118,90 @@ export default function LoadingScreen({ onLoadingComplete }) {
             pointerEvents:  isExiting ? "none" : "all",
           }}
         >
-          {/* ── Background glow layers ──────────────────────────────── */}
-          <motion.div
-            animate={{ opacity: intensify ? 1.0 : 0.65 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-            style={{
-              position: "absolute", inset: 0, pointerEvents: "none",
-              background: "radial-gradient(ellipse 72% 55% at 50% 50%, rgba(56,182,255,0.13) 0%, transparent 68%)",
-            }}
-          />
-          <motion.div
-            animate={{ opacity: intensify ? 0.70 : 0.30 }}
-            transition={{ duration: 1.5 }}
-            style={{
-              position: "absolute", inset: 0, pointerEvents: "none",
-              background: "radial-gradient(ellipse 38% 32% at 28% 72%, rgba(99,102,241,0.09) 0%, transparent 62%)",
-            }}
-          />
-          <motion.div
-            animate={{ opacity: intensify ? 0.60 : 0.25 }}
-            transition={{ duration: 1.5 }}
-            style={{
-              position: "absolute", inset: 0, pointerEvents: "none",
-              background: "radial-gradient(ellipse 36% 28% at 72% 28%, rgba(56,182,255,0.08) 0%, transparent 60%)",
-            }}
-          />
+          {/* Background glows */}
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+            <motion.div animate={{ opacity: intensify ? 1 : 0.65 }} transition={{ duration: 1.5 }}
+              style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 72% 55% at 50% 50%, rgba(56,182,255,0.14) 0%, transparent 68%)" }} />
+            <motion.div animate={{ opacity: intensify ? 0.7 : 0.28 }} transition={{ duration: 1.5 }}
+              style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 40% 35% at 25% 75%, rgba(99,102,241,0.09) 0%, transparent 62%)" }} />
+            <motion.div animate={{ opacity: intensify ? 0.55 : 0.22 }} transition={{ duration: 1.5 }}
+              style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 35% 28% at 75% 25%, rgba(56,182,255,0.07) 0%, transparent 60%)" }} />
+          </div>
 
-          {/* ── HUD grid overlay ────────────────────────────────────── */}
+          {/* HUD grid */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: intensify ? 0.038 : 0.020 }}
-            transition={{ duration: 1.8, ease: "easeInOut" }}
+            animate={{ opacity: intensify ? 0.04 : 0.018 }}
+            transition={{ duration: 2 }}
             style={{
               position: "absolute", inset: 0, pointerEvents: "none",
-              backgroundImage: `
-                linear-gradient(rgba(56,182,255,0.6) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56,182,255,0.6) 1px, transparent 1px)
-              `,
-              backgroundSize: "64px 64px",
+              backgroundImage: "linear-gradient(rgba(56,182,255,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(56,182,255,0.55) 1px, transparent 1px)",
+              backgroundSize: "60px 60px",
             }}
           />
 
-          {/* ── Scan-line sweep ─────────────────────────────────────── */}
+          {/* Scan-line sweep */}
           <motion.div
-            initial={{ top: "-3px" }}
-            animate={{ top: "104%" }}
-            transition={{ duration: 1.5, ease: "linear", delay: 0.05 }}
+            initial={{ y: 0 }}
+            animate={{ y: "102vh" }}
+            transition={{ duration: 1.6, ease: "linear", delay: 0.1 }}
             style={{
-              position:   "absolute",
-              left:       0,
-              right:      0,
-              height:     "2px",
-              background: "linear-gradient(90deg, transparent 0%, rgba(56,182,255,0.5) 15%, rgba(56,182,255,0.95) 50%, rgba(56,182,255,0.5) 85%, transparent 100%)",
-              boxShadow:  "0 0 24px rgba(56,182,255,0.55), 0 0 70px rgba(56,182,255,0.22)",
-              pointerEvents: "none",
-              zIndex:     10,
+              position: "absolute", top: 0, left: 0, right: 0,
+              height: "2px",
+              background: "linear-gradient(90deg, transparent 0%, rgba(56,182,255,0.5) 15%, rgba(56,182,255,1) 50%, rgba(56,182,255,0.5) 85%, transparent 100%)",
+              boxShadow: "0 0 22px rgba(56,182,255,0.6), 0 0 60px rgba(56,182,255,0.2)",
+              pointerEvents: "none", zIndex: 8,
             }}
           />
 
-          {/* ── Corner HUD brackets ─────────────────────────────────── */}
-          {[
-            { style: { top: 24, left: 24 },   rotate: 0   },
-            { style: { top: 24, right: 24 },   rotate: 90  },
-            { style: { bottom: 24, right: 24 },rotate: 180 },
-            { style: { bottom: 24, left: 24 }, rotate: 270 },
-          ].map(({ style: pos, rotate }, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: intensify ? 0.60 : 0.28 }}
-              transition={{ duration: 1.2, delay: 0.3 + i * 0.07 }}
-              style={{
-                position:     "absolute",
-                ...pos,
-                width:        28,
-                height:       28,
-                transform:    `rotate(${rotate}deg)`,
-                borderTop:    "1.5px solid rgba(56,182,255,0.70)",
-                borderLeft:   "1.5px solid rgba(56,182,255,0.70)",
-                borderRadius: "2px 0 0 0",
-                boxShadow:    "0 0 8px rgba(56,182,255,0.28)",
-                pointerEvents:"none",
-              }}
-            />
-          ))}
+          {/* Corner brackets */}
+          <CornerBrackets intensify={intensify} />
 
-          {/* ── Floating particles ──────────────────────────────────── */}
-          {particles.map(p => (
-            <motion.div
-              key={p.id}
-              animate={{
-                opacity: [0, p.baseOp, p.baseOp * 0.55, 0],
-                top:     [`${p.y}vh`,              `${p.y - p.riseVh}vh`],
-                left:    [`${p.x}vw`,              `${p.x + p.driftX}vw`],
-              }}
-              transition={{
-                duration: p.dur,
-                delay:    p.delay,
-                repeat:   Infinity,
-                ease:     "easeInOut",
-              }}
-              style={{
-                position:     "absolute",
-                width:        p.size,
-                height:       p.size,
-                borderRadius: "50%",
-                background:   `rgba(56,182,255,${p.baseOp * 1.4})`,
-                boxShadow:    `0 0 ${p.size * 3.5}px rgba(56,182,255,0.7)`,
-                pointerEvents:"none",
-              }}
-            />
-          ))}
+          {/* Particles */}
+          {particles.map(p => <Particle key={p.id} p={p} />)}
 
-          {/* ── Central content ─────────────────────────────────────── */}
-          <div
-            style={{
-              position:       "relative",
-              zIndex:         5,
-              display:        "flex",
-              flexDirection:  "column",
-              alignItems:     "center",
-              gap:            "clamp(26px, 4vw, 40px)",
-              pointerEvents:  "none",
-              userSelect:     "none",
-            }}
-          >
-            {/* ── Logo + orbital rings ─────────────────────────────── */}
+          {/* Central content */}
+          <div style={{
+            position: "relative", zIndex: 5,
+            display: "flex", flexDirection: "column", alignItems: "center",
+            gap: "clamp(24px, 3.8vw, 38px)",
+            pointerEvents: "none", userSelect: "none",
+          }}>
+            {/* Logo */}
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.84 }}
+              initial={{ opacity: 0, y: 18, scale: 0.86 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
             >
               <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
+                animate={{ y: [0, -7, 0] }}
+                transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
               >
                 <LogoMark intensify={intensify} progress={progress} />
               </motion.div>
             </motion.div>
 
-            {/* ── Name block ──────────────────────────────────────── */}
+            {/* Name block */}
             <AnimatePresence>
               {showText && (
                 <motion.div
                   key="name-block"
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
+                  exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                  style={{
-                    display:       "flex",
-                    flexDirection: "column",
-                    alignItems:    "center",
-                    gap:           "4px",
-                  }}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}
                 >
-                  {/* Line 1 — Devansh */}
-                  <div style={{ display: "flex", alignItems: "center", height: "1.25em" }}>
+                  {/* Devansh */}
+                  <div style={{ display: "flex", alignItems: "center", minHeight: "1.3em" }}>
                     <span style={{
-                      fontFamily:    "'Outfit', 'Inter', -apple-system, sans-serif",
-                      fontSize:      "clamp(30px, 5.2vw, 60px)",
-                      fontWeight:    300,
-                      letterSpacing: "0.22em",
-                      lineHeight:    1,
-                      color:         "#ddeeff",
-                      filter:        intensify
-                        ? "drop-shadow(0 0 22px rgba(56,182,255,0.85)) drop-shadow(0 0 55px rgba(56,182,255,0.32))"
-                        : "drop-shadow(0 0 13px rgba(56,182,255,0.52)) drop-shadow(0 0 34px rgba(56,182,255,0.18))",
+                      fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif",
+                      fontSize: "clamp(28px, 5vw, 58px)",
+                      fontWeight: 300, letterSpacing: "0.22em", lineHeight: 1.2,
+                      color: "#ddeeff",
+                      filter: intensify
+                        ? "drop-shadow(0 0 22px rgba(56,182,255,0.88)) drop-shadow(0 0 55px rgba(56,182,255,0.32))"
+                        : "drop-shadow(0 0 12px rgba(56,182,255,0.52)) drop-shadow(0 0 32px rgba(56,182,255,0.18))",
                       transition: "filter 0.9s ease",
                     }}>
                       {NAME1.slice(0, n1)}
@@ -305,90 +209,62 @@ export default function LoadingScreen({ onLoadingComplete }) {
                     {showCursor1 && <Cursor />}
                   </div>
 
-                  {/* Line 2 — Yadav */}
-                  <AnimatePresence>
-                    {showName2 && (
-                      <motion.div
-                        key="name2-line"
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.38, ease: "easeOut" }}
-                        style={{ display: "flex", alignItems: "center", height: "1.1em" }}
-                      >
-                        <span style={{
-                          fontFamily:    "'Outfit', 'Inter', sans-serif",
-                          fontSize:      "clamp(16px, 2.8vw, 34px)",
-                          fontWeight:    200,
-                          letterSpacing: "0.50em",
-                          lineHeight:    1,
-                          color:         "rgba(56,182,255,0.78)",
-                          filter:        intensify
-                            ? "drop-shadow(0 0 16px rgba(56,182,255,0.65))"
-                            : "drop-shadow(0 0 8px rgba(56,182,255,0.30))",
-                          transition: "filter 0.9s ease",
-                        }}>
-                          {NAME2.slice(0, n2)}
-                        </span>
-                        {showCursor2 && <Cursor small />}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {/* Yadav */}
+                  <motion.div
+                    animate={{ opacity: showName2 ? 1 : 0, y: showName2 ? 0 : 6 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    style={{ display: "flex", alignItems: "center", minHeight: "1.15em" }}
+                  >
+                    <span style={{
+                      fontFamily: "'Outfit', 'Inter', sans-serif",
+                      fontSize: "clamp(14px, 2.6vw, 32px)",
+                      fontWeight: 200, letterSpacing: "0.52em", lineHeight: 1.2,
+                      color: "rgba(56,182,255,0.80)",
+                      filter: intensify
+                        ? "drop-shadow(0 0 14px rgba(56,182,255,0.65))"
+                        : "drop-shadow(0 0 7px rgba(56,182,255,0.30))",
+                      transition: "filter 0.9s ease",
+                    }}>
+                      {NAME2.slice(0, n2)}
+                    </span>
+                    {showCursor2 && <Cursor small />}
+                  </motion.div>
 
                   {/* Divider */}
-                  <AnimatePresence>
-                    {intensify && (
-                      <motion.div
-                        key="divider"
-                        initial={{ scaleX: 0, opacity: 0 }}
-                        animate={{ scaleX: 1, opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-                        style={{
-                          width:           "140px",
-                          height:          "1px",
-                          margin:          "10px 0 6px",
-                          background:      "linear-gradient(90deg, transparent 0%, rgba(56,182,255,0.55) 50%, transparent 100%)",
-                          transformOrigin: "center",
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
+                  <motion.div
+                    animate={{ scaleX: intensify ? 1 : 0, opacity: intensify ? 1 : 0 }}
+                    transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                    style={{
+                      width: "clamp(100px, 14vw, 150px)", height: "1px",
+                      margin: "10px 0 8px",
+                      background: "linear-gradient(90deg, transparent 0%, rgba(56,182,255,0.6) 50%, transparent 100%)",
+                      transformOrigin: "center",
+                    }}
+                  />
 
                   {/* Subtitle */}
-                  <AnimatePresence>
-                    {intensify && (
-                      <motion.p
-                        key="subtitle"
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.65, delay: 0.12 }}
-                        style={{
-                          margin:        0,
-                          fontFamily:    "'Outfit', 'Inter', sans-serif",
-                          fontSize:      "clamp(9px, 1.3vw, 12px)",
-                          fontWeight:    400,
-                          letterSpacing: "0.40em",
-                          textTransform: "uppercase",
-                          color:         "rgba(148,163,184,0.65)",
-                        }}
-                      >
-                        Developer &nbsp;&middot;&nbsp; Designer &nbsp;&middot;&nbsp; Creator
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
+                  <motion.p
+                    animate={{ opacity: intensify ? 1 : 0, y: intensify ? 0 : 8 }}
+                    transition={{ duration: 0.65, delay: 0.1 }}
+                    style={{
+                      margin: 0,
+                      fontFamily: "'Outfit', 'Inter', sans-serif",
+                      fontSize: "clamp(9px, 1.2vw, 12px)",
+                      fontWeight: 400, letterSpacing: "0.38em",
+                      textTransform: "uppercase",
+                      color: "rgba(148,163,184,0.68)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Developer &nbsp;&middot;&nbsp; Designer &nbsp;&middot;&nbsp; Creator
+                  </motion.p>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* ── CSS keyframes ───────────────────────────────────────── */}
           <style>{`
-            @keyframes dy-cursor-blink {
-              0%, 100% { opacity: 1; }
-              50%       { opacity: 0; }
-            }
+            @keyframes dy-cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
             @keyframes dy-ring-cw  { to { transform: rotate(360deg);  } }
             @keyframes dy-ring-ccw { to { transform: rotate(-360deg); } }
           `}</style>
@@ -398,198 +274,181 @@ export default function LoadingScreen({ onLoadingComplete }) {
   );
 }
 
-// ─── Blinking cursor ──────────────────────────────────────────────────────────
+function Particle({ p }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: [0, p.op, p.op * 0.5, 0],
+        x: [`${p.startX}vw`, `${p.startX + p.driftX}vw`],
+        y: [`${p.startY}vh`, `${p.startY - p.riseY}vh`],
+      }}
+      transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
+      style={{
+        position: "fixed", top: 0, left: 0,
+        width: p.size, height: p.size,
+        borderRadius: "50%",
+        background: `rgba(56,182,255,${Math.min(p.op * 1.5, 0.9)})`,
+        boxShadow: `0 0 ${p.size * 4}px rgba(56,182,255,0.65)`,
+        pointerEvents: "none", willChange: "transform, opacity",
+      }}
+    />
+  );
+}
+
+function CornerBrackets({ intensify }) {
+  const op  = intensify ? 1 : 0.5;
+  const bw  = "1.5px solid";
+  const col = intensify ? "rgba(56,182,255,0.70)" : "rgba(56,182,255,0.28)";
+  const sh  = intensify ? "0 0 10px rgba(56,182,255,0.35)" : "none";
+  const tr  = "border-color 1.2s ease, box-shadow 1.2s ease";
+  const base = { position: "absolute", width: 26, height: 26, pointerEvents: "none", boxSizing: "border-box", borderRadius: 3 };
+  return (
+    <>
+      <motion.div animate={{ opacity: op }} transition={{ duration: 1.2 }}
+        style={{ ...base, top: 22, left: 22, borderTop: `${bw} ${col}`, borderLeft: `${bw} ${col}`, boxShadow: sh, transition: tr }} />
+      <motion.div animate={{ opacity: op }} transition={{ duration: 1.2 }}
+        style={{ ...base, top: 22, right: 22, borderTop: `${bw} ${col}`, borderRight: `${bw} ${col}`, boxShadow: sh, transition: tr }} />
+      <motion.div animate={{ opacity: op }} transition={{ duration: 1.2 }}
+        style={{ ...base, bottom: 22, right: 22, borderBottom: `${bw} ${col}`, borderRight: `${bw} ${col}`, boxShadow: sh, transition: tr }} />
+      <motion.div animate={{ opacity: op }} transition={{ duration: 1.2 }}
+        style={{ ...base, bottom: 22, left: 22, borderBottom: `${bw} ${col}`, borderLeft: `${bw} ${col}`, boxShadow: sh, transition: tr }} />
+    </>
+  );
+}
+
 function Cursor({ small = false }) {
   return (
     <span style={{
-      display:       "inline-block",
-      width:         small ? "1.5px" : "2px",
-      height:        small ? "0.82em" : "1.0em",
-      background:    "rgba(56,182,255,0.92)",
-      borderRadius:  "1px",
-      marginLeft:    "4px",
-      boxShadow:     "0 0 10px rgba(56,182,255,0.85), 0 0 20px rgba(56,182,255,0.40)",
-      animation:     "dy-cursor-blink 0.85s step-end infinite",
-      alignSelf:     "center",
-      flexShrink:    0,
+      display: "inline-block",
+      width: small ? "1.5px" : "2px",
+      height: small ? "0.8em" : "0.95em",
+      background: "rgba(56,182,255,0.92)",
+      borderRadius: "1px", marginLeft: "3px",
+      boxShadow: "0 0 10px rgba(56,182,255,0.9), 0 0 22px rgba(56,182,255,0.4)",
+      animation: "dy-cursor-blink 0.85s step-end infinite",
+      alignSelf: "center", flexShrink: 0,
     }} />
   );
 }
 
-// ─── LogoMark with orbital rings + progress arc ───────────────────────────────
 function LogoMark({ intensify, progress }) {
-  const LOGO_D = 100;
-  const R_OUTER = 58;
-  const R_MID   = 50;
-  const R_INNER = 43;
-  const R_ARC   = 70;
-  const PAD     = 16;
+  const R_OUTER = 52;
+  const R_MID   = 44;
+  const R_INNER = 37;
+  const R_ARC   = 62;
+  const PAD     = 14;
   const SVG     = (R_ARC + PAD) * 2;
   const C       = SVG / 2;
+  const LOGO_D  = R_INNER * 1.65;
 
   const arcCirc   = 2 * Math.PI * R_ARC;
   const arcOffset = arcCirc * (1 - progress);
   const tipAngle  = 2 * Math.PI * progress - Math.PI / 2;
+  const tipX      = C + R_ARC * Math.cos(tipAngle);
+  const tipY      = C + R_ARC * Math.sin(tipAngle);
 
   return (
     <div style={{ position: "relative", width: SVG, height: SVG }}>
-      {/* SVG rings + arc */}
-      <svg
-        width={SVG}
-        height={SVG}
-        style={{ position: "absolute", inset: 0, overflow: "visible" }}
-      >
+      <svg width={SVG} height={SVG} viewBox={`0 0 ${SVG} ${SVG}`}
+        style={{ position: "absolute", inset: 0, overflow: "visible" }}>
         <defs>
-          <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%"   stopColor="rgba(56,182,255,0.0)" />
-            <stop offset="50%"  stopColor="rgba(56,182,255,0.7)" />
-            <stop offset="100%" stopColor="rgba(56,182,255,0.0)" />
+          <linearGradient id="sweepG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor="rgba(56,182,255,0)"   />
+            <stop offset="50%"  stopColor="rgba(56,182,255,0.75)" />
+            <stop offset="100%" stopColor="rgba(56,182,255,0)"   />
           </linearGradient>
-          <linearGradient id="arcG" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"   stopColor="#38b6ff" stopOpacity="0.1" />
-            <stop offset="60%"  stopColor="#38b6ff" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#60efff" stopOpacity="1"    />
+          <linearGradient id="arcFill" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#38b6ff" stopOpacity="0.05" />
+            <stop offset="55%"  stopColor="#38b6ff" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#7df9ff" stopOpacity="1"    />
           </linearGradient>
-          <filter id="glowF" x="-50%" y="-50%" width="200%" height="200%">
+          <filter id="gF" x="-60%" y="-60%" width="220%" height="220%">
             <feGaussianBlur stdDeviation="2.5" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="4" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+          <filter id="tipF" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="3.5" result="b" />
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
-        {/* Outer ring — clockwise 8s */}
+        {/* Outer ring � cw 8s */}
         <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-cw 8s linear infinite" }}>
-          <circle cx={C} cy={C} r={R_OUTER}
-            fill="none" stroke="rgba(56,182,255,0.12)" strokeWidth="1" />
-          <circle cx={C} cy={C} r={R_OUTER}
-            fill="none" stroke="url(#rg1)" strokeWidth="1.5"
-            strokeDasharray={`${R_OUTER * 1.2} ${2 * Math.PI * R_OUTER - R_OUTER * 1.2}`}
-          />
+          <circle cx={C} cy={C} r={R_OUTER} fill="none" stroke="rgba(56,182,255,0.11)" strokeWidth="1" />
+          <circle cx={C} cy={C} r={R_OUTER} fill="none" stroke="url(#sweepG)" strokeWidth="1.5"
+            strokeDasharray={`${R_OUTER * 1.15} ${2 * Math.PI * R_OUTER - R_OUTER * 1.15}`} />
         </g>
 
-        {/* Mid ring — counter-clockwise 14s */}
-        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-ccw 14s linear infinite" }}>
-          <circle cx={C} cy={C} r={R_MID}
-            fill="none" stroke="rgba(56,182,255,0.10)" strokeWidth="1" />
-          <circle cx={C} cy={C} r={R_MID}
-            fill="none" stroke="rgba(56,182,255,0.50)" strokeWidth="1"
-            strokeDasharray={`${R_MID * 0.6} ${2 * Math.PI * R_MID - R_MID * 0.6}`}
-          />
+        {/* Mid ring � ccw 13s */}
+        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-ccw 13s linear infinite" }}>
+          <circle cx={C} cy={C} r={R_MID} fill="none" stroke="rgba(56,182,255,0.09)" strokeWidth="1" />
+          <circle cx={C} cy={C} r={R_MID} fill="none" stroke="rgba(56,182,255,0.52)" strokeWidth="1"
+            strokeDasharray={`${R_MID * 0.55} ${2 * Math.PI * R_MID - R_MID * 0.55}`} />
         </g>
 
-        {/* Inner dashed ring — clockwise 22s */}
-        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-cw 22s linear infinite" }}>
-          <circle cx={C} cy={C} r={R_INNER}
-            fill="none" stroke="rgba(56,182,255,0.16)" strokeWidth="0.75"
-            strokeDasharray="3 8"
-          />
+        {/* Inner dashed ring � cw 21s */}
+        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-cw 21s linear infinite" }}>
+          <circle cx={C} cy={C} r={R_INNER} fill="none" stroke="rgba(56,182,255,0.15)" strokeWidth="0.75" strokeDasharray="2.5 7" />
         </g>
 
-        {/* Progress arc track */}
-        <circle cx={C} cy={C} r={R_ARC}
-          fill="none" stroke="rgba(56,182,255,0.07)" strokeWidth="1.5" />
+        {/* Arc track */}
+        <circle cx={C} cy={C} r={R_ARC} fill="none" stroke="rgba(56,182,255,0.07)" strokeWidth="1.5" />
 
-        {/* Progress arc fill */}
-        {progress > 0 && (
-          <circle
-            cx={C} cy={C} r={R_ARC}
-            fill="none"
-            stroke="url(#arcG)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeDasharray={arcCirc}
-            strokeDashoffset={arcOffset}
-            style={{
-              transformOrigin: `${C}px ${C}px`,
-              transform:       "rotate(-90deg)",
-              filter:          "url(#glowF)",
-              transition:      "stroke-dashoffset 0.12s ease",
-            }}
+        {/* Arc fill */}
+        {progress > 0.005 && (
+          <circle cx={C} cy={C} r={R_ARC} fill="none"
+            stroke="url(#arcFill)" strokeWidth="2.5" strokeLinecap="round"
+            strokeDasharray={arcCirc} strokeDashoffset={arcOffset}
+            style={{ transformOrigin: `${C}px ${C}px`, transform: "rotate(-90deg)", filter: "url(#gF)", transition: "stroke-dashoffset 0.12s linear" }}
           />
         )}
 
-        {/* Arc tip glowing dot */}
+        {/* Tip dot */}
         {progress > 0.02 && (
-          <circle
-            cx={C + R_ARC * Math.cos(tipAngle)}
-            cy={C + R_ARC * Math.sin(tipAngle)}
-            r={3.5}
-            fill="#60efff"
-            style={{ filter: "url(#softGlow)" }}
-          />
+          <circle cx={tipX} cy={tipY} r={3} fill="#7df9ff" style={{ filter: "url(#tipF)" }} />
         )}
       </svg>
 
       {/* Center logo */}
-      <div style={{
-        position:       "absolute",
-        inset:          0,
-        display:        "flex",
-        alignItems:     "center",
-        justifyContent: "center",
-      }}>
-        {/* Diffuse halo */}
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <motion.div
-          animate={{ opacity: intensify ? 0.70 : 0.32, scale: intensify ? 1.18 : 1 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
+          animate={{ opacity: intensify ? 0.72 : 0.30, scale: intensify ? 1.2 : 1 }}
+          transition={{ duration: 1.2 }}
           style={{
-            position:     "absolute",
-            width:        LOGO_D + 20,
-            height:       LOGO_D + 20,
+            position: "absolute", width: LOGO_D + 18, height: LOGO_D + 18,
             borderRadius: "50%",
-            background:   "radial-gradient(circle, rgba(56,182,255,0.30) 0%, transparent 70%)",
-            filter:       "blur(18px)",
+            background: "radial-gradient(circle, rgba(56,182,255,0.32) 0%, transparent 70%)",
+            filter: "blur(18px)",
           }}
         />
-        {/* Glass disc */}
         <motion.div
           animate={{
             boxShadow: intensify
-              ? "0 0 40px rgba(56,182,255,0.30), inset 0 0 24px rgba(56,182,255,0.07), 0 0 0 1px rgba(56,182,255,0.28)"
-              : "0 0 18px rgba(56,182,255,0.12), inset 0 0 12px rgba(56,182,255,0.04), 0 0 0 1px rgba(56,182,255,0.15)",
+              ? "0 0 38px rgba(56,182,255,0.28), inset 0 0 22px rgba(56,182,255,0.06), 0 0 0 1px rgba(56,182,255,0.28)"
+              : "0 0 16px rgba(56,182,255,0.11), inset 0 0 10px rgba(56,182,255,0.04), 0 0 0 1px rgba(56,182,255,0.14)",
           }}
-          transition={{ duration: 1.1, ease: "easeInOut" }}
+          transition={{ duration: 1.1 }}
           style={{
-            position:     "absolute",
-            width:        LOGO_D * 0.74,
-            height:       LOGO_D * 0.74,
+            position: "absolute", width: LOGO_D, height: LOGO_D,
             borderRadius: "50%",
-            background:   "radial-gradient(circle at 38% 38%, rgba(56,182,255,0.08) 0%, rgba(2,6,23,0.92) 100%)",
+            background: "radial-gradient(circle at 38% 38%, rgba(56,182,255,0.07) 0%, rgba(2,6,23,0.94) 100%)",
           }}
         />
-        {/* DY text */}
         <span style={{
-          position:             "relative",
-          fontFamily:           "'Outfit', 'Inter', -apple-system, sans-serif",
-          fontSize:             "clamp(22px, 3.8vw, 36px)",
-          fontWeight:           700,
-          letterSpacing:        "-0.01em",
-          lineHeight:           1,
-          background:           "linear-gradient(135deg, #60efff 0%, #38b6ff 45%, #1a8fff 100%)",
-          backgroundClip:       "text",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor:  "transparent",
-          color:                "transparent",
-          filter:               intensify
-            ? "drop-shadow(0 0 20px rgba(56,182,255,0.90)) drop-shadow(0 0 50px rgba(56,182,255,0.38))"
-            : "drop-shadow(0 0 12px rgba(56,182,255,0.65)) drop-shadow(0 0 30px rgba(56,182,255,0.24))",
-          transition:           "filter 0.9s ease",
-        }}>
-          DY
-        </span>
+          position: "relative",
+          fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif",
+          fontSize: "clamp(20px, 3.5vw, 34px)",
+          fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1,
+          background: "linear-gradient(135deg, #7df9ff 0%, #38b6ff 45%, #1a8fff 100%)",
+          backgroundClip: "text", WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent", color: "transparent",
+          filter: intensify
+            ? "drop-shadow(0 0 18px rgba(56,182,255,0.92)) drop-shadow(0 0 48px rgba(56,182,255,0.40))"
+            : "drop-shadow(0 0 11px rgba(56,182,255,0.68)) drop-shadow(0 0 28px rgba(56,182,255,0.24))",
+          transition: "filter 0.9s ease",
+        }}>DY</span>
       </div>
     </div>
   );
 }
-
-
-
