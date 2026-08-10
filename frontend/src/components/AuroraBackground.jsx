@@ -107,22 +107,21 @@ function createSunTexture(size = 512) {
   const ctx = canvas.getContext('2d');
   const cx = size / 2, cy = size / 2;
 
-  // Clear canvas so no residual black shows through
+  // Clear to fully transparent — material will handle depth
   ctx.clearRect(0, 0, size, size);
 
-  // Inner radius = 0 → solid fill from center, no black hole
-  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.48);
+  // Fill the ENTIRE canvas (not a circle) so no black corners appear
+  // on the sphere's UV seam or poles
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
   g.addColorStop(0,    '#ffffff');
-  g.addColorStop(0.35, '#fff7c0');
-  g.addColorStop(0.60, '#fef08a');
-  g.addColorStop(0.80, '#f97316');
-  g.addColorStop(0.95, '#ef4444');
-  g.addColorStop(1,    'rgba(185, 28, 28, 0)');
+  g.addColorStop(0.20, '#fffde7');
+  g.addColorStop(0.45, '#fef08a');
+  g.addColorStop(0.68, '#f97316');
+  g.addColorStop(0.88, '#dc2626');
+  g.addColorStop(1.0,  'rgba(120, 10, 10, 0)');
 
   ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(cx, cy, size * 0.48, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(0, 0, size, size); // full rect, not arc — no black corners
 
   return new THREE.CanvasTexture(canvas);
 }
@@ -236,10 +235,16 @@ function AuroraBackground() {
 
     // ── 3. Central Sun & Point Light Emission ──
     const sunTex = createSunTexture();
-    const sunGeo = new THREE.SphereGeometry(7.5, 32, 32);
-    const sunMat = new THREE.MeshBasicMaterial({ map: sunTex });
+    const sunGeo = new THREE.SphereGeometry(7.5, 64, 64);
+    const sunMat = new THREE.MeshBasicMaterial({
+      map: sunTex,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.FrontSide,
+    });
     const sunMesh = new THREE.Mesh(sunGeo, sunMat);
     orreryGroup.add(sunMesh);
+
 
     // Sun Solar Flare Glow Sprite (Tight, subtle, natural corona rim)
     const sunGlowMat = new THREE.SpriteMaterial({
