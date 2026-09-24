@@ -75,8 +75,8 @@ function SolarIcon({ size = 16, active }) {
 const OPTIONS = [
   {
     key: 'professional',
-    label: 'Cinematic',
-    tooltip: 'Cinematic background',
+    label: 'Flow Field',
+    tooltip: 'Generative flow field',
     Icon: NetworkIcon,
   },
   {
