@@ -22,9 +22,10 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
-  /* Canvas AuroraBackground renders the full visual background.
-     This flat color is only a fallback / anti-flash safety net. */
-  background: #020617;
+  /* Canvas CinematicBackground renders the full visual background.
+     This flat color is a fallback / anti-flash safety net.
+     Must match the canvas base color exactly: #08090B */
+  background: #08090B;
   color: #fff;
   line-height: 1.6;
   overflow-x: hidden;

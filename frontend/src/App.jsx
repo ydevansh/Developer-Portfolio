@@ -5,7 +5,9 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import ScrollToTop from './components/common/ScrollToTop';
-import AuroraBackground from './components/AuroraBackground';
+import BackgroundManager from './components/BackgroundManager';
+import BackgroundSwitcher from './components/BackgroundSwitcher';
+import { BackgroundProvider } from './context/BackgroundContext';
 
 // Public Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -71,8 +73,11 @@ function AppContent() {
   return (
     <>
       <ScrollToTop />
-      {/* Fixed aurora canvas — renders behind everything, persists across routes */}
-      {!isAdminRoute && <AuroraBackground />}
+
+      {/* Background system — both layers always mounted, crossfaded by BackgroundManager */}
+      {!isAdminRoute && <BackgroundManager />}
+
+      {/* Portfolio content — sits above background layers */}
       <div
         className="min-h-screen flex flex-col"
         style={{ position: 'relative', zIndex: 1 }}
@@ -113,6 +118,9 @@ function AppContent() {
         </main>
         {!isAdminRoute && <Footer />}
       </div>
+
+      {/* Background switcher — always on top of content, never on admin routes */}
+      {!isAdminRoute && <BackgroundSwitcher />}
     </>
   );
 }
@@ -143,13 +151,16 @@ function App() {
 
   return (
     <AppErrorBoundary>
-      <Router>
-        {/* LoadingScreen self-unmounts when done — App never force-removes it */}
-        {needsLoader && (
-          <LoadingScreen onLoadingComplete={handleLoadingComplete} />
-        )}
-        <AppContent />
-      </Router>
+      {/* BackgroundProvider must wrap Router so context is available in all routes */}
+      <BackgroundProvider>
+        <Router>
+          {/* LoadingScreen self-unmounts when done — App never force-removes it */}
+          {needsLoader && (
+            <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+          )}
+          <AppContent />
+        </Router>
+      </BackgroundProvider>
     </AppErrorBoundary>
   );
 }
