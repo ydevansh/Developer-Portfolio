@@ -1,497 +1,554 @@
-﻿/**
- * LoadingScreen — Premium Cinematic Edition v2 (smooth)
+/**
+ * LoadingScreen.jsx — Cinematic Particle Portrait & Progressive Reveal
  *
- * Smoothness improvements:
- *  - Particles: static left/top + pixel-only y-translate (no vw/vh string animation)
- *  - Typing jitter: reduced to ±8ms for more consistent feel
- *  - Progress arc: easeOut transition for natural fill
- *  - Exit: no blur (avoids GPU layer creation mid-fade)
- *  - willChange on all composited layers
- *  - Spring physics on logo + name entrance
- *  - Scan line: easeOut curve instead of linear
- *  - Particle opacity uses times[] for precise keyframe timing
+ * Implements the bespoke opening scene that seamlessly matches the portfolio theme:
+ *  - 100% transparent container — directly exposes the live "Pure Minimal + Grain" background
+ *  - Palette: Crisp white, soft gray (#cbd5e1), and subtle desaturated navy/slate blue accents
+ *  - Stage 1: Progressive reveal of "DEVANSH YADAV" with bold, clean, highly readable typography
+ *  - Stage 2: Text scatter effect — particles disperse outward with organic physics
+ *  - Stage 3: Particle Portrait reveal — particles reassemble to form Devansh Yadav's portrait
+ *  - Stage 4: Seamless transition — particles gently fade into the live homepage without any flash
  */
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import profileImg from "../assets/profile.jpg";
 
-const NAME1       = "Devansh";
-const NAME2       = "Yadav";
-const LOGO_HOLD   = 800;
-const CHAR_MS     = 95;
-const JITTER_MS   = 8;    // tight jitter — steady typewriter feel
-const INTER_PAUSE = 260;
-const POST_TYPE   = 900;
-const EXIT_S      = 1.2;
-const N_PARTICLES = 28;   // fewer = smoother on mid-range GPUs
+// Animation timing configuration (ms)
+const STAGE_REVEAL_DUR   = 1600; // Progressive text reveal
+const STAGE_SCATTER_DUR  = 1000; // Text scatter into particles
+const STAGE_PORTRAIT_DUR = 2200; // Portrait reassembly & reveal
+const TOTAL_LOADER_TIME  = STAGE_REVEAL_DUR + STAGE_SCATTER_DUR + STAGE_PORTRAIT_DUR; // ~4.8s
+const EXIT_DURATION_S    = 0.9;
 
-function useParticles() {
-  return useMemo(() =>
-    Array.from({ length: N_PARTICLES }, (_, i) => ({
-      id:     i,
-      left:   `${5 + Math.random() * 90}%`,   // static — never animated
-      top:    `${8 + Math.random() * 84}%`,    // static — never animated
-      riseY:  -(60 + Math.random() * 120),     // pixels upward (negative = up)
-      size:   1.0 + Math.random() * 2.4,
-      op:     0.18 + Math.random() * 0.42,
-      dur:    9 + Math.random() * 9,
-      delay:  Math.random() * 8,
-    })),
-  []);
-}
+const NAME = "DEVANSH YADAV";
 
 export default function LoadingScreen({ onLoadingComplete }) {
-  const [phase, setPhase] = useState("logo");
-  const [n1,    setN1]    = useState(0);
-  const [n2,    setN2]    = useState(0);
-  const [show,  setShow]  = useState(true);
-  const particles = useParticles();
-  const doneRef = useRef(onLoadingComplete);
-  useEffect(() => { doneRef.current = onLoadingComplete; }, [onLoadingComplete]);
+  const [stage, setStage] = useState("reveal"); // "reveal" | "scatter" | "portrait" | "exit" | "done"
+  const [revealedChars, setRevealedChars] = useState(0);
+  const [isDone, setIsDone] = useState(false);
 
-  // Smooth spring for the progress arc value
-  const rawProgress = (n1 + n2) / (NAME1.length + NAME2.length);
-  const springProgress = useSpring(rawProgress, { stiffness: 60, damping: 18 });
-  const [smoothProgress, setSmoothProgress] = useState(0);
+  const canvasRef = useRef(null);
+  const doneCallbackRef = useRef(onLoadingComplete);
   useEffect(() => {
-    const unsub = springProgress.on("change", v => setSmoothProgress(Math.min(v, 1)));
-    return unsub;
-  }, [springProgress]);
-  useEffect(() => { springProgress.set(rawProgress); }, [rawProgress, springProgress]);
+    doneCallbackRef.current = onLoadingComplete;
+  }, [onLoadingComplete]);
 
-  useEffect(() => {
-    if (phase !== "logo") return;
-    const t = setTimeout(() => setPhase("typing1"), LOGO_HOLD);
-    return () => clearTimeout(t);
-  }, [phase]);
+  // Handle manual skip (keyboard ESC or click)
+  const handleComplete = useCallback(() => {
+    if (stage === "exit" || stage === "done") return;
+    setStage("exit");
+    setTimeout(() => {
+      setIsDone(true);
+      doneCallbackRef.current?.();
+    }, EXIT_DURATION_S * 1000);
+  }, [stage]);
 
+  // Stage 1: Progressive character reveal
   useEffect(() => {
-    if (phase !== "typing1") return;
-    if (n1 >= NAME1.length) {
-      const t = setTimeout(() => setPhase("typing2"), INTER_PAUSE);
-      return () => clearTimeout(t);
+    if (stage !== "reveal") return;
+    const interval = STAGE_REVEAL_DUR / (NAME.length + 2);
+    let count = 0;
+    const timer = setInterval(() => {
+      count++;
+      setRevealedChars(count);
+      if (count >= NAME.length) {
+        clearInterval(timer);
+        setTimeout(() => setStage("scatter"), 300);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [stage]);
+
+  // Stage 2 & 3: Scatter & Portrait Transitions
+  useEffect(() => {
+    if (stage === "scatter") {
+      const timer = setTimeout(() => {
+        setStage("portrait");
+      }, STAGE_SCATTER_DUR);
+      return () => clearTimeout(timer);
     }
-    const d = CHAR_MS + (Math.random() * JITTER_MS * 2 - JITTER_MS);
-    const t = setTimeout(() => setN1(n => n + 1), d);
-    return () => clearTimeout(t);
-  }, [phase, n1]);
-
-  useEffect(() => {
-    if (phase !== "typing2") return;
-    if (n2 >= NAME2.length) {
-      const t = setTimeout(() => setPhase("hold"), 60);
-      return () => clearTimeout(t);
+    if (stage === "portrait") {
+      const timer = setTimeout(() => {
+        handleComplete();
+      }, STAGE_PORTRAIT_DUR);
+      return () => clearTimeout(timer);
     }
-    const d = CHAR_MS + (Math.random() * JITTER_MS * 2 - JITTER_MS);
-    const t = setTimeout(() => setN2(n => n + 1), d);
-    return () => clearTimeout(t);
-  }, [phase, n2]);
+  }, [stage, handleComplete]);
 
+  // Keydown listener for quick skip
   useEffect(() => {
-    if (phase !== "hold") return;
-    const t = setTimeout(() => { setPhase("exit"); setShow(false); }, POST_TYPE);
-    return () => clearTimeout(t);
-  }, [phase]);
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") handleComplete();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleComplete]);
 
-  const handleExitComplete = useCallback(() => {
-    doneRef.current?.();
-    setPhase("done");
-  }, []);
+  // Canvas particle engine: scatter & portrait reassembly
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  if (phase === "done") return null;
+    let animId;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
 
-  const isExiting   = phase === "exit";
-  const showText    = phase !== "logo";
-  const intensify   = phase === "hold" || phase === "exit";
-  const showCursor1 = phase === "typing1" && n1 < NAME1.length;
-  const showCursor2 = phase === "typing2" && n2 < NAME2.length;
-  const showName2   = phase === "typing2" || phase === "hold" || phase === "exit";
+    const onResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", onResize);
+
+    // Particle system state
+    let particles = [];
+    const NUM_PARTICLES = window.innerWidth < 768 ? 1100 : 1800;
+
+    // Load and sample the portrait image
+    const img = new Image();
+    img.src = profileImg;
+
+    let portraitTargets = [];
+
+    img.onload = () => {
+      const offCanvas = document.createElement("canvas");
+      const sampleDim = 150;
+      offCanvas.width = sampleDim;
+      offCanvas.height = sampleDim;
+      const offCtx = offCanvas.getContext("2d");
+      if (!offCtx) return;
+
+      offCtx.drawImage(img, 0, 0, sampleDim, sampleDim);
+      const imgData = offCtx.getImageData(0, 0, sampleDim, sampleDim);
+      const data = imgData.data;
+
+      const candidates = [];
+      const cx = sampleDim / 2;
+      const cy = sampleDim / 2;
+      const maxR = sampleDim * 0.48;
+
+      for (let y = 0; y < sampleDim; y += 2) {
+        for (let x = 0; x < sampleDim; x += 2) {
+          const dx = x - cx;
+          const dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > maxR) continue;
+
+          const idx = (y * sampleDim + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+          // Subtle edge rejection and contrast emphasis
+          if (brightness > 0.16) {
+            candidates.push({
+              normX: (x - cx) / (sampleDim * 0.5),
+              normY: (y - cy) / (sampleDim * 0.5),
+              brightness,
+            });
+          }
+        }
+      }
+
+      // Distribute candidates into portraitTargets
+      if (candidates.length > 0) {
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          portraitTargets.push(candidates[i % candidates.length]);
+        }
+      }
+    };
+
+    // Initialize particles around text center
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * 220;
+      particles.push({
+        x: width / 2 + Math.cos(angle) * dist,
+        y: height / 2 + Math.sin(angle) * dist,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        scatterVx: (Math.random() - 0.5) * 16,
+        scatterVy: (Math.random() - 0.5) * 16,
+        baseSize: Math.random() * 1.8 + 0.8,
+        alpha: Math.random() * 0.5 + 0.25,
+        targetX: width / 2,
+        targetY: height / 2,
+        hasScattered: false,
+      });
+    }
+
+    let startTime = performance.now();
+
+    const render = (now) => {
+      animId = requestAnimationFrame(render);
+      const elapsed = now - startTime;
+      ctx.clearRect(0, 0, width, height);
+
+      const isScattering = stage === "scatter";
+      const isPortrait = stage === "portrait";
+      const isExiting = stage === "exit";
+
+      // Portrait display radius
+      const portraitRadius = Math.min(width, height) * (width < 768 ? 0.28 : 0.21);
+      const centerX = width / 2;
+      const centerY = height / 2 - (isPortrait ? 25 : 0);
+
+      // Render subtle circular accent ring during portrait stage
+      if (isPortrait && !isExiting) {
+        const ringProgress = Math.min(1, (elapsed - (STAGE_REVEAL_DUR + STAGE_SCATTER_DUR)) / 700);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, portraitRadius + 14, 0, Math.PI * 2 * ringProgress);
+        ctx.strokeStyle = "rgba(100, 150, 210, 0.25)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, portraitRadius + 22, -Math.PI / 2, -Math.PI / 2 + Math.PI * ringProgress);
+        ctx.strokeStyle = "rgba(148, 184, 219, 0.45)";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([]);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const target = portraitTargets[i];
+
+        if (stage === "reveal") {
+          // Micro gentle floating orbit around text
+          p.x += p.vx * 0.4;
+          p.y += p.vy * 0.4;
+          const dx = p.x - centerX;
+          const dy = p.y - centerY;
+          if (Math.hypot(dx, dy) > 280) {
+            p.x = centerX + (Math.random() - 0.5) * 300;
+            p.y = centerY + (Math.random() - 0.5) * 80;
+          }
+
+          ctx.fillStyle = `rgba(180, 210, 255, ${p.alpha * 0.45})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.baseSize * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (isScattering) {
+          // Text burst outward
+          if (!p.hasScattered) {
+            p.vx = p.scatterVx;
+            p.vy = p.scatterVy;
+            p.hasScattered = true;
+          }
+          p.vx *= 0.92;
+          p.vy *= 0.92;
+          p.x += p.vx;
+          p.y += p.vy;
+
+          ctx.fillStyle = `rgba(200, 225, 255, ${p.alpha * 0.6})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.baseSize, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (isPortrait || isExiting) {
+          // Reassemble to portrait targets
+          if (target) {
+            const tx = centerX + target.normX * portraitRadius;
+            const ty = centerY + target.normY * portraitRadius;
+
+            // Spring physics toward target coordinate
+            const dx = tx - p.x;
+            const dy = ty - p.y;
+            p.vx = (p.vx + dx * 0.08) * 0.82;
+            p.vy = (p.vy + dy * 0.08) * 0.82;
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Exit expansion
+            if (isExiting) {
+              p.x += (p.x - centerX) * 0.04;
+              p.y += (p.y - centerY) * 0.04;
+            }
+
+            // High-fidelity monochromatic + cool navy palette matching portfolio theme
+            const b = target.brightness;
+            let rCol = 220, gCol = 230, bCol = 245, alpha = 0.65;
+
+            if (b > 0.75) {
+              // Crisp highlight: pure luminous white
+              rCol = 255; gCol = 255; bCol = 255; alpha = 0.88;
+            } else if (b > 0.45) {
+              // Midtone: soft cool gray
+              rCol = 203; gCol = 213; bCol = 225; alpha = 0.68;
+            } else {
+              // Shadow / accent: subtle desaturated blue
+              rCol = 100; gCol = 145; bCol = 195; alpha = 0.42;
+            }
+
+            if (isExiting) alpha *= 0.5;
+
+            ctx.fillStyle = `rgba(${rCol}, ${gCol}, ${bCol}, ${alpha})`;
+            ctx.beginPath();
+            const ptSize = p.baseSize * (b > 0.6 ? 1.15 : 0.85);
+            ctx.arc(p.x, p.y, ptSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    };
+
+    animId = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [stage]);
+
+  if (isDone) return null;
 
   return (
-    <AnimatePresence onExitComplete={handleExitComplete}>
-      {show && (
+    <AnimatePresence>
+      {stage !== "done" && (
         <motion.div
-          key="loader-root"
+          key="cinematic-loader"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.04 }}
-          transition={{ duration: EXIT_S, ease: [0.4, 0, 0.2, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: EXIT_DURATION_S, ease: [0.4, 0, 0.2, 1] }}
           style={{
-            position:       "fixed",
-            inset:          0,
-            zIndex:         9999,
-            display:        "flex",
-            flexDirection:  "column",
-            alignItems:     "center",
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             justifyContent: "center",
-            background:     "#020617",
-            overflow:       "hidden",
-            pointerEvents:  isExiting ? "none" : "all",
-            willChange:     "opacity, transform",
+            background: "transparent", // Direct pass-through to existing portfolio background
+            pointerEvents: stage === "exit" ? "none" : "auto",
+            overflow: "hidden",
+            userSelect: "none",
           }}
         >
-          {/* Background glows */}
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-            <motion.div
-              animate={{ opacity: intensify ? 1 : 0.62 }}
-              transition={{ duration: 1.8, ease: "easeInOut" }}
-              style={{
-                position: "absolute", inset: 0,
-                background: "radial-gradient(ellipse 72% 55% at 50% 50%, rgba(56,182,255,0.14) 0%, transparent 68%)",
-              }}
-            />
-            <motion.div
-              animate={{ opacity: intensify ? 0.68 : 0.26 }}
-              transition={{ duration: 1.8, ease: "easeInOut" }}
-              style={{
-                position: "absolute", inset: 0,
-                background: "radial-gradient(ellipse 40% 35% at 25% 75%, rgba(99,102,241,0.09) 0%, transparent 62%)",
-              }}
-            />
-          </div>
-
-          {/* HUD grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: intensify ? 0.038 : 0.016 }}
-            transition={{ duration: 2.5, ease: "easeInOut" }}
+          {/* Active Canvas Layer for Scatter & Portrait Particles */}
+          <canvas
+            ref={canvasRef}
             style={{
-              position: "absolute", inset: 0, pointerEvents: "none",
-              backgroundImage: "linear-gradient(rgba(56,182,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(56,182,255,0.5) 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              zIndex: 1,
             }}
           />
 
-          {/* Scan-line sweep */}
-          <motion.div
-            initial={{ y: "-2px" }}
-            animate={{ y: "102vh" }}
-            transition={{ duration: 1.8, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.08 }}
+          {/* Center Stage: Progressive Bold Typography */}
+          <div
             style={{
-              position: "absolute", top: 0, left: 0, right: 0,
-              height: "2px",
-              background: "linear-gradient(90deg, transparent 0%, rgba(56,182,255,0.45) 15%, rgba(56,182,255,0.95) 50%, rgba(56,182,255,0.45) 85%, transparent 100%)",
-              boxShadow: "0 0 20px rgba(56,182,255,0.55), 0 0 55px rgba(56,182,255,0.18)",
-              pointerEvents: "none", zIndex: 8,
-              willChange: "transform",
+              position: "relative",
+              zIndex: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              pointerEvents: "none",
             }}
-          />
-
-          {/* Corner brackets */}
-          <CornerBrackets intensify={intensify} />
-
-          {/* Particles — position is static CSS, only y-translate animates */}
-          {particles.map(p => <Particle key={p.id} p={p} />)}
-
-          {/* Central content */}
-          <div style={{
-            position: "relative", zIndex: 5,
-            display: "flex", flexDirection: "column", alignItems: "center",
-            gap: "clamp(24px, 3.8vw, 38px)",
-            pointerEvents: "none", userSelect: "none",
-            willChange: "transform",
-          }}>
-            {/* Logo */}
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.88 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              style={{ willChange: "transform, opacity" }}
-            >
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", repeatType: "loop" }}
-                style={{ willChange: "transform" }}
-              >
-                <LogoMark intensify={intensify} progress={smoothProgress} />
-              </motion.div>
-            </motion.div>
-
-            {/* Name block */}
+          >
+            {/* Stage 1: Progressive Text Reveal */}
             <AnimatePresence>
-              {showText && (
+              {stage === "reveal" && (
                 <motion.div
-                  key="name-block"
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  exit={{ opacity: 0, scale: 1.08, filter: "blur(6px)" }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
                   style={{
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: "2px",
-                    willChange: "transform, opacity",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px",
                   }}
                 >
-                  {/* Devansh */}
-                  <div style={{ display: "flex", alignItems: "center", minHeight: "1.3em" }}>
-                    <span style={{
-                      fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif",
-                      fontSize: "clamp(28px, 5vw, 58px)",
-                      fontWeight: 300, letterSpacing: "0.22em", lineHeight: 1.2,
-                      color: "#ddeeff",
-                      filter: intensify
-                        ? "drop-shadow(0 0 22px rgba(56,182,255,0.88)) drop-shadow(0 0 55px rgba(56,182,255,0.32))"
-                        : "drop-shadow(0 0 12px rgba(56,182,255,0.52)) drop-shadow(0 0 32px rgba(56,182,255,0.18))",
-                      transition: "filter 1.1s ease",
-                    }}>
-                      {NAME1.slice(0, n1)}
+                  {/* Subtle initial symbol badge */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: "#38b6ff",
+                        boxShadow: "0 0 10px rgba(56, 182, 255, 0.8)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "clamp(10px, 1.3vw, 12px)",
+                        fontWeight: 600,
+                        letterSpacing: "0.32em",
+                        textTransform: "uppercase",
+                        color: "rgba(148, 184, 219, 0.85)",
+                      }}
+                    >
+                      INITIALIZING
                     </span>
-                    {showCursor1 && <Cursor />}
                   </div>
 
-                  {/* Yadav */}
-                  <motion.div
-                    animate={{ opacity: showName2 ? 1 : 0, y: showName2 ? 0 : 8 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    style={{ display: "flex", alignItems: "center", minHeight: "1.15em", willChange: "transform, opacity" }}
-                  >
-                    <span style={{
-                      fontFamily: "'Outfit', 'Inter', sans-serif",
-                      fontSize: "clamp(14px, 2.6vw, 32px)",
-                      fontWeight: 200, letterSpacing: "0.52em", lineHeight: 1.2,
-                      color: "rgba(56,182,255,0.80)",
-                      filter: intensify
-                        ? "drop-shadow(0 0 14px rgba(56,182,255,0.65))"
-                        : "drop-shadow(0 0 7px rgba(56,182,255,0.30))",
-                      transition: "filter 1.1s ease",
-                    }}>
-                      {NAME2.slice(0, n2)}
-                    </span>
-                    {showCursor2 && <Cursor small />}
-                  </motion.div>
-
-                  {/* Divider */}
-                  <motion.div
-                    animate={{ scaleX: intensify ? 1 : 0, opacity: intensify ? 1 : 0 }}
-                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                  {/* Progressive Bold Name */}
+                  <h1
                     style={{
-                      width: "clamp(100px, 14vw, 150px)", height: "1px",
-                      margin: "10px 0 8px",
-                      background: "linear-gradient(90deg, transparent 0%, rgba(56,182,255,0.6) 50%, transparent 100%)",
-                      transformOrigin: "center",
-                      willChange: "transform, opacity",
+                      margin: 0,
+                      fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif",
+                      fontSize: "clamp(32px, 6.2vw, 72px)",
+                      fontWeight: 800,
+                      letterSpacing: "0.22em",
+                      lineHeight: 1.15,
+                      color: "#ffffff",
+                      textShadow:
+                        "0 0 20px rgba(148, 184, 219, 0.4), 0 0 40px rgba(56, 182, 255, 0.18)",
+                    }}
+                  >
+                    {NAME.slice(0, revealedChars)}
+                    {revealedChars < NAME.length && (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: "3px",
+                          height: "0.85em",
+                          marginLeft: "6px",
+                          background: "#94b8db",
+                          borderRadius: "1px",
+                          verticalAlign: "middle",
+                          boxShadow: "0 0 10px rgba(148, 184, 219, 0.8)",
+                          animation: "pulseCursor 0.6s infinite alternate",
+                        }}
+                      />
+                    )}
+                  </h1>
+
+                  {/* Clean desaturated underline */}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: revealedChars / NAME.length }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    style={{
+                      width: "clamp(120px, 18vw, 220px)",
+                      height: "1.5px",
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(148, 184, 219, 0.8) 50%, transparent)",
+                      marginTop: "4px",
                     }}
                   />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-                  {/* Subtitle */}
-                  <motion.p
-                    animate={{ opacity: intensify ? 1 : 0, y: intensify ? 0 : 10 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            {/* Stage 3: Particle Portrait Label */}
+            <AnimatePresence>
+              {stage === "portrait" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  style={{
+                    position: "absolute",
+                    top: "calc(50% + clamp(110px, 18vw, 170px))",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "6px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <p
                     style={{
                       margin: 0,
                       fontFamily: "'Outfit', 'Inter', sans-serif",
-                      fontSize: "clamp(9px, 1.2vw, 12px)",
-                      fontWeight: 400, letterSpacing: "0.38em",
-                      textTransform: "uppercase",
-                      color: "rgba(148,163,184,0.68)",
-                      whiteSpace: "nowrap",
-                      willChange: "transform, opacity",
+                      fontSize: "clamp(15px, 2.2vw, 22px)",
+                      fontWeight: 700,
+                      letterSpacing: "0.26em",
+                      color: "#ffffff",
+                      textShadow: "0 0 16px rgba(148, 184, 219, 0.35)",
                     }}
                   >
-                    Developer &nbsp;&middot;&nbsp; Designer &nbsp;&middot;&nbsp; Creator
-                  </motion.p>
+                    DEVANSH YADAV
+                  </p>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "clamp(10px, 1.2vw, 12px)",
+                      fontWeight: 500,
+                      letterSpacing: "0.35em",
+                      color: "rgba(148, 184, 219, 0.75)",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    PORTFOLIO &bull; 2026
+                  </span>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
+          {/* Discreet Skip Button (Upper Right) */}
+          <button
+            type="button"
+            onClick={handleComplete}
+            aria-label="Skip intro animation"
+            style={{
+              position: "absolute",
+              top: "24px",
+              right: "24px",
+              zIndex: 10,
+              background: "rgba(15, 23, 42, 0.5)",
+              border: "1px solid rgba(148, 184, 219, 0.2)",
+              backdropFilter: "blur(8px)",
+              color: "rgba(203, 213, 225, 0.8)",
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              padding: "6px 14px",
+              borderRadius: "999px",
+              cursor: "pointer",
+              transition: "all 0.25s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#ffffff";
+              e.currentTarget.style.borderColor = "rgba(148, 184, 219, 0.5)";
+              e.currentTarget.style.background = "rgba(20, 32, 58, 0.75)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "rgba(203, 213, 225, 0.8)";
+              e.currentTarget.style.borderColor = "rgba(148, 184, 219, 0.2)";
+              e.currentTarget.style.background = "rgba(15, 23, 42, 0.5)";
+            }}
+          >
+            SKIP [ESC]
+          </button>
+
           <style>{`
-            @keyframes dy-cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
-            @keyframes dy-ring-cw  { to { transform: rotate(360deg);  } }
-            @keyframes dy-ring-ccw { to { transform: rotate(-360deg); } }
+            @keyframes pulseCursor {
+              0% { opacity: 0.2; transform: scaleY(0.9); }
+              100% { opacity: 1; transform: scaleY(1.05); }
+            }
           `}</style>
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-// Particle: only animates y (pixel) and opacity — no string unit animation
-function Particle({ p }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 0 }}
-      animate={{
-        opacity: [0, p.op, p.op * 0.6, p.op * 0.2, 0],
-        y:       [0, p.riseY * 0.3, p.riseY * 0.65, p.riseY],
-      }}
-      transition={{
-        duration:   p.dur,
-        delay:      p.delay,
-        repeat:     Infinity,
-        repeatType: "loop",
-        ease:       "easeInOut",
-        times:      [0, 0.25, 0.65, 1],
-      }}
-      style={{
-        position:     "absolute",
-        left:         p.left,
-        top:          p.top,
-        width:        p.size,
-        height:       p.size,
-        borderRadius: "50%",
-        background:   `rgba(56,182,255,${Math.min(p.op * 1.4, 0.88)})`,
-        boxShadow:    `0 0 ${p.size * 4}px rgba(56,182,255,0.6)`,
-        pointerEvents: "none",
-        willChange:   "transform, opacity",
-      }}
-    />
-  );
-}
-
-function CornerBrackets({ intensify }) {
-  const dur = { duration: 1.4, ease: "easeInOut" };
-  const tgt = intensify ? 1 : 0.45;
-  const bw  = "1.5px solid";
-  const col = "rgba(56,182,255,0.65)";
-  const base = {
-    position: "absolute", width: 26, height: 26,
-    pointerEvents: "none", boxSizing: "border-box",
-  };
-  return (
-    <>
-      <motion.div animate={{ opacity: tgt }} transition={dur}
-        style={{ ...base, top: 22, left: 22, borderTop: `${bw} ${col}`, borderLeft: `${bw} ${col}`, borderRadius: "3px 0 0 0" }} />
-      <motion.div animate={{ opacity: tgt }} transition={dur}
-        style={{ ...base, top: 22, right: 22, borderTop: `${bw} ${col}`, borderRight: `${bw} ${col}`, borderRadius: "0 3px 0 0" }} />
-      <motion.div animate={{ opacity: tgt }} transition={dur}
-        style={{ ...base, bottom: 22, right: 22, borderBottom: `${bw} ${col}`, borderRight: `${bw} ${col}`, borderRadius: "0 0 3px 0" }} />
-      <motion.div animate={{ opacity: tgt }} transition={dur}
-        style={{ ...base, bottom: 22, left: 22, borderBottom: `${bw} ${col}`, borderLeft: `${bw} ${col}`, borderRadius: "0 0 0 3px" }} />
-    </>
-  );
-}
-
-function Cursor({ small = false }) {
-  return (
-    <span style={{
-      display: "inline-block",
-      width: small ? "1.5px" : "2px",
-      height: small ? "0.8em" : "0.95em",
-      background: "rgba(56,182,255,0.92)",
-      borderRadius: "1px", marginLeft: "3px",
-      boxShadow: "0 0 10px rgba(56,182,255,0.9), 0 0 22px rgba(56,182,255,0.4)",
-      animation: "dy-cursor-blink 0.85s step-end infinite",
-      alignSelf: "center", flexShrink: 0,
-    }} />
-  );
-}
-
-function LogoMark({ intensify, progress }) {
-  const R_OUTER = 52;
-  const R_MID   = 44;
-  const R_INNER = 37;
-  const R_ARC   = 62;
-  const PAD     = 14;
-  const SVG     = (R_ARC + PAD) * 2;
-  const C       = SVG / 2;
-  const LOGO_D  = R_INNER * 1.65;
-
-  const arcCirc   = 2 * Math.PI * R_ARC;
-  const arcOffset = arcCirc * (1 - Math.max(0, Math.min(1, progress)));
-  const tipAngle  = 2 * Math.PI * progress - Math.PI / 2;
-  const tipX      = C + R_ARC * Math.cos(tipAngle);
-  const tipY      = C + R_ARC * Math.sin(tipAngle);
-
-  return (
-    <div style={{ position: "relative", width: SVG, height: SVG }}>
-      <svg width={SVG} height={SVG} viewBox={`0 0 ${SVG} ${SVG}`}
-        style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-        <defs>
-          <linearGradient id="sweepG" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%"   stopColor="rgba(56,182,255,0)"    />
-            <stop offset="50%"  stopColor="rgba(56,182,255,0.75)" />
-            <stop offset="100%" stopColor="rgba(56,182,255,0)"    />
-          </linearGradient>
-          <linearGradient id="arcFill" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"   stopColor="#38b6ff" stopOpacity="0.05" />
-            <stop offset="55%"  stopColor="#38b6ff" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#7df9ff" stopOpacity="1"    />
-          </linearGradient>
-          <filter id="gF" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="2.5" result="b" />
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <filter id="tipF" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="3.5" result="b" />
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-cw 8s linear infinite" }}>
-          <circle cx={C} cy={C} r={R_OUTER} fill="none" stroke="rgba(56,182,255,0.11)" strokeWidth="1" />
-          <circle cx={C} cy={C} r={R_OUTER} fill="none" stroke="url(#sweepG)" strokeWidth="1.5"
-            strokeDasharray={`${R_OUTER * 1.15} ${2 * Math.PI * R_OUTER - R_OUTER * 1.15}`} />
-        </g>
-
-        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-ccw 13s linear infinite" }}>
-          <circle cx={C} cy={C} r={R_MID} fill="none" stroke="rgba(56,182,255,0.09)" strokeWidth="1" />
-          <circle cx={C} cy={C} r={R_MID} fill="none" stroke="rgba(56,182,255,0.52)" strokeWidth="1"
-            strokeDasharray={`${R_MID * 0.55} ${2 * Math.PI * R_MID - R_MID * 0.55}`} />
-        </g>
-
-        <g style={{ transformOrigin: `${C}px ${C}px`, animation: "dy-ring-cw 21s linear infinite" }}>
-          <circle cx={C} cy={C} r={R_INNER} fill="none" stroke="rgba(56,182,255,0.15)" strokeWidth="0.75" strokeDasharray="2.5 7" />
-        </g>
-
-        <circle cx={C} cy={C} r={R_ARC} fill="none" stroke="rgba(56,182,255,0.07)" strokeWidth="1.5" />
-
-        {progress > 0.005 && (
-          <circle cx={C} cy={C} r={R_ARC} fill="none"
-            stroke="url(#arcFill)" strokeWidth="2.5" strokeLinecap="round"
-            strokeDasharray={arcCirc} strokeDashoffset={arcOffset}
-            style={{
-              transformOrigin: `${C}px ${C}px`,
-              transform: "rotate(-90deg)",
-              filter: "url(#gF)",
-              transition: "stroke-dashoffset 0.22s cubic-bezier(0.25,0.46,0.45,0.94)",
-            }}
-          />
-        )}
-
-        {progress > 0.02 && (
-          <circle cx={tipX} cy={tipY} r={3} fill="#7df9ff" style={{ filter: "url(#tipF)" }} />
-        )}
-      </svg>
-
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <motion.div
-          animate={{ opacity: intensify ? 0.72 : 0.28, scale: intensify ? 1.2 : 1 }}
-          transition={{ duration: 1.4, ease: "easeInOut" }}
-          style={{
-            position: "absolute", width: LOGO_D + 18, height: LOGO_D + 18,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(56,182,255,0.32) 0%, transparent 70%)",
-            filter: "blur(18px)",
-            willChange: "opacity, transform",
-          }}
-        />
-        <motion.div
-          animate={{
-            boxShadow: intensify
-              ? "0 0 38px rgba(56,182,255,0.28), inset 0 0 22px rgba(56,182,255,0.06), 0 0 0 1px rgba(56,182,255,0.28)"
-              : "0 0 16px rgba(56,182,255,0.11), inset 0 0 10px rgba(56,182,255,0.04), 0 0 0 1px rgba(56,182,255,0.14)",
-          }}
-          transition={{ duration: 1.4, ease: "easeInOut" }}
-          style={{
-            position: "absolute", width: LOGO_D, height: LOGO_D,
-            borderRadius: "50%",
-            background: "radial-gradient(circle at 38% 38%, rgba(56,182,255,0.07) 0%, rgba(2,6,23,0.94) 100%)",
-            willChange: "box-shadow",
-          }}
-        />
-        <span style={{
-          position: "relative",
-          fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif",
-          fontSize: "clamp(20px, 3.5vw, 34px)",
-          fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1,
-          background: "linear-gradient(135deg, #7df9ff 0%, #38b6ff 45%, #1a8fff 100%)",
-          backgroundClip: "text", WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent", color: "transparent",
-          filter: intensify
-            ? "drop-shadow(0 0 18px rgba(56,182,255,0.92)) drop-shadow(0 0 48px rgba(56,182,255,0.40))"
-            : "drop-shadow(0 0 11px rgba(56,182,255,0.68)) drop-shadow(0 0 28px rgba(56,182,255,0.24))",
-          transition: "filter 1.1s ease",
-        }}>DY</span>
-      </div>
-    </div>
   );
 }

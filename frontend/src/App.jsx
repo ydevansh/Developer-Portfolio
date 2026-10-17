@@ -66,7 +66,7 @@ class AppErrorBoundary extends Component {
   }
 }
 
-function AppContent() {
+function AppContent({ isLoaderActive = false }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
@@ -80,7 +80,13 @@ function AppContent() {
       {/* Portfolio content — sits above background layers */}
       <div
         className="min-h-screen flex flex-col"
-        style={{ position: 'relative', zIndex: 1 }}
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          opacity: isLoaderActive ? 0 : 1,
+          transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: isLoaderActive ? 'none' : 'auto',
+        }}
       >
         {!isAdminRoute && <Navbar />}
         <main className="flex-grow">
@@ -120,32 +126,37 @@ function AppContent() {
       </div>
 
       {/* Background switcher — always on top of content, never on admin routes */}
-      {!isAdminRoute && <BackgroundSwitcher />}
+      {!isAdminRoute && (
+        <div
+          style={{
+            opacity: isLoaderActive ? 0 : 1,
+            transition: 'opacity 0.6s ease',
+            pointerEvents: isLoaderActive ? 'none' : 'auto',
+          }}
+        >
+          <BackgroundSwitcher />
+        </div>
+      )}
     </>
   );
 }
 
 function App() {
   // Show loader on every true page load (including refresh).
-  // Use a runtime flag set by the loader on completion — cleared on each hard navigation.
-  // sessionStorage persists across SPA navigations but resets on tab close / new tab.
-  // We additionally check performance entries to detect hard reloads vs SPA nav.
   const [needsLoader] = useState(() => {
-    // If this is a hard navigation (first load or refresh), always show loader.
     const entries = performance.getEntriesByType?.('navigation') ?? [];
     const navType  = entries[0]?.type ?? 'navigate';
-    // navType: 'navigate' = fresh load, 'reload' = F5, 'back_forward' = history
-    // For navigate + reload we always show loader.
-    // For back_forward we skip (user hit back button — don't re-play).
     if (navType === 'back_forward') {
       return false;
     }
-    // For genuine page loads, clear stale flag and show loader.
     sessionStorage.removeItem('hasSeenLoader');
     return true;
   });
 
+  const [isLoaderActive, setIsLoaderActive] = useState(needsLoader);
+
   const handleLoadingComplete = useCallback(() => {
+    setIsLoaderActive(false);
     sessionStorage.setItem('hasSeenLoader', 'true');
   }, []);
 
@@ -155,10 +166,10 @@ function App() {
       <BackgroundProvider>
         <Router>
           {/* LoadingScreen self-unmounts when done — App never force-removes it */}
-          {needsLoader && (
+          {needsLoader && isLoaderActive && (
             <LoadingScreen onLoadingComplete={handleLoadingComplete} />
           )}
-          <AppContent />
+          <AppContent isLoaderActive={isLoaderActive} />
         </Router>
       </BackgroundProvider>
     </AppErrorBoundary>
