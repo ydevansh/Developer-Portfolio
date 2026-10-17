@@ -75,8 +75,8 @@ function SolarIcon({ size = 16, active }) {
 const OPTIONS = [
   {
     key: 'professional',
-    label: 'Flow Field',
-    tooltip: 'Generative flow field',
+    label: 'Pure Minimal',
+    tooltip: 'Pure minimal + grain background',
     Icon: NetworkIcon,
   },
   {
