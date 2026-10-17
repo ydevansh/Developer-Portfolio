@@ -3,16 +3,18 @@
  *
  * Sequence:
  *  Phase 1: The Bouncing Dot (Physics Simulation)
- *           Solid #000000 background, single white dot drops and bounces like a heavy rubber ball.
+ *           Solid #000000 background, single white dot drops and bounces twice like a heavy rubber ball.
  *  Phase 2: The Name Shatter/Reveal
  *           On final impact, dot shatters into tumbled, rotating letters spelling "DEVANSH YADAV" (GSAP stagger).
- *  Phase 3: The 'PORTFOLIO' Text & Subtitle
- *           Name dissolves; massive 3D metallic/silver text "PORTFOLIO" scales in with subtitle.
- *  Phase 4: Particle Space Background & Dot-Matrix Portrait
- *           Canvas transitions into celestial starfield; behind "PORTFOLIO", a dot-matrix halftone portrait
- *           of Devansh Yadav (sampled from profile.jpg) fades into the scene.
- *  Phase 5: Navbar Entrance & Scroll Unlock
- *           Top navigation links fade in from the top right; unlocks body scroll for the rest of the website.
+ *  Phase 3: The 'PORTFOLIO' Text & Dot-Matrix Portrait
+ *           Name dissolves; massive 3D metallic/silver text "PORTFOLIO" (z-30) scales into absolute center.
+ *           Behind "PORTFOLIO", starry space & dot-matrix halftone portrait (z-10) of the developer fades in.
+ *  Phase 4: The Subtitle (Positioning & Overlap)
+ *           Subtitle "FULL STACK & PYTHON DEVELOPER" (z-20) smoothly fades in directly under "PORTFOLIO",
+ *           visually overlapping the bottom chest/shoulder section of the dotted portrait image behind it.
+ *           Bright cyan/light-blue shade with wide letter-spacing.
+ *  Phase 5: Navbar, Skip Button & Scroll Unlock
+ *           Top navigation links fade in from top right; 'SKIP [ESC]' button in top-left; unlocks body scroll.
  */
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
@@ -27,7 +29,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
   const nameWrapperRef = useRef(null);
   const portfolioTextRef = useRef(null);
   const subtitleRef = useRef(null);
-  const navHeaderRef = useRef(null);
+  const skipBtnRef = useRef(null);
   const canvasRef = useRef(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
@@ -79,12 +81,12 @@ export default function LoadingScreen({ onLoadingComplete }) {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const onResize = () => {
+    const handleResize = () => {
       if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", handleResize);
 
     // Celestial space particles
     const starCount = 140;
@@ -147,7 +149,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
       matrixDots = dots;
     };
 
-    // Canvas alpha tweened by GSAP in Phase 4
+    // Canvas alpha tweened by GSAP in Phase 3
     const canvasFade = { alpha: 0, time: 0 };
 
     const render = () => {
@@ -166,20 +168,28 @@ export default function LoadingScreen({ onLoadingComplete }) {
         ctx.fillRect(s.x, s.y, s.size, s.size);
       }
 
-      // ── Dot-Matrix Portrait ──
+      // ── Dot-Matrix Portrait (Positioned behind PORTFOLIO with clear space for subtitle) ──
       const isMobile = width < 768;
       const portraitScale = isMobile
-        ? Math.min(width, height) * 0.36
+        ? Math.min(width, height) * 0.35
         : Math.min(width, height) * 0.28;
       const centerX = width / 2;
-      const centerY = height * 0.46;
+      // Positioned slightly upward (0.40) so facial contours frame above center
+      // and lower shirt points end cleanly above the subtitle zone
+      const centerY = height * 0.40;
 
       for (let dot of matrixDots) {
-        const floatY = Math.sin(canvasFade.time + dot.driftOffset) * 2;
+        const floatY = Math.sin(canvasFade.time + dot.driftOffset) * 2.0;
         const px = centerX + dot.normX * portraitScale;
         const py = centerY + dot.normY * portraitScale + floatY;
 
-        ctx.globalAlpha = dot.alpha * canvasFade.alpha;
+        let dotAlpha = dot.alpha * canvasFade.alpha;
+        // Attenuate particles that reach into the subtitle zone below the main heading
+        if (py > height * 0.51) {
+          dotAlpha *= 0.18;
+        }
+
+        ctx.globalAlpha = dotAlpha;
         ctx.fillStyle = dot.isHighlight ? "#ffffff" : "#94a3b8";
 
         ctx.beginPath();
@@ -273,7 +283,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
         "-=0.08"
       )
 
-      // Phase 3: Developer Name fades out -> Massive 3D Metallic "PORTFOLIO" + Subtitle
+      // Phase 3: Developer Name fades out -> Massive 3D Metallic "PORTFOLIO" & Dot-Matrix Portrait
       .to(letters, {
         opacity: 0,
         y: -35,
@@ -283,12 +293,23 @@ export default function LoadingScreen({ onLoadingComplete }) {
         delay: 0.55,
         ease: "power2.in",
       })
+      // Canvas portrait and starry background fade in
+      .to(
+        canvasFade,
+        {
+          alpha: 1,
+          duration: 1.15,
+          ease: "power2.inOut",
+        },
+        "-=0.2"
+      )
+      // 3D Metallic PORTFOLIO text scales up in center
       .fromTo(
         portfolioTextRef.current,
         {
           opacity: 0,
-          scale: 0.5,
-          letterSpacing: "0.05em",
+          scale: 0.55,
+          letterSpacing: "0.06em",
           filter: "blur(8px)",
         },
         {
@@ -299,30 +320,29 @@ export default function LoadingScreen({ onLoadingComplete }) {
           duration: 0.95,
           ease: "power3.out",
         },
-        "-=0.15"
+        "-=0.9"
       )
+
+      // Phase 4: Subtitle (Positioning, Contrast & Refined Soft Icy Cyan Styling)
       .fromTo(
         subtitleRef.current,
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.65, ease: "power2.out" },
-        "-=0.3"
-      )
-
-      // Phase 4: Particle Space Background & Dot-Matrix Portrait
-      .to(
-        canvasFade,
         {
-          alpha: 1,
-          duration: 1.25,
-          ease: "power2.inOut",
+          opacity: 0,
+          y: 16,
         },
-        "-=0.45"
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out",
+        },
+        "-=0.35"
       )
 
-      // Phase 5: Minimal Top Navigation Header & Scroll Unlock
+      // Phase 5: Skip Button & Scroll Unlock
       .fromTo(
-        navHeaderRef.current,
-        { opacity: 0, y: -20 },
+        skipBtnRef.current,
+        { opacity: 0, y: -18 },
         { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
         "-=0.2"
       )
@@ -334,7 +354,7 @@ export default function LoadingScreen({ onLoadingComplete }) {
 
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", handleResize);
       tl.kill();
       document.documentElement.style.overflow = origHtmlOverflow;
       document.body.style.overflow = origBodyOverflow;
@@ -348,50 +368,30 @@ export default function LoadingScreen({ onLoadingComplete }) {
       ref={containerRef}
       className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#000000] overflow-hidden select-none"
     >
-      {/* HTML5 Canvas for Starry Space & Dot-Matrix Halftone Portrait */}
+      {/* Canvas: Starry Space & Dot-Matrix Halftone Portrait (Layer z-10: Behind Typography) */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none z-10"
       />
 
-      {/* Phase 5: Top Navigation Links */}
-      <nav
-        ref={navHeaderRef}
-        className="absolute top-0 right-0 p-6 sm:p-8 z-30 opacity-0 flex items-center gap-6 sm:gap-9 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-slate-300"
+      {/* Phase 5: Skip Button (Top Left - Layer z-40) */}
+      <button
+        ref={skipBtnRef}
+        type="button"
+        onClick={handleSequenceFinish}
+        aria-label="Skip intro animation"
+        className="opacity-0 absolute top-6 left-6 z-40 bg-[#0f172a]/60 hover:bg-[#1e293b]/80 border border-white/20 hover:border-cyan-400/50 backdrop-blur-md text-slate-300 hover:text-white font-['Inter',sans-serif] text-[10px] sm:text-[11px] font-semibold tracking-[0.22em] uppercase px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.5)] transition-all duration-200 cursor-pointer"
       >
-        <button
-          onClick={handleSequenceFinish}
-          className="hover:text-cyan-300 transition-colors cursor-pointer bg-transparent border-0 p-0 text-inherit uppercase font-inherit tracking-inherit"
-        >
-          Home
-        </button>
-        <button
-          onClick={handleSequenceFinish}
-          className="hover:text-cyan-300 transition-colors cursor-pointer bg-transparent border-0 p-0 text-inherit uppercase font-inherit tracking-inherit"
-        >
-          About
-        </button>
-        <button
-          onClick={handleSequenceFinish}
-          className="hover:text-cyan-300 transition-colors cursor-pointer bg-transparent border-0 p-0 text-inherit uppercase font-inherit tracking-inherit"
-        >
-          Projects
-        </button>
-        <button
-          onClick={handleSequenceFinish}
-          className="hover:text-cyan-300 transition-colors cursor-pointer bg-transparent border-0 p-0 text-inherit uppercase font-inherit tracking-inherit"
-        >
-          Contact
-        </button>
-      </nav>
+        SKIP [ESC]
+      </button>
 
-      {/* Phase 1: Heavy Rubber Bouncing Dot */}
+      {/* Phase 1: Heavy Rubber Bouncing Dot (Layer z-20) */}
       <div
         ref={dotRef}
         className="absolute w-4 h-4 bg-white rounded-full shadow-[0_0_22px_rgba(255,255,255,1),0_0_40px_rgba(34,211,238,0.5)] opacity-0 z-20 pointer-events-none"
       />
 
-      {/* Phase 2: Name Shatter/Tumble Letters */}
+      {/* Phase 2: Name Shatter/Tumble Letters (Layer z-20) */}
       <div
         ref={nameWrapperRef}
         className="absolute z-20 flex items-center justify-center pointer-events-none px-4"
@@ -406,32 +406,36 @@ export default function LoadingScreen({ onLoadingComplete }) {
         ))}
       </div>
 
-      {/* Phase 3 & 4: 3D Metallic "PORTFOLIO" Text & Subtitle */}
-      <div className="relative z-20 flex flex-col items-center justify-center text-center pointer-events-none px-4">
+      {/* Phase 3 & 4: Central Typography Stack with Refined Positioning & Contrast */}
+      <div className="relative flex flex-col items-center justify-center text-center pointer-events-none px-4">
+        {/* Main 3D Metallic Title (Layer z-30) */}
         <h1
           ref={portfolioTextRef}
-          className="opacity-0 font-['Outfit',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase metallic-3d-text leading-tight"
+          className="relative z-30 opacity-0 font-['Outfit',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase metallic-3d-text leading-[0.95]"
         >
           PORTFOLIO
         </h1>
 
+        {/* Phase 4 Subtitle: Soft Icy Cyan #67E8F9, 24-32px spacing, localized soft vignette, balanced 0.22em spacing (Layer z-20) */}
         <p
           ref={subtitleRef}
-          className="opacity-0 mt-3 sm:mt-5 text-[11px] sm:text-sm font-semibold uppercase tracking-[0.38em] text-cyan-300 drop-shadow-[0_0_14px_rgba(34,211,238,0.7)]"
+          className="relative z-20 opacity-0 mt-6 sm:mt-7 lg:mt-8 font-semibold uppercase text-[#67E8F9] text-center"
+          style={{
+            fontFamily: "'Inter', 'Outfit', -apple-system, sans-serif",
+            fontSize: "clamp(12px, 1.4vw, 16px)",
+            letterSpacing: "0.22em",
+            textShadow:
+              "0 0 14px rgba(103, 232, 249, 0.45), 0 2px 6px rgba(0, 0, 0, 0.95)",
+            background:
+              "radial-gradient(ellipse 95% 75% at 50% 50%, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0) 100%)",
+            padding: "6px 20px",
+            borderRadius: "999px",
+            whiteSpace: "nowrap",
+          }}
         >
-          Full Stack & Python Developer
+          FULL STACK & PYTHON DEVELOPER
         </p>
       </div>
-
-      {/* Discreet Skip Button (Upper Left) */}
-      <button
-        type="button"
-        onClick={handleSequenceFinish}
-        aria-label="Skip intro animation"
-        className="absolute top-6 left-6 z-30 bg-white/5 border border-white/10 hover:border-white/30 backdrop-blur-md text-slate-300 hover:text-white font-['Inter',sans-serif] text-[10px] font-semibold tracking-[0.2em] uppercase px-3.5 py-1.5 rounded-full transition-all duration-200"
-      >
-        Skip [ESC]
-      </button>
 
       {/* 3D Metallic Typography Styling */}
       <style>{`
