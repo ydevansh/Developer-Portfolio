@@ -281,6 +281,8 @@ export default function Home() {
                   <div className="relative z-10 h-full w-full rounded-full bg-gradient-to-br from-cyan-400 via-violet-500 to-fuchsia-500 p-1.5 shadow-[0_14px_36px_rgba(99,102,241,0.22)]">
                     <div className="h-full w-full overflow-hidden rounded-full border border-white/20 bg-slate-950">
                       <img
+                        id="hero-profile-image-mobile"
+                        data-hero-portrait="true"
                         src={profileImage}
                         alt="Devansh Yadav portrait"
                         className="h-full w-full object-cover object-[50%_30%]"
@@ -407,6 +409,8 @@ export default function Home() {
               >
                 <div className="h-full w-full overflow-hidden rounded-full border border-white/20 bg-slate-950">
                   <img
+                    id="hero-profile-image-desktop"
+                    data-hero-portrait="true"
                     src={profileImage}
                     alt="Devansh Yadav portrait"
                     className="h-full w-full object-cover object-[50%_30%] scale-100 transition-transform duration-500 hover:scale-[1.03]"
