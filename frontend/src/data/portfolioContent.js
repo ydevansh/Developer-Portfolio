@@ -1,4 +1,5 @@
 import portfolioPreview from '../assets/portfolio-preview.png';
+import foodExpenseTrackerPreview from '../assets/food-expense-tracker-preview.jpg';
 
 export const generatedProjects = [
   {
@@ -17,20 +18,19 @@ export const generatedProjects = [
     imageUrl: portfolioPreview,
   },
   {
-    title: 'SmartOps Admin Dashboard',
+    title: 'Food Expense Tracker',
     shortDescription:
-      'A production-style dashboard for monitoring users, orders, and system health in real time. Designed for modern SaaS products with role-based access and analytics.',
-    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
+      'A practical food expense tracking application that helps users record daily food expenses, manage shared meal costs, and monitor their food budget with ease. Features period-based settlement and multi-user support.',
+    technologies: ['React', 'Node.js', 'MongoDB', 'Express', 'Food Management', 'Expense Tracking', 'Budget Management'],
     keyFeatures: [
-      'Interactive KPI panels with live chart updates',
-      'Role-based access control for Admin and Manager users',
-      'Advanced filtering for orders, users, and alerts',
-      'Audit logs and activity timeline for operational tracking',
+      'Period-based expense tracking with daily breakfast and dinner logs',
+      'Multi-user support with per-person cost calculation and settlement',
+      'Calendar view to browse and manage meals by date',
+      'Reports and analytics for food spending trends and history',
     ],
-    githubLink: 'https://github.com/devansh-dev/smartops-admin-dashboard',
-    liveDemoLink: 'https://smartops-dashboard-demo.netlify.app',
-    imageUrl:
-      'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80',
+    githubLink: 'https://github.com/ydevansh/Food-Expense-Tracker',
+    liveDemoLink: 'https://food-expense-tracking-system.vercel.app',
+    imageUrl: foodExpenseTrackerPreview,
   },
   {
     title: 'FocusFlow Productivity Suite',
