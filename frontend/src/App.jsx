@@ -66,9 +66,12 @@ class AppErrorBoundary extends Component {
   }
 }
 
-function AppContent({ isLoaderActive = false }) {
+function AppContent({ isLoaderActive = false, isMerging = false }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  const contentVisible = !isLoaderActive || isMerging;
+  const contentOpacity = !isLoaderActive ? 1 : isMerging ? 0.95 : 0;
 
   return (
     <>
@@ -78,8 +81,8 @@ function AppContent({ isLoaderActive = false }) {
       {!isAdminRoute && (
         <div
           style={{
-            opacity: isLoaderActive ? 0 : 1,
-            visibility: isLoaderActive ? 'hidden' : 'visible',
+            opacity: contentOpacity,
+            visibility: contentVisible ? 'visible' : 'hidden',
             transition: 'opacity 0.8s ease',
           }}
         >
@@ -93,8 +96,8 @@ function AppContent({ isLoaderActive = false }) {
         style={{
           position: 'relative',
           zIndex: 1,
-          opacity: isLoaderActive ? 0 : 1,
-          visibility: isLoaderActive ? 'hidden' : 'visible',
+          opacity: contentOpacity,
+          visibility: contentVisible ? 'visible' : 'hidden',
           transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: isLoaderActive ? 'none' : 'auto',
         }}
@@ -140,8 +143,8 @@ function AppContent({ isLoaderActive = false }) {
       {!isAdminRoute && (
         <div
           style={{
-            opacity: isLoaderActive ? 0 : 1,
-            visibility: isLoaderActive ? 'hidden' : 'visible',
+            opacity: !isLoaderActive ? 1 : 0,
+            visibility: !isLoaderActive ? 'visible' : 'hidden',
             transition: 'opacity 0.6s ease',
             pointerEvents: isLoaderActive ? 'none' : 'auto',
           }}
@@ -166,9 +169,15 @@ function App() {
   });
 
   const [isLoaderActive, setIsLoaderActive] = useState(needsLoader);
+  const [isMerging, setIsMerging] = useState(false);
+
+  const handleMergeStart = useCallback(() => {
+    setIsMerging(true);
+  }, []);
 
   const handleLoadingComplete = useCallback(() => {
     setIsLoaderActive(false);
+    setIsMerging(false);
     sessionStorage.setItem('hasSeenLoader', 'true');
   }, []);
 
@@ -179,9 +188,12 @@ function App() {
         <Router>
           {/* LoadingScreen self-unmounts when done — App never force-removes it */}
           {needsLoader && isLoaderActive && (
-            <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+            <LoadingScreen
+              onLoadingComplete={handleLoadingComplete}
+              onMergeStart={handleMergeStart}
+            />
           )}
-          <AppContent isLoaderActive={isLoaderActive} />
+          <AppContent isLoaderActive={isLoaderActive} isMerging={isMerging} />
         </Router>
       </BackgroundProvider>
     </AppErrorBoundary>
