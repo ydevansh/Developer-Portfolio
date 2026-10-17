@@ -75,7 +75,17 @@ function AppContent({ isLoaderActive = false }) {
       <ScrollToTop />
 
       {/* Background system — both layers always mounted, crossfaded by BackgroundManager */}
-      {!isAdminRoute && <BackgroundManager />}
+      {!isAdminRoute && (
+        <div
+          style={{
+            opacity: isLoaderActive ? 0 : 1,
+            visibility: isLoaderActive ? 'hidden' : 'visible',
+            transition: 'opacity 0.8s ease',
+          }}
+        >
+          <BackgroundManager />
+        </div>
+      )}
 
       {/* Portfolio content — sits above background layers */}
       <div
@@ -84,6 +94,7 @@ function AppContent({ isLoaderActive = false }) {
           position: 'relative',
           zIndex: 1,
           opacity: isLoaderActive ? 0 : 1,
+          visibility: isLoaderActive ? 'hidden' : 'visible',
           transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: isLoaderActive ? 'none' : 'auto',
         }}
@@ -130,6 +141,7 @@ function AppContent({ isLoaderActive = false }) {
         <div
           style={{
             opacity: isLoaderActive ? 0 : 1,
+            visibility: isLoaderActive ? 'hidden' : 'visible',
             transition: 'opacity 0.6s ease',
             pointerEvents: isLoaderActive ? 'none' : 'auto',
           }}
