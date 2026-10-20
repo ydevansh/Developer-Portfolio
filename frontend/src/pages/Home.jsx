@@ -710,20 +710,23 @@ export default function Home() {
             </div>
           </motion.section>
 
-          <motion.section variants={itemVariants} className="space-y-6">
+          <motion.section variants={itemVariants} className="space-y-6 rounded-3xl border border-white/10 bg-slate-950/40 p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.25)] backdrop-blur-md mb-3">
+                  <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.9)] animate-pulse" />
                   Projects
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold">Featured Projects</h2>
+                <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">Featured Projects</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
+                  A curated selection of full-stack web applications, interactive tools, and open-source work I've built.
+                </p>
               </div>
               <Link
                 to="/projects"
-                className="w-fit px-5 py-2.5 bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors duration-300"
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-400/15"
               >
-                Explore Projects
+                Explore Projects <FaArrowRight className="text-xs" />
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
@@ -796,23 +799,23 @@ export default function Home() {
             </div>
           </motion.section>
 
-          <motion.section variants={itemVariants} className="space-y-6">
+          <motion.section variants={itemVariants} className="space-y-6 rounded-3xl border border-white/10 bg-slate-950/40 p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-200 shadow-[0_0_20px_rgba(168,85,247,0.15)] backdrop-blur-md mb-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.8)] animate-pulse" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-200 shadow-[0_0_25px_rgba(168,85,247,0.25)] backdrop-blur-md mb-3">
+                  <span className="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(168,85,247,0.9)] animate-pulse" />
                   Blog
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold">Latest Blogs</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400">
+                <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]">Latest Blogs</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
                   A small preview of recent writing on AI, web development, and practical project building.
                 </p>
               </div>
               <Link
                 to="/blog"
-                className="w-fit rounded-lg border border-primary-500/40 bg-primary-500/20 px-4 py-2.5 text-sm font-medium transition-colors duration-300 hover:bg-primary-500/30"
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-400/15"
               >
-                View All Blogs
+                View All Blogs <FaArrowRight className="text-xs" />
               </Link>
             </div>
 
