@@ -128,7 +128,7 @@ export default function Contact() {
     }`;
 
   return (
-    <div className="relative overflow-hidden pt-32 pb-20">
+    <div className="relative overflow-x-hidden pt-32 pb-20">
       <Seo
         title={contactSeo.title}
         description={contactSeo.description}

@@ -66,6 +66,15 @@ class AppErrorBoundary extends Component {
   }
 }
 
+function PageRouteLoader() {
+  return (
+    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent shadow-[0_0_15px_rgba(34,211,238,0.4)]" />
+      <span className="text-xs uppercase tracking-[0.2em] text-cyan-300 font-mono">Loading...</span>
+    </div>
+  );
+}
+
 function AppContent({ isLoaderActive = false, isMerging = false }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -104,7 +113,7 @@ function AppContent({ isLoaderActive = false, isMerging = false }) {
       >
         {!isAdminRoute && <Navbar />}
         <main className="flex-grow">
-          <Suspense fallback={<LoadingScreen onLoadingComplete={() => {}} />}>
+          <Suspense fallback={<PageRouteLoader />}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />

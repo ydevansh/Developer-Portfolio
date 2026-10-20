@@ -184,7 +184,7 @@ export default function Experience() {
   };
 
   return (
-    <div className="relative overflow-hidden pb-20 pt-28 lg:pt-32">
+    <div className="relative overflow-x-hidden pb-20 pt-28 lg:pt-32">
       <Seo
         title="Experience - Learning Journey | Devansh Yadav"
         description="Explore Devansh Yadav's detailed and interactive learning journey across BCA, IIT Mandi AI Minor, full stack projects, and daily practice."

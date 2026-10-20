@@ -398,7 +398,7 @@ export default function BlogDetail() {
     <>
       <Seo {...seoConfig} structuredData={blogStructuredData} />
       <ScrollProgressBar />
-      <div className="relative overflow-hidden pt-28 pb-20">
+      <div className="relative overflow-x-hidden pt-28 pb-20">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-28 right-[-6%] h-80 w-80 rounded-full bg-violet-500/18 blur-3xl" />
           <div className="absolute top-40 left-[-7%] h-72 w-72 rounded-full bg-cyan-500/16 blur-3xl" />

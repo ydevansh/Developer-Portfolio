@@ -18,6 +18,8 @@ html {
   /* Prevent zoom-out on desktop caused by content wider than viewport */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: hidden;
+  overflow-y: auto !important;
 }
 
 body {
@@ -29,8 +31,10 @@ body {
   color: #fff;
   line-height: 1.6;
   overflow-x: hidden;
+  overflow-y: auto !important;
   color-scheme: dark;
   max-width: 100vw;
+  min-height: 100vh;
 }
 
 /* Prevent any element from causing horizontal overflow */

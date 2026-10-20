@@ -271,7 +271,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16 bg-[#000000]">
+    <div className="relative overflow-x-hidden pt-28 pb-12 lg:pt-32 lg:pb-16 bg-[#000000]">
       <Seo
         title={homeSeo.title}
         description={homeSeo.description}

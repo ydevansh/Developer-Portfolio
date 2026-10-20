@@ -469,7 +469,7 @@ export default function Services() {
   ];
 
   return (
-    <div className="relative overflow-hidden pb-20 pt-28 lg:pt-32">
+    <div className="relative overflow-x-hidden pb-20 pt-28 lg:pt-32">
       <Seo
         title={servicesSeo.title}
         description={servicesSeo.description}

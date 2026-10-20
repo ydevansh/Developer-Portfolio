@@ -64,7 +64,7 @@ export default function Skills() {
   }, [selectedSkill]);
 
   return (
-    <div className="relative overflow-hidden pt-32 pb-20">
+    <div className="relative overflow-x-hidden pt-32 pb-20">
       <Seo
         title={skillsSeo.title}
         description={skillsSeo.description}
