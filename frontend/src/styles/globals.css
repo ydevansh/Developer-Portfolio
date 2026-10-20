@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -25,7 +25,7 @@ body {
   /* Canvas CinematicBackground renders the full visual background.
      This flat color is a fallback / anti-flash safety net.
      Must match the canvas base color exactly: #0A0F1C */
-  background: #0A0F1C;
+  background: #000000;
   color: #fff;
   line-height: 1.6;
   overflow-x: hidden;
@@ -72,12 +72,16 @@ svg {
   outline-offset: 2px;
 }
 
-/* Profile image grayscale-to-color hover effect */
-[data-hero-portrait="true"] {
-  filter: grayscale(60%) saturate(0.70) brightness(0.92);
-  transition: filter 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+/* Hero portrait — grayscale filter applied inline for terminal theme */
+/* Terminal-style cursor blink for monospace elements */
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
-
-[data-hero-portrait="true"]:hover {
-  filter: grayscale(0%) saturate(1.1) brightness(1);
+.terminal-cursor::after {
+  content: '_';
+  display: inline-block;
+  margin-left: 2px;
+  color: #00E5FF;
+  animation: terminal-blink 1s step-end infinite;
 }
