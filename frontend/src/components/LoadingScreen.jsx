@@ -45,23 +45,40 @@ export default function LoadingScreen({ onLoadingComplete }) {
     document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
 
-    gsap.to(containerRef.current, {
-      opacity: 0,
-      duration: 0.7,
-      ease: "power2.inOut",
-      onComplete: () => {
-        doneCallbackRef.current?.();
-      },
-    });
+    if (containerRef.current) {
+      gsap.to(containerRef.current, {
+        opacity: 0,
+        duration: 0.5,
+        ease: "power2.inOut",
+        onComplete: () => {
+          document.documentElement.style.overflow = "";
+          document.body.style.overflow = "";
+          doneCallbackRef.current?.();
+        },
+      });
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      doneCallbackRef.current?.();
+    }
   }, [isCompleted]);
 
-  // Keyboard escape shortcut
+  // Keyboard escape shortcut + safety timeout fallback
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === "Escape") handleSequenceFinish();
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+
+    // Fallback: maximum 6 seconds before guaranteed unlock
+    const fallbackTimer = setTimeout(() => {
+      handleSequenceFinish();
+    }, 6000);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      clearTimeout(fallbackTimer);
+    };
   }, [handleSequenceFinish]);
 
   useEffect(() => {
@@ -356,8 +373,8 @@ export default function LoadingScreen({ onLoadingComplete }) {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", handleResize);
       tl.kill();
-      document.documentElement.style.overflow = origHtmlOverflow;
-      document.body.style.overflow = origBodyOverflow;
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [handleSequenceFinish]);
 
