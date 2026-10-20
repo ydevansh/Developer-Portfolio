@@ -271,7 +271,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16">
+    <div className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16 bg-[#000000]">
       <Seo
         title={homeSeo.title}
         description={homeSeo.description}
@@ -282,141 +282,134 @@ export default function Home() {
         structuredData={homeStructuredData}
       />
 
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        {/* Indigo glow — top left */}
-        <div className="absolute -top-24 left-[-10rem] h-96 w-96 rounded-full bg-[#4F46E5]/10 blur-3xl" />
-        {/* Purple glow — top right */}
-        <div className="absolute top-16 right-[-10rem] h-[28rem] w-[28rem] rounded-full bg-[#7C3AED]/12 blur-3xl" />
-        {/* Subtle indigo bloom — bottom center */}
-        <div className="absolute bottom-0 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-[#4F46E5]/8 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(79,70,229,0.10),transparent_32%),radial-gradient(circle_at_82%_10%,rgba(124,58,237,0.12),transparent_30%),radial-gradient(circle_at_50%_90%,rgba(79,70,229,0.08),transparent_36%)]" />
-      </div>
+      {/* Starfield canvas — mirrors loader environment */}
+      <canvas
+        ref={heroCanvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ zIndex: 0 }}
+      />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.section
-          className="grid items-center gap-8 lg:grid-cols-[1.08fr_0.92fr]"
+          className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
+          {/* ── LEFT COLUMN ── */}
           <motion.div variants={itemVariants} className="space-y-5">
-            <div className="mt-4 inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_30px_rgba(34,211,238,0.12)] backdrop-blur-sm sm:mt-0">
-              Welcome to my portfolio
+
+            {/* Terminal welcome prompt */}
+            <div className="mt-4 inline-flex items-center gap-2 border border-[#00E5FF]/40 px-3 py-1 text-[10px] font-mono font-semibold uppercase tracking-[0.22em] text-[#00E5FF] sm:mt-0">
+              <span className="opacity-60">$</span> welcome --portfolio
             </div>
 
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               <motion.h1
-                className="font-heading text-4xl font-extrabold leading-[0.9] tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl xl:text-6xl"
+                className="font-heading text-4xl font-extrabold leading-[0.9] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl xl:text-6xl"
                 variants={itemVariants}
               >
-                <span className="block text-white drop-shadow-[0_2px_16px_rgba(255,255,255,0.10)]">
-                  Devansh
-                </span>
-                <span className="block text-white drop-shadow-[0_0_32px_rgba(6,182,212,0.25)]">
-                  Yadav
-                </span>
+                <span className="block text-white">Devansh</span>
+                <span className="block text-white">Yadav</span>
               </motion.h1>
 
-              <motion.p variants={itemVariants} className="text-lg font-semibold text-slate-100 sm:text-xl">
-                Python Developer, MERN Developer & Data Science Learner
+              <motion.p variants={itemVariants} className="font-mono text-[13px] font-semibold text-[#00E5FF] sm:text-sm tracking-wider">
+                Python Developer, MERN Developer &amp; Data Science Learner
               </motion.p>
 
+              {/* Mobile portrait — square, grayscale, cyan corner frame */}
               <motion.div variants={itemVariants} className="mx-auto mt-4 w-full max-w-[13rem] lg:hidden">
                 <div className="relative aspect-square w-full">
-                  {/* Subtle indigo radial glow behind portrait */}
-                  <div className="absolute inset-0 rounded-full bg-[#4F46E5]/12 blur-2xl scale-105" />
-                  {/* Single dark shape border */}
-                  <div className="relative z-10 h-full w-full rounded-full border border-[#06B6D4]/20 bg-[#0F172A] p-1 shadow-[0_14px_40px_rgba(79,70,229,0.18)]">
-                    <div className="h-full w-full overflow-hidden rounded-full border border-white/10 bg-slate-950">
-                      <img
-                        id="hero-profile-image-mobile"
-                        data-hero-portrait="true"
-                        src={profileImage}
-                        alt="Devansh Yadav portrait"
-                        className="h-full w-full object-cover object-[50%_30%]"
-                      />
-                    </div>
-                  </div>
+                  {/* Corner bracket accents */}
+                  <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
+                  <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
+                  <div className="absolute inset-0 border border-[#00E5FF]/18 z-10 pointer-events-none" />
+                  <img
+                    id="hero-profile-image-mobile"
+                    src={profileImage}
+                    alt="Devansh Yadav portrait"
+                    className="h-full w-full object-cover object-[50%_30%]"
+                    style={{ filter: 'grayscale(100%) contrast(110%)' }}
+                  />
                 </div>
               </motion.div>
 
-              <motion.p variants={itemVariants} className="max-w-lg text-sm leading-6 text-slate-300 sm:text-[15px]">
+              <motion.p variants={itemVariants} className="max-w-lg text-sm leading-6 text-[#A1A1AA] sm:text-[15px]">
                 I&apos;m Devansh Yadav, a BCA student at Babu Banarasi Das University (BBDU) in Lucknow, building AI, data science
                 and full stack projects with React, Node.js, Python, MongoDB, and SQL.
               </motion.p>
             </div>
 
-            <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
+            {/* Skill badges — terminal style, uniform cyan, sharp corners */}
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-2">
               {heroHighlights.map((item) => {
                 const Icon = item.icon;
-
                 return (
                   <motion.div
                     key={item.label}
-                    whileHover={{ y: -4, scale: 1.02 }}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="rounded-lg border border-[#4F46E5]/40 bg-white/[0.04] shadow-[0_8px_24px_rgba(15,23,42,0.18)] hover:border-[#06B6D4]/50 transition-colors duration-300 backdrop-blur-sm"
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="border border-[#00E5FF]/35 bg-transparent px-3 py-1.5 flex items-center gap-2 hover:border-[#00E5FF]/70 hover:bg-[#00E5FF]/5 transition-all duration-200"
                   >
-                    <div className="flex items-center gap-2.5 px-3.5 py-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#4F46E5]/20 text-[#06B6D4]">
-                        <Icon size={13} />
-                      </span>
-                      <span className="text-[12px] font-semibold text-[#06B6D4] sm:text-sm">{item.label}</span>
-                    </div>
+                    <Icon size={12} className="text-[#00E5FF] flex-shrink-0" />
+                    <span className="font-mono text-[11px] font-medium text-[#00E5FF] sm:text-xs tracking-wide">{item.label}</span>
                   </motion.div>
                 );
               })}
             </motion.div>
 
+            {/* University — terminal info line */}
             <motion.div
               variants={itemVariants}
-              className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-200 backdrop-blur-sm sm:text-sm"
+              className="inline-flex items-center gap-3 border border-white/10 px-3 py-1.5 text-[11px] font-mono font-medium text-[#A1A1AA] sm:text-xs"
             >
-              <FaGraduationCap className="text-cyan-300" size={13} />
-              <span>BCA Student at Babu Banarasi Das University (BBDU), Lucknow</span>
+              <FaGraduationCap className="text-[#00E5FF] flex-shrink-0" size={12} />
+              <span>BCA @ Babu Banarasi Das University (BBDU), Lucknow</span>
             </motion.div>
 
+            {/* Availability status */}
             <motion.div
               variants={itemVariants}
-              className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-200 shadow-[0_0_24px_rgba(16,185,129,0.16)] sm:text-sm"
+              className="inline-flex items-center gap-2 border border-[#00E5FF]/30 px-3 py-1.5 text-[11px] font-mono font-semibold text-[#00E5FF] sm:text-xs"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(74,222,128,0.85)] animate-pulse" />
+              <span className="h-1.5 w-1.5 bg-[#00E5FF] animate-pulse flex-shrink-0" />
               Open for Internships &amp; Freelance
             </motion.div>
 
+            {/* Ghost terminal buttons — strictly no border-radius */}
             <motion.div variants={itemVariants} className="flex flex-wrap gap-2.5 pt-1">
-              {/* Primary CTA — solid cyan with dark text, sharp corners */}
               <Link
                 to="/contact"
-                className="group inline-flex items-center gap-2 rounded-[8px] bg-[#06B6D4] px-5 py-2.5 text-sm font-semibold text-[#0A0F1C] shadow-[0_8px_24px_rgba(6,182,212,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#00E5FF] hover:shadow-[0_12px_32px_rgba(6,182,212,0.42)]"
+                className="group inline-flex items-center gap-2 border border-[#00E5FF] px-5 py-2.5 text-[13px] font-mono font-semibold text-[#00E5FF] transition-all duration-200 hover:bg-[#00E5FF] hover:text-[#000000]"
               >
-                Book Service
-                <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-0.5" size={14} />
+                ./book-service
+                <FaArrowRight className="transition-transform duration-200 group-hover:translate-x-1" size={12} />
               </Link>
 
-              {/* Ghost button — transparent + 1px cyan border */}
               <Link
                 to="/projects"
-                className="inline-flex items-center gap-2 rounded-[8px] border border-[#06B6D4]/60 bg-transparent px-5 py-2.5 text-sm font-semibold text-[#06B6D4] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#06B6D4]/10 hover:border-[#06B6D4]"
+                className="inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 text-[13px] font-mono font-semibold text-[#A1A1AA] transition-all duration-200 hover:border-[#00E5FF] hover:text-[#00E5FF]"
               >
-                View Projects
+                ./view-projects
               </Link>
 
-              {/* WhatsApp ghost button */}
               <a
                 href="https://wa.me/916388525760?text=Hello%20Devansh%2C%20I%20want%20to%20connect%20about%20a%20project"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-[8px] border border-white/15 bg-transparent px-5 py-2.5 text-sm font-semibold text-slate-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#06B6D4]/40 hover:bg-[#06B6D4]/8 hover:text-[#06B6D4]"
+                className="inline-flex items-center gap-2 border border-white/15 px-5 py-2.5 text-[13px] font-mono font-semibold text-[#A1A1AA] transition-all duration-200 hover:border-[#00E5FF] hover:text-[#00E5FF]"
               >
-                <FaWhatsapp size={14} />
-                Contact Me
+                <FaWhatsapp size={13} />
+                ./contact-me
               </a>
             </motion.div>
 
+            {/* Social links — mobile, square icon boxes */}
             <motion.div variants={itemVariants} className="flex items-center gap-3 md:hidden">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Connect</span>
-              <div className="flex items-center gap-2.5">
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-[#A1A1AA]">Connect</span>
+              <div className="flex items-center gap-2">
                 {socialLinks.map(({ label, icon: Icon, href }) => (
                   <a
                     key={label}
@@ -424,54 +417,63 @@ export default function Home() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10 hover:text-white"
+                    className="flex h-8 w-8 items-center justify-center border border-white/15 text-[#A1A1AA] transition-all duration-200 hover:border-[#00E5FF] hover:text-[#00E5FF]"
                   >
-                    <Icon size={15} />
+                    <Icon size={13} />
                   </a>
                 ))}
               </div>
             </motion.div>
 
+            {/* Scroll indicator — terminal style */}
             <motion.div
               variants={itemVariants}
-              className="hidden items-center gap-3 pt-2 text-[10px] uppercase tracking-[0.28em] text-slate-400 lg:flex"
+              className="hidden items-center gap-3 pt-2 font-mono text-[10px] uppercase tracking-[0.28em] text-[#A1A1AA] lg:flex"
             >
               <span>Scroll Down</span>
               <motion.div
                 animate={{ y: [0, 6, 0] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                className="flex h-9 w-6 justify-center rounded-full border border-white/15 bg-white/5 p-1"
+                className="flex h-9 w-5 justify-center border border-white/15 bg-transparent p-1"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+                <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.7)]" />
               </motion.div>
             </motion.div>
           </motion.div>
 
+          {/* ── RIGHT COLUMN: Square portrait, cyan corner frame, grayscale ── */}
           <motion.div variants={itemVariants} className="relative hidden justify-center lg:flex lg:justify-end">
-            <div className="relative aspect-square w-full max-w-[20rem] sm:max-w-[22rem] lg:max-w-[24rem]">
-              {/* Deep indigo radial glow — replaces multi-color gradient rings */}
-              <div className="absolute inset-[-12%] rounded-full bg-[#4F46E5]/12 blur-3xl" />
-              <div className="absolute inset-[-4%] rounded-full bg-[#4F46E5]/8 blur-2xl" />
+            <div className="relative w-full max-w-[20rem] sm:max-w-[22rem] lg:max-w-[24rem]">
               <motion.div
-                className="relative z-10 h-full w-full rounded-full border border-[#06B6D4]/20 bg-[#0F172A] p-1.5 shadow-[0_20px_60px_rgba(79,70,229,0.22)]"
-                animate={{ y: [0, -6, 0] }}
+                className="relative aspect-square w-full"
+                animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <div className="h-full w-full overflow-hidden rounded-full border border-white/10 bg-slate-950">
-                  <img
-                    id="hero-profile-image-desktop"
-                    data-hero-portrait="true"
-                    src={profileImage}
-                    alt="Devansh Yadav portrait"
-                    className="h-full w-full object-cover object-[50%_30%] scale-100 transition-transform duration-500 hover:scale-[1.03]"
-                  />
+                {/* Outer faint frame */}
+                <div className="absolute inset-0 border border-[#00E5FF]/20 z-10 pointer-events-none" />
+                {/* Inner offset depth frame */}
+                <div className="absolute inset-3 border border-[#00E5FF]/08 z-10 pointer-events-none" />
+                {/* Corner bracket accents */}
+                <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
+                {/* Grayscale portrait — full monochrome */}
+                <img
+                  id="hero-profile-image-desktop"
+                  src={profileImage}
+                  alt="Devansh Yadav portrait"
+                  className="h-full w-full object-cover object-[50%_30%]"
+                  style={{ filter: 'grayscale(100%) contrast(110%)' }}
+                />
+                {/* Status badge — bottom left, terminal style */}
+                <div className="absolute -bottom-5 left-0 z-20">
+                  <div className="inline-flex items-center gap-2 border border-[#00E5FF]/50 bg-[#000000] px-3 py-1.5 text-[10px] font-mono font-semibold text-[#00E5FF]">
+                    <span className="h-1.5 w-1.5 bg-[#00E5FF] animate-pulse" />
+                    STATUS: AVAILABLE
+                  </div>
                 </div>
               </motion.div>
-
-              <div className="absolute -bottom-1 right-4 z-20 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-500 px-3 py-1 text-[10px] font-semibold text-white shadow-[0_0_18px_rgba(16,185,129,0.34)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                Available!
-              </div>
             </div>
           </motion.div>
         </motion.section>
