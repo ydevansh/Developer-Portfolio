@@ -24,8 +24,8 @@ body {
   font-family: 'Inter', sans-serif;
   /* Canvas CinematicBackground renders the full visual background.
      This flat color is a fallback / anti-flash safety net.
-     Must match the canvas base color exactly: #08090B */
-  background: #08090B;
+     Must match the canvas base color exactly: #0A0F1C */
+  background: #0A0F1C;
   color: #fff;
   line-height: 1.6;
   overflow-x: hidden;
@@ -44,30 +44,40 @@ svg {
 
 /* Remove scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 127, 255, 0.1);
+  background: rgba(6, 182, 212, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0074d9;
-  border-radius: 5px;
+  background: rgba(6, 182, 212, 0.35);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #005aa3;
+  background: rgba(6, 182, 212, 0.6);
 }
 
 /* Selection color */
 ::selection {
-  background: #0074d9;
+  background: rgba(6, 182, 212, 0.35);
   color: #fff;
 }
 
 /* Focus outline */
 :focus-visible {
-  outline: 2px solid #0074d9;
+  outline: 2px solid #06B6D4;
   outline-offset: 2px;
+}
+
+/* Profile image grayscale-to-color hover effect */
+[data-hero-portrait="true"] {
+  filter: grayscale(60%) saturate(0.70) brightness(0.92);
+  transition: filter 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-hero-portrait="true"]:hover {
+  filter: grayscale(0%) saturate(1.1) brightness(1);
 }

@@ -20,22 +20,22 @@ export const skillCategoryMeta = {
   Frontend: {
     titleClass: 'from-fuchsia-300 to-violet-300',
     badgeClass:
-      'bg-violet-500/20 text-violet-100 border border-violet-400/35 hover:bg-violet-500/30 hover:border-violet-300/45',
-    glowClass: 'from-fuchsia-500/20 via-transparent to-violet-500/20',
+      'bg-white/[0.04] text-[#06B6D4] border border-[#4F46E5]/40 hover:bg-[#06B6D4]/8 hover:border-[#06B6D4]/55 transition-colors duration-250',
+    glowClass: 'from-[#4F46E5]/8 via-transparent to-[#7C3AED]/8',
     icon: HiOutlineSquares2X2,
   },
   Backend: {
     titleClass: 'from-blue-300 to-cyan-300',
     badgeClass:
-      'bg-blue-500/20 text-blue-100 border border-blue-400/35 hover:bg-blue-500/30 hover:border-blue-300/45',
-    glowClass: 'from-blue-500/20 via-transparent to-cyan-500/20',
+      'bg-white/[0.04] text-[#06B6D4] border border-[#4F46E5]/40 hover:bg-[#06B6D4]/8 hover:border-[#06B6D4]/55 transition-colors duration-250',
+    glowClass: 'from-[#4F46E5]/8 via-transparent to-[#06B6D4]/8',
     icon: HiOutlineCodeBracket,
   },
   'AI/Core': {
     titleClass: 'from-cyan-300 to-sky-300',
     badgeClass:
-      'bg-cyan-500/20 text-cyan-100 border border-cyan-400/35 hover:bg-cyan-500/30 hover:border-cyan-300/45',
-    glowClass: 'from-cyan-500/20 via-transparent to-sky-500/20',
+      'bg-white/[0.04] text-[#06B6D4] border border-[#4F46E5]/40 hover:bg-[#06B6D4]/8 hover:border-[#06B6D4]/55 transition-colors duration-250',
+    glowClass: 'from-[#4F46E5]/8 via-transparent to-[#06B6D4]/8',
     icon: HiOutlineCpuChip,
   },
 };

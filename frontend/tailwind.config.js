@@ -5,15 +5,26 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0f4ff',
-          100: '#e0e8ff',
-          500: '#0074D9',
-          600: '#0052a3',
-          900: '#001f3f', // Navy Blue
-          950: '#001428',
+          50: '#ecfeff',
+          100: '#cffafe',
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06B6D4',
+          600: '#0891b2',
+          700: '#0e7490',
+          900: '#164e63',
+          950: '#083344',
         },
-        secondary: '#f39c12',
-        dark: '#0a0a0a',
+        cyber: {
+          bg:      '#0A0F1C',
+          surface: '#0F172A',
+          indigo:  '#4F46E5',
+          purple:  '#7C3AED',
+          cyan:    '#06B6D4',
+          'cyan-bright': '#00E5FF',
+        },
+        secondary: '#7C3AED',
+        dark: '#0A0F1C',
       },
       fontFamily: {
         sans: ['Inter', 'Roboto', 'sans-serif'],

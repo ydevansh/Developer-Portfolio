@@ -239,10 +239,13 @@ export default function Home() {
       />
 
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-24 left-[-10rem] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
-        <div className="absolute top-16 right-[-10rem] h-96 w-96 rounded-full bg-fuchsia-500/15 blur-3xl" />
-        <div className="absolute bottom-0 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,0.14),transparent_30%),radial-gradient(circle_at_82%_10%,rgba(168,85,247,0.16),transparent_28%),radial-gradient(circle_at_50%_90%,rgba(59,130,246,0.1),transparent_34%)]" />
+        {/* Indigo glow — top left */}
+        <div className="absolute -top-24 left-[-10rem] h-96 w-96 rounded-full bg-[#4F46E5]/10 blur-3xl" />
+        {/* Purple glow — top right */}
+        <div className="absolute top-16 right-[-10rem] h-[28rem] w-[28rem] rounded-full bg-[#7C3AED]/12 blur-3xl" />
+        {/* Subtle indigo bloom — bottom center */}
+        <div className="absolute bottom-0 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-[#4F46E5]/8 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(79,70,229,0.10),transparent_32%),radial-gradient(circle_at_82%_10%,rgba(124,58,237,0.12),transparent_30%),radial-gradient(circle_at_50%_90%,rgba(79,70,229,0.08),transparent_36%)]" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,10 +265,10 @@ export default function Home() {
                 className="font-heading text-4xl font-extrabold leading-[0.9] tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl xl:text-6xl"
                 variants={itemVariants}
               >
-                <span className="block text-white/92 drop-shadow-[0_0_24px_rgba(255,255,255,0.08)]">
+                <span className="block text-white drop-shadow-[0_2px_16px_rgba(255,255,255,0.10)]">
                   Devansh
                 </span>
-                <span className="block bg-gradient-to-r from-sky-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+                <span className="block text-white drop-shadow-[0_0_32px_rgba(6,182,212,0.25)]">
                   Yadav
                 </span>
               </motion.h1>
@@ -276,10 +279,11 @@ export default function Home() {
 
               <motion.div variants={itemVariants} className="mx-auto mt-4 w-full max-w-[13rem] lg:hidden">
                 <div className="relative aspect-square w-full">
-                  <div className="absolute inset-0 rounded-full bg-cyan-500/18 blur-2xl scale-95" />
-                  <div className="absolute inset-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm" />
-                  <div className="relative z-10 h-full w-full rounded-full bg-gradient-to-br from-cyan-400 via-violet-500 to-fuchsia-500 p-1.5 shadow-[0_14px_36px_rgba(99,102,241,0.22)]">
-                    <div className="h-full w-full overflow-hidden rounded-full border border-white/20 bg-slate-950">
+                  {/* Subtle indigo radial glow behind portrait */}
+                  <div className="absolute inset-0 rounded-full bg-[#4F46E5]/12 blur-2xl scale-105" />
+                  {/* Single dark shape border */}
+                  <div className="relative z-10 h-full w-full rounded-full border border-[#06B6D4]/20 bg-[#0F172A] p-1 shadow-[0_14px_40px_rgba(79,70,229,0.18)]">
+                    <div className="h-full w-full overflow-hidden rounded-full border border-white/10 bg-slate-950">
                       <img
                         id="hero-profile-image-mobile"
                         data-hero-portrait="true"
@@ -307,15 +311,13 @@ export default function Home() {
                     key={item.label}
                     whileHover={{ y: -4, scale: 1.02 }}
                     transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className={`rounded-2xl bg-gradient-to-r ${item.borderClass} p-[1px] shadow-[0_12px_30px_rgba(15,23,42,0.22)]`}
+                    className="rounded-lg border border-[#4F46E5]/40 bg-white/[0.04] shadow-[0_8px_24px_rgba(15,23,42,0.18)] hover:border-[#06B6D4]/50 transition-colors duration-300 backdrop-blur-sm"
                   >
-                    <div className="flex items-center gap-3 rounded-[15px] border border-white/10 bg-slate-950/80 px-3 py-2 backdrop-blur-xl">
-                      <span
-                        className={`flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-r ${item.iconClass} text-white shadow-[0_10px_18px_rgba(34,211,238,0.2)]`}
-                      >
-                        <Icon size={15} />
+                    <div className="flex items-center gap-2.5 px-3.5 py-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#4F46E5]/20 text-[#06B6D4]">
+                        <Icon size={13} />
                       </span>
-                      <span className="text-[12px] font-semibold text-slate-100 sm:text-sm">{item.label}</span>
+                      <span className="text-[12px] font-semibold text-[#06B6D4] sm:text-sm">{item.label}</span>
                     </div>
                   </motion.div>
                 );
@@ -339,26 +341,29 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={itemVariants} className="flex flex-wrap gap-2.5 pt-1">
+              {/* Primary CTA — solid cyan with dark text, sharp corners */}
               <Link
                 to="/contact"
-                className="group inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(99,102,241,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(34,211,238,0.32)]"
+                className="group inline-flex items-center gap-2 rounded-[8px] bg-[#06B6D4] px-5 py-2.5 text-sm font-semibold text-[#0A0F1C] shadow-[0_8px_24px_rgba(6,182,212,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#00E5FF] hover:shadow-[0_12px_32px_rgba(6,182,212,0.42)]"
               >
                 Book Service
                 <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-0.5" size={14} />
               </Link>
 
+              {/* Ghost button — transparent + 1px cyan border */}
               <Link
                 to="/projects"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10"
+                className="inline-flex items-center gap-2 rounded-[8px] border border-[#06B6D4]/60 bg-transparent px-5 py-2.5 text-sm font-semibold text-[#06B6D4] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#06B6D4]/10 hover:border-[#06B6D4]"
               >
                 View Projects
               </Link>
 
+              {/* WhatsApp ghost button */}
               <a
                 href="https://wa.me/916388525760?text=Hello%20Devansh%2C%20I%20want%20to%20connect%20about%20a%20project"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:bg-emerald-500/10 hover:text-emerald-100"
+                className="inline-flex items-center gap-2 rounded-[8px] border border-white/15 bg-transparent px-5 py-2.5 text-sm font-semibold text-slate-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#06B6D4]/40 hover:bg-[#06B6D4]/8 hover:text-[#06B6D4]"
               >
                 <FaWhatsapp size={14} />
                 Contact Me
@@ -400,14 +405,15 @@ export default function Home() {
 
           <motion.div variants={itemVariants} className="relative hidden justify-center lg:flex lg:justify-end">
             <div className="relative aspect-square w-full max-w-[20rem] sm:max-w-[22rem] lg:max-w-[24rem]">
-              <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-3xl scale-100" />
-              <div className="absolute inset-5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm" />
+              {/* Deep indigo radial glow — replaces multi-color gradient rings */}
+              <div className="absolute inset-[-12%] rounded-full bg-[#4F46E5]/12 blur-3xl" />
+              <div className="absolute inset-[-4%] rounded-full bg-[#4F46E5]/8 blur-2xl" />
               <motion.div
-                className="relative z-10 h-full w-full rounded-full bg-gradient-to-br from-cyan-400 via-violet-500 to-fuchsia-500 p-1.5 shadow-[0_18px_50px_rgba(99,102,241,0.26)]"
+                className="relative z-10 h-full w-full rounded-full border border-[#06B6D4]/20 bg-[#0F172A] p-1.5 shadow-[0_20px_60px_rgba(79,70,229,0.22)]"
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <div className="h-full w-full overflow-hidden rounded-full border border-white/20 bg-slate-950">
+                <div className="h-full w-full overflow-hidden rounded-full border border-white/10 bg-slate-950">
                   <img
                     id="hero-profile-image-desktop"
                     data-hero-portrait="true"
