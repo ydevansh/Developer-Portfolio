@@ -29,6 +29,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'Roboto', 'sans-serif'],
         heading: ['Poppins', 'sans-serif'],
+        mono: ["'JetBrains Mono'", "'Fira Code'", 'Consolas', 'monospace'],
       },
       animation: {
         fadeIn: 'fadeIn 0.6s ease-in-out',

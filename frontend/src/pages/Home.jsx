@@ -85,6 +85,7 @@ const MotionLink = motion(Link);
 
 export default function Home() {
   const [skillEntries, setSkillEntries] = useState([]);
+  const heroCanvasRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -108,6 +109,49 @@ export default function Home() {
 
     return () => {
       isMounted = false;
+    };
+  }, []);
+
+  // Starfield canvas particle effect — mirrors the loader's space environment
+  useEffect(() => {
+    const canvas = heroCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId;
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const stars = Array.from({ length: 130 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.1 + 0.3,
+      alpha: Math.random() * 0.055 + 0.025,
+      vy: Math.random() * 0.18 + 0.04,
+    }));
+
+    const draw = () => {
+      animId = requestAnimationFrame(draw);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff';
+      for (const s of stars) {
+        s.y -= s.vy;
+        if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
+        ctx.globalAlpha = s.alpha;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      }
+      ctx.globalAlpha = 1;
+    };
+    animId = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
     };
   }, []);
 
