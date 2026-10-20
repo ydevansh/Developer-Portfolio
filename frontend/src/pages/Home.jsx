@@ -317,22 +317,23 @@ export default function Home() {
                 Python Developer, MERN Developer &amp; Data Science Learner
               </motion.p>
 
-              {/* Mobile portrait — square, grayscale, cyan corner frame */}
+              {/* Mobile portrait — circle restored, grayscale + cyan ring */}
               <motion.div variants={itemVariants} className="mx-auto mt-4 w-full max-w-[13rem] lg:hidden">
                 <div className="relative aspect-square w-full">
-                  {/* Corner bracket accents */}
-                  <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
-                  <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
-                  <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
-                  <div className="absolute inset-0 border border-[#00E5FF]/18 z-10 pointer-events-none" />
-                  <img
-                    id="hero-profile-image-mobile"
-                    src={profileImage}
-                    alt="Devansh Yadav portrait"
-                    className="h-full w-full object-cover object-[50%_30%]"
-                    style={{ filter: 'grayscale(100%) contrast(110%)' }}
-                  />
+                  {/* Glow behind circle */}
+                  <div className="absolute inset-0 rounded-full bg-[#4F46E5]/10 blur-2xl scale-110" />
+                  {/* Cyan ring + circle clip */}
+                  <div className="relative z-10 h-full w-full rounded-full border border-[#00E5FF]/30 p-0.5 shadow-[0_0_22px_rgba(0,229,255,0.12)]">
+                    <div className="h-full w-full rounded-full overflow-hidden bg-[#000000]">
+                      <img
+                        id="hero-profile-image-mobile"
+                        src={profileImage}
+                        alt="Devansh Yadav portrait"
+                        className="h-full w-full object-cover object-[50%_30%]"
+                        style={{ filter: 'grayscale(100%) contrast(110%)' }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </motion.div>
 
@@ -441,7 +442,7 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* ── RIGHT COLUMN: Square portrait, cyan corner frame, grayscale ── */}
+          {/* ── RIGHT COLUMN: Circle portrait, cyan ring, grayscale ── */}
           <motion.div variants={itemVariants} className="relative hidden justify-center lg:flex lg:justify-end">
             <div className="relative w-full max-w-[20rem] sm:max-w-[22rem] lg:max-w-[24rem]">
               <motion.div
@@ -449,24 +450,22 @@ export default function Home() {
                 animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
               >
-                {/* Outer faint frame */}
-                <div className="absolute inset-0 border border-[#00E5FF]/20 z-10 pointer-events-none" />
-                {/* Inner offset depth frame */}
-                <div className="absolute inset-3 border border-[#00E5FF]/08 z-10 pointer-events-none" />
-                {/* Corner bracket accents */}
-                <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
-                <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-[#00E5FF] z-20 pointer-events-none" />
-                <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-[#00E5FF] z-20 pointer-events-none" />
-                {/* Grayscale portrait — full monochrome */}
-                <img
-                  id="hero-profile-image-desktop"
-                  src={profileImage}
-                  alt="Devansh Yadav portrait"
-                  className="h-full w-full object-cover object-[50%_30%]"
-                  style={{ filter: 'grayscale(100%) contrast(110%)' }}
-                />
-                {/* Status badge — bottom left, terminal style */}
+                {/* Glow behind circle */}
+                <div className="absolute inset-0 rounded-full bg-[#4F46E5]/12 blur-3xl scale-110" />
+                {/* Outer cyan ring */}
+                <div className="relative z-10 h-full w-full rounded-full border border-[#00E5FF]/30 p-1 shadow-[0_0_32px_rgba(0,229,255,0.13)]">
+                  {/* Circle-clipped grayscale portrait */}
+                  <div className="h-full w-full rounded-full overflow-hidden bg-[#000000]">
+                    <img
+                      id="hero-profile-image-desktop"
+                      src={profileImage}
+                      alt="Devansh Yadav portrait"
+                      className="h-full w-full object-cover object-[50%_30%]"
+                      style={{ filter: 'grayscale(100%) contrast(110%)' }}
+                    />
+                  </div>
+                </div>
+                {/* Status badge — terminal style */}
                 <div className="absolute -bottom-5 left-0 z-20">
                   <div className="inline-flex items-center gap-2 border border-[#00E5FF]/50 bg-[#000000] px-3 py-1.5 text-[10px] font-mono font-semibold text-[#00E5FF]">
                     <span className="h-1.5 w-1.5 bg-[#00E5FF] animate-pulse" />
