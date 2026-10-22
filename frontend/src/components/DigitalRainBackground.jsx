@@ -1,9 +1,13 @@
 /**
  * DigitalRainBackground.jsx
  *
- * Highly performant, atmospheric Matrix-style Digital Rain.
- * Tuned to be subtle, elegant, and non-distracting so portfolio content
- * remains razor-sharp and effortlessly readable in the foreground.
+ * Dark Stealth Binary Background (as shown in reference image):
+ *   - Matte pure black background
+ *   - Generously spaced vertical columns of binary numbers (0s and 1s)
+ *   - Monochromatic subtle silver/white watermark opacity (0.04 – 0.12)
+ *   - Calm, organic vertical fall with individual column speeds
+ *   - Zero neon glare, ensuring 100% crystal-clear readability for all portfolio content
+ *   - Extremely lightweight HTML5 Canvas with RAF pause on hidden tab
  */
 
 import React, { useEffect, useRef, memo } from 'react';
@@ -22,65 +26,88 @@ function DigitalRainBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Slightly wider column spacing for a cleaner, non-cluttered rain
     const fontSize = 16;
-    const colStep = 22; // px per column
-    let columns = Math.floor(width / colStep);
-    let drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -60));
+    const colStep = 32; // Generous horizontal spacing between columns
+
+    const createColumns = () => {
+      const count = Math.floor(width / colStep);
+      return Array.from({ length: count }, () => ({
+        y: Math.random() * -100,
+        speed: 0.35 + Math.random() * 0.45, // Individual calm falling speed
+        chars: Array.from({ length: 30 }, () => (Math.random() > 0.5 ? '1' : '0')),
+      }));
+    };
+
+    let columns = createColumns();
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      columns = Math.floor(width / colStep);
-      drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -60));
-      ctx.fillStyle = '#000000';
+      columns = createColumns();
+      ctx.fillStyle = '#08090d';
       ctx.fillRect(0, 0, width, height);
     };
 
     window.addEventListener('resize', handleResize);
 
-    ctx.fillStyle = '#000000';
+    // Initial base fill — sleek charcoal dark mode
+    ctx.fillStyle = '#08090d';
     ctx.fillRect(0, 0, width, height);
 
-    let lastTime = 0;
-    const fpsInterval = 35; // ~28-30 FPS: cinematic tempo + extremely lightweight
+    let lastTime = performance.now();
 
     const draw = (currentTime) => {
       animId = requestAnimationFrame(draw);
 
-      const elapsed = currentTime - lastTime;
-      if (elapsed < fpsInterval) return;
-      lastTime = currentTime - (elapsed % fpsInterval);
+      const delta = Math.min((currentTime - lastTime) / 1000, 0.1);
+      lastTime = currentTime;
 
-      // Clean, controlled fading trail
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      // Soft fading veil matching the lighter charcoal tone
+      ctx.fillStyle = 'rgba(8, 9, 13, 0.13)';
       ctx.fillRect(0, 0, width, height);
 
-      ctx.font = `${fontSize}px "JetBrains Mono", Consolas, monospace`;
+      ctx.font = `${fontSize}px "JetBrains Mono", Consolas, "Courier New", monospace`;
+      ctx.textBaseline = 'top';
 
-      for (let i = 0; i < drops.length; i++) {
-        // Only run subset of active columns at any one time to prevent a solid curtain
-        const text = Math.random() > 0.5 ? '1' : '0';
-        const x = i * colStep;
-        const y = drops[i] * fontSize;
+      for (let i = 0; i < columns.length; i++) {
+        const col = columns[i];
+        const x = i * colStep + 8;
 
-        if (y >= 0 && y <= height + fontSize) {
-          // Subtle, atmospheric cyan tones (not blinding full-white)
-          if (Math.random() > 0.88) {
-            ctx.fillStyle = 'rgba(200, 245, 255, 0.7)'; // soft glowing head
-          } else {
-            ctx.fillStyle = 'rgba(0, 229, 255, 0.38)'; // muted cyber cyan body
+        // Advance drop position
+        col.y += col.speed * 42 * delta;
+
+        // Occasional character morph (0 <-> 1)
+        if (Math.random() > 0.96) {
+          const randIdx = Math.floor(Math.random() * col.chars.length);
+          col.chars[randIdx] = col.chars[randIdx] === '0' ? '1' : '0';
+        }
+
+        // Draw the vertical column of binary digits
+        for (let j = 0; j < col.chars.length; j++) {
+          const charY = col.y - j * fontSize * 1.3;
+
+          if (charY > -fontSize && charY < height + fontSize) {
+            // Slightly brighter, crisp silver-white tones for clear visibility
+            if (j === 0) {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.28)'; // Noticeable soft lead
+            } else if (j < 5) {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            } else if (j < 15) {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.095)';
+            } else {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.055)'; // Legible subtle trail
+            }
+
+            ctx.fillText(col.chars[j], x, charY);
           }
-
-          ctx.fillText(text, x, y);
         }
 
-        // Reset drop with staggered random delay once off-screen
-        if (y > height && Math.random() > 0.98) {
-          drops[i] = Math.floor(Math.random() * -20);
+        // Reset column to top once trailing end moves off screen
+        const tailY = col.y - col.chars.length * fontSize * 1.3;
+        if (tailY > height) {
+          col.y = Math.random() * -60;
+          col.speed = 0.35 + Math.random() * 0.45;
         }
-
-        drops[i]++;
       }
     };
 
@@ -118,7 +145,6 @@ function DigitalRainBackground() {
         height: '100vh',
         display: 'block',
         pointerEvents: 'none',
-        opacity: 0.42, // Balanced ambient level: clearly visible yet never overpowers text
       }}
     />
   );

@@ -27,7 +27,7 @@ body {
   /* Canvas CinematicBackground renders the full visual background.
      This flat color is a fallback / anti-flash safety net.
      Must match the canvas base color exactly: #0A0F1C */
-  background: #000000;
+  background: #08090d;
   color: #fff;
   line-height: 1.6;
   overflow-x: hidden;
