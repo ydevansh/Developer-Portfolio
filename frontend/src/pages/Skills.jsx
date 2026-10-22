@@ -76,33 +76,40 @@ export default function Skills() {
         ], '/skills')}
       />
 
-
       {loading ? (
         <div className="pt-32 pb-20 px-4 text-center">
-          <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-5 py-3">
-            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300" />
-            <span className="text-gray-300">Loading skills...</span>
+          <div className="font-mono inline-flex items-center gap-3 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-5 py-3" style={{ borderRadius: '0px' }}>
+            <span className="h-2.5 w-2.5 animate-pulse bg-[#00E5FF]" />
+            <span className="text-[#00E5FF]">$ loading skills...</span>
           </div>
         </div>
       ) : (
         <>
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(34,211,238,0.2),transparent_38%),radial-gradient(circle_at_80%_20%,rgba(192,132,252,0.18),transparent_38%),radial-gradient(circle_at_50%_100%,rgba(2,132,199,0.2),transparent_45%)]" />
-
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              className="rounded-3xl border border-white/10 bg-[#0a1430]/55 px-4 py-12 sm:p-10 backdrop-blur-xl"
+              className="border border-[#00E5FF]/20 bg-black/80 px-4 py-12 sm:p-10 backdrop-blur-xl"
+              style={{ borderRadius: '0px' }}
               initial={{ opacity: 0, y: 26 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: 'easeOut' }}
             >
+              {/* Terminal corner decorators */}
+              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#00E5FF]/60" />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#00E5FF]/60" />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#00E5FF]/60" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#00E5FF]/60" />
+
               <div className="text-center">
-                <p className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/20 px-5 py-2 text-xs font-semibold tracking-[0.2em] text-violet-200">
-                  WHAT I KNOW
+                <p
+                  className="font-mono inline-flex border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-5 py-2 text-xs font-semibold tracking-[0.2em] text-[#00E5FF]"
+                  style={{ borderRadius: '0px' }}
+                >
+                  $ cat skills.json
                 </p>
-                <h1 className="mt-5 text-5xl md:text-6xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-                  AI/ML and Web Development Skills
+                <h1 className="font-mono mt-5 text-4xl md:text-5xl font-bold text-white">
+                  AI/ML <span className="text-[#00E5FF]">&</span> Web Dev Skills
                 </h1>
-                <p className="mt-4 text-gray-300 text-lg">Technologies and tools I use to build AI/ML and full stack web apps</p>
+                <p className="font-mono mt-4 text-[#A1A1AA] text-lg">Technologies and tools I use to build AI/ML and full stack web apps</p>
               </div>
 
               <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -114,23 +121,23 @@ export default function Skills() {
                   return (
                     <motion.article
                       key={category}
-                      whileHover={{ y: -6, scale: 1.01 }}
+                      whileHover={{ y: -4, scale: 1.005 }}
                       transition={{ duration: 0.28, ease: 'easeOut' }}
-                      className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-5"
+                      className="relative overflow-hidden border border-[#00E5FF]/20 bg-black/60 p-5"
+                      style={{ borderRadius: '0px' }}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${theme.glowClass}`} />
+                      {/* Faint top accent line */}
+                      <div className="absolute inset-x-0 top-0 h-px bg-[#00E5FF]/30" />
 
                       <div className="relative">
-                        <div className="flex items-center gap-3">
-                          <SectionIcon className="text-3xl text-cyan-300" />
-                          <h2
-                            className={`text-2xl font-bold bg-gradient-to-r ${theme.titleClass} bg-clip-text text-transparent sm:text-[1.7rem]`}
-                          >
+                        <div className="flex items-center gap-3 mb-5">
+                          <SectionIcon className="text-2xl text-[#00E5FF]" />
+                          <h2 className="font-mono text-xl font-bold text-white">
                             {category}
                           </h2>
                         </div>
 
-                        <div className="mt-5 space-y-3">
+                        <div className="space-y-2">
                           {categorySkills.map((entry) => {
                             const SkillIcon = resolveSkillIcon(entry);
                             const isSelected = selectedSkill?._id ? selectedSkill._id === entry._id : selectedSkill?.name === entry.name;
@@ -140,19 +147,22 @@ export default function Skills() {
                                 key={entry._id || `${category}-${entry.name}`}
                                 type="button"
                                 onClick={() => setSelectedSkill(entry)}
-                                whileHover={{ y: -2 }}
+                                whileHover={{ x: 2 }}
                                 whileTap={{ scale: 0.99 }}
-                                className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 ${theme.badgeClass} ${
-                                  isSelected ? 'border-cyan-300/60 shadow-[0_0_26px_rgba(34,211,238,0.18)]' : 'hover:border-cyan-300/35 hover:shadow-[0_0_18px_rgba(34,211,238,0.08)]'
+                                className={`flex w-full items-center gap-3 border px-4 py-2.5 text-left transition-all duration-300 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#00E5FF]/50 ${
+                                  isSelected
+                                    ? 'border-[#00E5FF]/60 bg-[#00E5FF]/10 shadow-[0_0_16px_rgba(0,229,255,0.1)]'
+                                    : 'border-white/10 bg-white/[0.02] hover:border-[#00E5FF]/40 hover:bg-[#00E5FF]/5'
                                 }`}
+                                style={{ borderRadius: '0px' }}
                               >
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/15 text-white/95">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-white/10 bg-black/30 text-white/90">
                                   {SkillIcon && (
                                     <SkillIcon className="text-sm" />
                                   )}
                                 </div>
 
-                                <span className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
+                                <span className="font-mono min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
                                   {entry.name}
                                 </span>
                               </motion.button>
@@ -168,9 +178,10 @@ export default function Skills() {
               <div className="mt-10 flex justify-center">
                 <Link
                   to="/projects"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-8 py-4 text-lg font-semibold text-white shadow-[0_12px_40px_rgba(56,189,248,0.35)] transition-transform duration-300 hover:scale-[1.02]"
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-8 py-4 text-base font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                  style={{ borderRadius: '0px' }}
                 >
-                  View Projects Built With These Skills <FaArrowRight size={17} />
+                  &gt; View Projects Built With These Skills <FaArrowRight size={14} />
                 </Link>
               </div>
             </motion.div>
@@ -188,7 +199,7 @@ export default function Skills() {
                   type="button"
                   aria-label="Close skill details"
                   onClick={() => setSelectedSkill(null)}
-                  className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+                  className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                 />
 
                 <motion.div
@@ -196,24 +207,33 @@ export default function Skills() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.96, y: 18 }}
                   transition={{ duration: 0.22, ease: 'easeOut' }}
-                  className="relative z-10 w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-[#0a1430] to-slate-900 shadow-[0_30px_80px_rgba(2,6,23,0.72)]"
+                  className="relative z-10 w-full max-w-2xl overflow-hidden border border-[#00E5FF]/30 bg-black shadow-[0_30px_80px_rgba(0,229,255,0.05)]"
+                  style={{ borderRadius: '0px' }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${skillCategoryMeta[activeSkillDetails.category].glowClass} opacity-70`} />
+                  {/* Top accent */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-[#00E5FF]/60" />
+                  {/* Corner decorators */}
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#00E5FF]/60" />
+                  <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#00E5FF]/60" />
 
                   <div className="relative p-5 sm:p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <span className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
+                        <span
+                          className="font-mono inline-flex border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#00E5FF]"
+                          style={{ borderRadius: '0px' }}
+                        >
                           {activeSkillDetails.category}
                         </span>
-                        <h3 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{activeSkillDetails.name}</h3>
-                        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">{activeSkillDetails.description}</p>
+                        <h3 className="font-mono mt-3 text-2xl font-bold text-white sm:text-3xl">{activeSkillDetails.name}</h3>
+                        <p className="mt-2 max-w-xl text-sm leading-6 text-[#A1A1AA]">{activeSkillDetails.description}</p>
                       </div>
 
                       <button
                         type="button"
                         onClick={() => setSelectedSkill(null)}
-                        className="rounded-full border border-white/10 bg-white/5 p-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+                        className="border border-[#00E5FF]/20 bg-black/50 p-2 text-[#A1A1AA] transition-colors hover:border-[#00E5FF]/50 hover:text-[#00E5FF]"
+                        style={{ borderRadius: '0px' }}
                         aria-label="Close modal"
                       >
                         <FaTimes size={14} />
@@ -221,33 +241,34 @@ export default function Skills() {
                     </div>
 
                     <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:col-span-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200/80">
+                      <div className="border border-[#00E5FF]/15 bg-[#00E5FF]/[0.02] p-4 sm:col-span-2" style={{ borderRadius: '0px' }}>
+                        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00E5FF]/70">
                           Used in this portfolio
                         </p>
-                        <p className="mt-2 text-sm leading-6 text-slate-300">{activeSkillDetails.portfolioUse}</p>
+                        <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">{activeSkillDetails.portfolioUse}</p>
                       </div>
                     </div>
 
-                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200/80">Use Cases</p>
-                      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                    <div className="mt-4 border border-[#00E5FF]/15 bg-[#00E5FF]/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00E5FF]/70">Use Cases</p>
+                      <ul className="mt-3 space-y-2 text-sm leading-6 text-[#A1A1AA]">
                         {activeSkillDetails.useCases.map((useCase) => (
                           <li key={useCase} className="flex gap-2">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-[#00E5FF]" />
                             <span>{useCase}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200/80">Related Tools</p>
+                    <div className="mt-4 border border-[#00E5FF]/15 bg-[#00E5FF]/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[#00E5FF]/70">Related Tools</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {activeSkillDetails.relatedTools.map((tool) => (
                           <span
                             key={tool}
-                            className="inline-flex rounded-full border border-white/10 bg-slate-950/60 px-3 py-1 text-xs font-medium text-slate-200"
+                            className="font-mono inline-flex border border-[#00E5FF]/20 bg-[#00E5FF]/5 px-3 py-1 text-xs font-medium text-[#00E5FF]"
+                            style={{ borderRadius: '0px' }}
                           >
                             {tool}
                           </span>

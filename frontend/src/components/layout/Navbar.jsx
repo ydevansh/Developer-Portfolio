@@ -17,15 +17,12 @@ const RESUME_PATH     = '/resume.pdf';
 const RESUME_FILENAME = 'Devansh_Yadav_Resume.pdf';
 
 /* ── ResumeDropdown ─────────────────────────────────────────────────
-   Self-contained dropdown button. Renders the trigger button and,
-   when open, an animated panel with View + Download options.
-   Closes on outside-click or Escape.
+   Terminal-styled dropdown for resume actions.
 ──────────────────────────────────────────────────────────────────── */
 function ResumeDropdown({ size = 'md', onAction }) {
   const [open, setOpen] = useState(false);
   const ref  = useRef(null);
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return undefined;
     const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -33,7 +30,6 @@ function ResumeDropdown({ size = 'md', onAction }) {
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  // Close on Escape
   useEffect(() => {
     const handler = e => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('keydown', handler);
@@ -59,32 +55,33 @@ function ResumeDropdown({ size = 'md', onAction }) {
 
   return (
     <div ref={ref} className="relative">
-      {/* Trigger button */}
+      {/* Trigger button — terminal ghost style */}
       <button
         id="navbar-resume-btn"
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-haspopup="true"
         aria-expanded={open}
-        className={`flex items-center gap-2 rounded-lg bg-primary-500 font-semibold text-white
-          transition-all duration-200 hover:bg-primary-600 shadow-[0_6px_18px_rgba(0,116,217,0.3)]
+        className={`font-mono flex items-center gap-2 border border-[#00E5FF]/60 text-[#00E5FF] bg-transparent
+          transition-all duration-200 hover:bg-[#00E5FF] hover:text-black
           ${isSm ? 'px-3 py-1.5 text-xs gap-1.5' : 'px-3.5 py-2 text-xs'}`}
+        style={{ borderRadius: '0px' }}
       >
-        <span>Resume</span>
+        <span>./resume</span>
         <FaDownload size={isSm ? 11 : 12} />
       </button>
 
       {/* Dropdown panel */}
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-white/10
-            bg-slate-900/95 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.5)]"
-          style={{ animation: 'dropIn 0.18s cubic-bezier(0.34,1.56,0.64,1) both' }}
+          className="absolute right-0 top-full mt-1 w-52 overflow-hidden border border-[#00E5FF]/30
+            bg-black/95 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,229,255,0.1)]"
+          style={{ animation: 'dropIn 0.18s cubic-bezier(0.34,1.56,0.64,1) both', borderRadius: '0px' }}
         >
           {/* Header */}
-          <div className="flex items-center gap-2 border-b border-white/8 px-4 py-2.5">
+          <div className="flex items-center gap-2 border-b border-[#00E5FF]/15 px-4 py-2.5">
             <FaFilePdf className="text-red-400 shrink-0" size={12} />
-            <span className="text-[11px] font-medium text-white/60 truncate">
+            <span className="font-mono text-[11px] font-medium text-white/60 truncate">
               {RESUME_FILENAME}
             </span>
           </div>
@@ -95,11 +92,11 @@ function ResumeDropdown({ size = 'md', onAction }) {
             type="button"
             onClick={handleView}
             className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium
-              text-white/80 transition-colors hover:bg-white/6 hover:text-white group"
+              text-white/80 transition-colors hover:bg-[#00E5FF]/10 hover:text-[#00E5FF] group font-mono"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/15
-              border border-blue-400/20 group-hover:bg-blue-500/25 transition-colors shrink-0">
-              <FaEye size={12} className="text-blue-400" />
+            <span className="flex h-7 w-7 items-center justify-center border border-[#00E5FF]/30
+              bg-[#00E5FF]/10 group-hover:bg-[#00E5FF]/20 transition-colors shrink-0">
+              <FaEye size={12} className="text-[#00E5FF]" />
             </span>
             <div>
               <p className="text-[13px] font-semibold text-white">View Resume</p>
@@ -113,12 +110,12 @@ function ResumeDropdown({ size = 'md', onAction }) {
             type="button"
             onClick={handleDownload}
             className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium
-              text-white/80 transition-colors hover:bg-white/6 hover:text-white group
-              border-t border-white/6"
+              text-white/80 transition-colors hover:bg-[#00E5FF]/10 hover:text-[#00E5FF] group
+              border-t border-[#00E5FF]/10 font-mono"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15
-              border border-emerald-400/20 group-hover:bg-emerald-500/25 transition-colors shrink-0">
-              <FaDownload size={11} className="text-emerald-400" />
+            <span className="flex h-7 w-7 items-center justify-center border border-[#00E5FF]/30
+              bg-[#00E5FF]/10 group-hover:bg-[#00E5FF]/20 transition-colors shrink-0">
+              <FaDownload size={11} className="text-[#00E5FF]" />
             </span>
             <div>
               <p className="text-[13px] font-semibold text-white">Download PDF</p>
@@ -164,14 +161,14 @@ export default function Navbar() {
 
   return (
     <header className="fixed left-0 top-0 z-50 w-full">
-      {/* Announcement Bar */}
+      {/* Announcement Bar — terminal style */}
       {showAnnouncement && (
-        <div className="border-b border-emerald-500/15 bg-slate-950/95 backdrop-blur-md">
+        <div className="border-b border-[#00E5FF]/15 bg-black/95 backdrop-blur-md">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-2 text-[10px] font-medium text-emerald-100 sm:text-xs">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(74,222,128,0.9)] animate-pulse" />
-              <span className="shrink-0 font-semibold">Open to opportunities</span>
-              <span className="hidden min-w-0 truncate text-emerald-100/70 sm:inline">
+            <div className="flex min-w-0 items-center gap-2 text-[10px] font-medium text-[#00E5FF]/80 sm:text-xs font-mono">
+              <span className="h-2 w-2 shrink-0 bg-[#00E5FF] shadow-[0_0_14px_rgba(0,229,255,0.9)] animate-pulse" />
+              <span className="shrink-0 font-semibold text-[#00E5FF]">STATUS: OPEN_TO_OPPORTUNITIES</span>
+              <span className="hidden min-w-0 truncate text-[#00E5FF]/50 sm:inline">
                 · Internships, freelance &amp; collaborations
               </span>
             </div>
@@ -179,16 +176,17 @@ export default function Navbar() {
             <div className="flex items-center gap-1.5">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-500/15 px-3 py-1 text-[10px] font-semibold text-emerald-100 transition-colors hover:border-emerald-300/40 hover:bg-emerald-500/25 sm:text-xs"
+                className="font-mono inline-flex items-center gap-1.5 border border-[#00E5FF]/40 bg-transparent px-3 py-1 text-[10px] font-semibold text-[#00E5FF] transition-all hover:bg-[#00E5FF] hover:text-black sm:text-xs"
+                style={{ borderRadius: '0px' }}
               >
-                Let&apos;s talk
+                ./contact
                 <FaArrowRight size={9} />
               </Link>
               <button
                 type="button"
                 aria-label="Dismiss announcement"
                 onClick={() => setShowAnnouncement(false)}
-                className="rounded-full p-1 text-emerald-100/60 transition-colors hover:bg-white/5 hover:text-white"
+                className="p-1 text-[#00E5FF]/40 transition-colors hover:bg-white/5 hover:text-[#00E5FF]"
               >
                 <FaTimes size={11} />
               </button>
@@ -198,16 +196,16 @@ export default function Navbar() {
       )}
 
       {/* Main Nav */}
-      <nav aria-label="Primary navigation" className="border-b border-white/10 bg-slate-950/95 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+      <nav aria-label="Primary navigation" className="border-b border-[#00E5FF]/15 bg-black/95 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 items-center justify-between gap-4">
 
-            {/* Logo */}
+            {/* Logo — terminal brand */}
             <Link to="/" className="group flex shrink-0 items-center">
               <span
                 data-loader-target="brand-text"
-                className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-500 via-sky-400 to-secondary bg-clip-text text-transparent
-                           transition-all duration-300 group-hover:brightness-125 group-hover:drop-shadow-[0_0_12px_rgba(0,116,217,0.7)]
+                className="font-mono text-2xl font-extrabold tracking-tight text-[#00E5FF]
+                           transition-all duration-300 group-hover:text-white group-hover:drop-shadow-[0_0_12px_rgba(0,229,255,0.8)]
                            select-none"
               >
                 Devansh
@@ -222,12 +220,13 @@ export default function Navbar() {
                   to={link.path}
                   end={link.path === '/'}
                   className={({ isActive }) =>
-                    `rounded-full px-3 py-1.5 text-[13px] font-medium transition-all duration-200 ${
+                    `font-mono px-3 py-1.5 text-[13px] font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 text-white shadow-[0_8px_24px_rgba(139,92,246,0.3)]'
-                        : 'text-gray-300 hover:bg-white/6 hover:text-white'
+                        ? 'border border-[#00E5FF]/60 bg-[#00E5FF]/10 text-[#00E5FF]'
+                        : 'text-gray-400 hover:border hover:border-[#00E5FF]/30 hover:text-[#00E5FF]'
                     }`
                   }
+                  style={{ borderRadius: '0px' }}
                 >
                   {link.name}
                 </NavLink>
@@ -247,15 +246,16 @@ export default function Navbar() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="text-gray-400 transition-colors duration-200 hover:text-primary-500"
+                      className="flex h-7 w-7 items-center justify-center border border-white/15 text-gray-400 transition-all duration-200 hover:border-[#00E5FF]/50 hover:text-[#00E5FF]"
+                      style={{ borderRadius: '0px' }}
                     >
-                      <Icon size={17} />
+                      <Icon size={14} />
                     </a>
                   );
                 })}
               </div>
 
-              <div className="h-4 w-px bg-white/10" />
+              <div className="h-4 w-px bg-[#00E5FF]/20" />
 
               {/* Resume dropdown — desktop */}
               <ResumeDropdown size="md" />
@@ -272,7 +272,7 @@ export default function Navbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="text-gray-400 transition-colors hover:text-primary-500"
+                    className="text-gray-400 transition-colors hover:text-[#00E5FF]"
                   >
                     <Icon size={17} />
                   </a>
@@ -285,8 +285,9 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="rounded-lg border border-white/10 p-2 text-white transition-colors hover:bg-white/5"
+                className="border border-[#00E5FF]/30 p-2 text-[#00E5FF] transition-colors hover:bg-[#00E5FF]/10"
                 aria-label="Toggle menu"
+                style={{ borderRadius: '0px' }}
               >
                 {menuOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
               </button>
@@ -296,8 +297,9 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="rounded-lg border border-white/10 p-2 text-white transition-colors hover:bg-white/5 md:hidden"
+              className="border border-[#00E5FF]/30 p-2 text-[#00E5FF] transition-colors hover:bg-[#00E5FF]/10 md:hidden"
               aria-label="Toggle menu"
+              style={{ borderRadius: '0px' }}
             >
               {menuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
             </button>
@@ -305,7 +307,7 @@ export default function Navbar() {
 
           {/* Mobile / Tablet Dropdown Menu */}
           {menuOpen && (
-            <div className="border-t border-white/10 py-3 xl:hidden">
+            <div className="border-t border-[#00E5FF]/15 py-3 xl:hidden">
               {/* Single vertical column of nav links */}
               <div className="flex flex-col gap-1">
                 {navLinks.map((link) => (
@@ -314,21 +316,22 @@ export default function Navbar() {
                     to={link.path}
                     end={link.path === '/'}
                     className={({ isActive }) =>
-                      `rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                      `font-mono px-4 py-3 text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-cyan-400/20 text-white'
-                          : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          ? 'border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]'
+                          : 'text-gray-300 hover:bg-white/5 hover:text-[#00E5FF]'
                       }`
                     }
+                    style={{ borderRadius: '0px' }}
                     onClick={() => setMenuOpen(false)}
                   >
-                    {link.name}
+                    &gt; {link.name}
                   </NavLink>
                 ))}
               </div>
 
               {/* Mobile bottom row */}
-              <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+              <div className="mt-3 flex items-center justify-between border-t border-[#00E5FF]/15 pt-3">
                 {/* Social icons */}
                 <div className="flex items-center gap-3">
                   {socialLinks.map((social) => {
@@ -340,7 +343,7 @@ export default function Navbar() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={social.label}
-                        className="text-gray-400 transition-colors hover:text-primary-500"
+                        className="text-gray-400 transition-colors hover:text-[#00E5FF]"
                       >
                         <Icon size={18} />
                       </a>
@@ -348,17 +351,18 @@ export default function Navbar() {
                   })}
                 </div>
 
-                {/* Resume toggle — tap to reveal View & Download */}
+                {/* Resume toggle */}
                 <div className="flex flex-col items-end gap-2">
                   <button
                     id="mobile-resume-toggle"
                     type="button"
                     onClick={() => setMobileResumeOpen(v => !v)}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2
-                      text-xs font-semibold text-white hover:bg-primary-600 transition-colors"
+                    className="font-mono flex items-center gap-1.5 border border-[#00E5FF]/60 px-3 py-2
+                      text-xs font-semibold text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-colors"
+                    style={{ borderRadius: '0px' }}
                   >
                     <FaFilePdf size={11} />
-                    Resume
+                    ./resume
                     <span
                       className="transition-transform duration-200"
                       style={{ display: 'inline-block', transform: mobileResumeOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
@@ -375,8 +379,9 @@ export default function Navbar() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => { setMenuOpen(false); setMobileResumeOpen(false); }}
-                        className="flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/6
-                          px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                        className="font-mono flex items-center gap-1.5 border border-[#00E5FF]/30
+                          px-3 py-2 text-xs font-semibold text-[#00E5FF]/80 hover:bg-[#00E5FF]/10 hover:text-[#00E5FF] transition-colors"
+                        style={{ borderRadius: '0px' }}
                       >
                         <FaEye size={11} />
                         View
@@ -386,8 +391,9 @@ export default function Navbar() {
                         href={RESUME_PATH}
                         download={RESUME_FILENAME}
                         onClick={() => { setMenuOpen(false); setMobileResumeOpen(false); }}
-                        className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/20
-                          px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/30 transition-colors"
+                        className="font-mono flex items-center gap-1.5 border border-[#00E5FF]/60
+                          px-3 py-2 text-xs font-semibold text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-colors"
+                        style={{ borderRadius: '0px' }}
                       >
                         <FaDownload size={11} />
                         Download

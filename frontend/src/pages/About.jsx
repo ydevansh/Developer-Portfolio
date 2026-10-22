@@ -56,14 +56,14 @@ function TypewriterParagraphs({ firstText, secondText, active, delay = 0, speed 
         <p aria-hidden="true" className="absolute inset-0 pointer-events-none text-lg">
           {firstDisplay}
           {active && isOnFirstParagraph && isTyping && (
-            <motion.span aria-hidden="true" className="ml-1 inline-flex items-center align-baseline text-amber-300/90"
+            <motion.span aria-hidden="true" className="ml-1 inline-flex items-center align-baseline text-[#00E5FF]/90"
               animate={{ y: [0, -1, 0], rotate: [14, 20, 14], x: [0, 1, 0] }}
               transition={{ duration: 0.45, repeat: Infinity, ease: 'easeInOut' }}>
               <FaPenNib size={11} />
             </motion.span>
           )}
           {active && isOnFirstParagraph && (
-            <motion.span aria-hidden="true" className="ml-0.5 inline-block text-amber-300"
+            <motion.span aria-hidden="true" className="ml-0.5 inline-block text-[#00E5FF]"
               animate={{ opacity: [1, 0, 1] }}
               transition={{ duration: 1.1, repeat: Infinity, ease: 'linear' }}>|</motion.span>
           )}
@@ -75,14 +75,14 @@ function TypewriterParagraphs({ firstText, secondText, active, delay = 0, speed 
         <p aria-hidden="true" className="absolute inset-0 pointer-events-none text-lg">
           {secondDisplay}
           {active && !isOnFirstParagraph && isTyping && (
-            <motion.span aria-hidden="true" className="ml-1 inline-flex items-center align-baseline text-amber-300/90"
+            <motion.span aria-hidden="true" className="ml-1 inline-flex items-center align-baseline text-[#00E5FF]/90"
               animate={{ y: [0, -1, 0], rotate: [14, 20, 14], x: [0, 1, 0] }}
               transition={{ duration: 0.45, repeat: Infinity, ease: 'easeInOut' }}>
               <FaPenNib size={11} />
             </motion.span>
           )}
           {active && !isOnFirstParagraph && (
-            <motion.span aria-hidden="true" className="ml-0.5 inline-block text-amber-300"
+            <motion.span aria-hidden="true" className="ml-0.5 inline-block text-[#00E5FF]"
               animate={{ opacity: [1, 0, 1] }}
               transition={{ duration: 1.1, repeat: Infinity, ease: 'linear' }}>|</motion.span>
           )}
@@ -99,14 +99,12 @@ function TypewriterParagraphs({ firstText, secondText, active, delay = 0, speed 
    ResumeModal — full-screen PDF viewer overlay
 ────────────────────────────────────────────────────── */
 function ResumeModal({ isOpen, onClose }) {
-  // Lock body scroll while modal is open
   useEffect(() => {
     if (isOpen) { document.body.style.overflow = 'hidden'; }
     else { document.body.style.overflow = ''; }
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  // Close on Escape key
   useEffect(() => {
     const handleKey = e => { if (e.key === 'Escape') onClose(); };
     if (isOpen) window.addEventListener('keydown', handleKey);
@@ -126,7 +124,7 @@ function ResumeModal({ isOpen, onClose }) {
         >
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/85 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -139,43 +137,41 @@ function ResumeModal({ isOpen, onClose }) {
             transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
           >
             {/* Modal toolbar */}
-            <div className="flex items-center justify-between px-5 py-3 bg-[#0d1117] border-b border-white/10 shrink-0">
+            <div className="flex items-center justify-between px-5 py-3 bg-black border-b border-[#00E5FF]/20 shrink-0">
               <div className="flex items-center gap-2.5">
                 <FaFilePdf className="text-red-400" size={16} />
-                <span className="text-sm font-medium text-white/80 tracking-wide">
+                <span className="font-mono text-sm font-medium text-white/80 tracking-wide">
                   {RESUME_FILENAME}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                {/* Open in new tab */}
                 <a
                   href={RESUME_PATH}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Open in new tab"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+                  className="font-mono flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white/70 hover:text-[#00E5FF] hover:bg-white/5 transition-all duration-200"
                 >
                   <FaExpand size={11} />
                   <span className="hidden sm:inline">Full screen</span>
                 </a>
 
-                {/* Download */}
                 <a
                   href={RESUME_PATH}
                   download={RESUME_FILENAME}
                   title="Download resume"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200"
+                  className="font-mono flex items-center gap-1.5 px-3 py-1.5 border border-[#00E5FF]/60 text-xs font-semibold text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all duration-200"
+                  style={{ borderRadius: '0px' }}
                 >
                   <FaDownload size={11} />
                   <span>Download</span>
                 </a>
 
-                {/* Close */}
                 <button
                   onClick={onClose}
                   id="resume-modal-close-btn"
                   aria-label="Close resume viewer"
-                  className="p-2 rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
+                  className="p-2 text-white/60 hover:text-[#00E5FF] hover:bg-white/5 transition-all duration-200"
                 >
                   <FaTimes size={14} />
                 </button>
@@ -183,7 +179,7 @@ function ResumeModal({ isOpen, onClose }) {
             </div>
 
             {/* PDF iframe */}
-            <div className="flex-1 bg-[#1a1a2e] overflow-hidden">
+            <div className="flex-1 bg-black overflow-hidden border border-[#00E5FF]/10 border-t-0">
               <iframe
                 src={`${RESUME_PATH}#toolbar=0&navpanes=0&scrollbar=1`}
                 title="Devansh Yadav Resume"
@@ -208,19 +204,18 @@ function ResumeCTA({ onView }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
-      className="relative rounded-2xl overflow-hidden"
+      className="relative overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(99,102,241,0.07) 50%, rgba(37,99,235,0.04) 100%)',
-        border: '1px solid rgba(99,102,241,0.22)',
-        boxShadow: '0 4px 32px rgba(37,99,235,0.08)',
+        background: 'rgba(0,229,255,0.03)',
+        border: '1px solid rgba(0,229,255,0.20)',
+        borderRadius: '0px',
       }}
     >
-      {/* Decorative glow blob */}
-      <div
-        aria-hidden="true"
-        className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-30 pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)' }}
-      />
+      {/* Terminal corner decorators */}
+      <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[#00E5FF]/60" />
+      <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#00E5FF]/60" />
+      <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[#00E5FF]/60" />
+      <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-[#00E5FF]/60" />
 
       <div className="relative p-7 sm:p-8">
         {/* Header row */}
@@ -228,15 +223,15 @@ function ResumeCTA({ onView }) {
           <div className="flex items-start gap-4">
             {/* Icon */}
             <div
-              className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.18), rgba(220,38,38,0.08))', border: '1px solid rgba(239,68,68,0.22)' }}
+              className="shrink-0 w-12 h-12 flex items-center justify-center border border-red-500/30 bg-red-500/10"
+              style={{ borderRadius: '0px' }}
             >
               <FaFilePdf className="text-red-400" size={20} />
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-white leading-tight">My Resume</h3>
-              <p className="text-sm text-slate-400 mt-0.5">
+              <h3 className="font-mono text-lg font-bold text-white leading-tight">./my-resume.pdf</h3>
+              <p className="font-mono text-sm text-[#A1A1AA] mt-0.5">
                 MERN-Stack &amp; Python Developer · Updated July 2026
               </p>
             </div>
@@ -247,14 +242,10 @@ function ResumeCTA({ onView }) {
             <motion.button
               id="resume-view-btn"
               onClick={onView}
-              whileHover={{ scale: 1.04 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.14)',
-                color: 'rgba(255,255,255,0.88)',
-              }}
+              className="font-mono flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-all duration-200 border border-white/20 text-white/80 hover:border-[#00E5FF]/50 hover:text-[#00E5FF]"
+              style={{ borderRadius: '0px' }}
             >
               <FaEye size={13} />
               View
@@ -264,14 +255,10 @@ function ResumeCTA({ onView }) {
               id="resume-download-btn"
               href={RESUME_PATH}
               download={RESUME_FILENAME}
-              whileHover={{ scale: 1.04 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
-              style={{
-                background: 'linear-gradient(135deg, #2563eb, #4f46e5)',
-                border: '1px solid rgba(99,102,241,0.35)',
-                boxShadow: '0 0 20px rgba(37,99,235,0.3)',
-              }}
+              className="font-mono flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#00E5FF] border border-[#00E5FF]/60 hover:bg-[#00E5FF] hover:text-black transition-all duration-200"
+              style={{ borderRadius: '0px' }}
             >
               <FaDownload size={12} />
               Download PDF
@@ -280,15 +267,15 @@ function ResumeCTA({ onView }) {
         </div>
 
         {/* Quick stats row */}
-        <div className="mt-6 pt-5 border-t border-white/8 grid grid-cols-3 gap-4">
+        <div className="mt-6 pt-5 border-t border-[#00E5FF]/10 grid grid-cols-3 gap-4">
           {[
             { label: 'Status', value: 'Open for Work' },
             { label: 'Projects', value: '10+' },
             { label: 'Certifications', value: '6+' },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
-              <p className="text-base font-bold text-blue-400">{value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+              <p className="font-mono text-base font-bold text-[#00E5FF]">{value}</p>
+              <p className="font-mono text-xs text-[#A1A1AA] mt-0.5">{label}</p>
             </div>
           ))}
         </div>
@@ -354,29 +341,22 @@ export default function About() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* Page heading */}
-          <div className="relative inline-block isolate">
-            <motion.span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-[-0.6rem] top-1/2 -z-10 h-12 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.32)_0%,rgba(251,191,36,0.12)_38%,transparent_72%)] blur-2xl"
-              animate={{ opacity: [0.35, 0.65, 0.35], scale: [1, 1.02, 1] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-1 rounded-full bg-gradient-to-r from-transparent via-amber-200/50 to-transparent blur-sm"
-              animate={{ opacity: [0.15, 0.45, 0.15], x: ['-8%', '8%', '-8%'] }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-              Who I Am
+          {/* Page heading — terminal style */}
+          <div>
+            <div
+              className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/35 bg-[#00E5FF]/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00E5FF] mb-4"
+              style={{ borderRadius: '0px' }}
+            >
+              <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+              $ whoami
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">About Devansh Yadav</h1>
+            <h1 className="font-mono text-4xl md:text-5xl font-bold text-white">
+              About <span className="text-[#00E5FF]">Devansh Yadav</span>
+            </h1>
           </div>
 
           {/* Bio + Education */}
-          <div className="text-gray-400 leading-relaxed">
+          <div className="text-[#A1A1AA] leading-relaxed">
             <TypewriterParagraphs
               active={isAboutVisible}
               delay={250}
@@ -386,15 +366,17 @@ export default function About() {
             />
 
             <div className="space-y-4 pt-8">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">Education</h2>
-              <div className="space-y-3">
-                <div>
-                  <h3 className="font-semibold text-white">BCA - Babu Banarasi Das University (BBDU), Lucknow</h3>
-                  <p className="text-sm text-gray-500">Bachelor of Computer Applications</p>
+              <h2 className="font-mono text-2xl font-bold text-white border-l-2 border-[#00E5FF] pl-3">
+                Education
+              </h2>
+              <div className="space-y-4">
+                <div className="border border-[#00E5FF]/20 bg-[#00E5FF]/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                  <h3 className="font-mono font-semibold text-white">BCA - Babu Banarasi Das University (BBDU), Lucknow</h3>
+                  <p className="font-mono text-sm text-[#A1A1AA] mt-1">Bachelor of Computer Applications</p>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-white">AI Minor - IIT Mandi (Online)</h3>
-                  <p className="text-sm text-gray-500">Minor in Artificial Intelligence</p>
+                <div className="border border-[#00E5FF]/20 bg-[#00E5FF]/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                  <h3 className="font-mono font-semibold text-white">AI Minor - IIT Mandi (Online)</h3>
+                  <p className="font-mono text-sm text-[#A1A1AA] mt-1">Minor in Artificial Intelligence</p>
                 </div>
               </div>
             </div>
@@ -409,9 +391,10 @@ export default function About() {
           <div className="pt-2">
             <Link
               to="/skills"
-              className="inline-block px-6 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors duration-300"
+              className="font-mono inline-flex items-center gap-2 px-6 py-3 border border-[#00E5FF]/60 text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black font-medium transition-colors duration-300"
+              style={{ borderRadius: '0px' }}
             >
-              View My Skills →
+              &gt; View My Skills →
             </Link>
           </div>
         </motion.div>

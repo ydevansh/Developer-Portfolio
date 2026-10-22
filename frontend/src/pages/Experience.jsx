@@ -35,6 +35,7 @@ const journeyItems = [
     ctaHref: 'https://bbdu.ac.in/data/disclosure/NAAC-Reports/',
     ctaExternal: true,
     accent: 'from-cyan-400 via-blue-500 to-indigo-500',
+    accentColor: '#00E5FF',
     icon: FaGraduationCap,
   },
   {
@@ -59,6 +60,7 @@ const journeyItems = [
     ctaHref: '/blog/my-journey-into-ai-as-a-bca-student',
     ctaExternal: false,
     accent: 'from-violet-400 via-fuchsia-500 to-purple-500',
+    accentColor: '#00E5FF',
     icon: FaLightbulb,
   },
   {
@@ -83,6 +85,7 @@ const journeyItems = [
     ctaHref: '/blog/how-i-built-my-portfolio-from-scratch',
     ctaExternal: false,
     accent: 'from-emerald-400 via-teal-500 to-cyan-500',
+    accentColor: '#00E5FF',
     icon: FaCode,
   },
   {
@@ -107,6 +110,7 @@ const journeyItems = [
     ctaHref: '/blog/daily-routine-to-become-a-better-developer',
     ctaExternal: false,
     accent: 'from-amber-400 via-orange-500 to-rose-500',
+    accentColor: '#00E5FF',
     icon: FaFire,
   },
 ];
@@ -117,21 +121,18 @@ const learningLoop = [
     description:
       'I start with fundamentals, read docs, and break the concept into simple notes before I touch the keyboard.',
     icon: FaLightbulb,
-    accent: 'from-cyan-400 via-sky-500 to-blue-500',
   },
   {
     title: 'Build',
     description:
       'I turn the idea into something real, whether that is a small prototype, a full stack feature, or a project improvement.',
     icon: FaCode,
-    accent: 'from-emerald-400 via-teal-500 to-cyan-500',
   },
   {
     title: 'Repeat',
     description:
       'I review what worked, fix what did not, and use daily practice to make the next attempt sharper than the last one.',
     icon: FaFire,
-    accent: 'from-amber-400 via-orange-500 to-rose-500',
   },
 ];
 
@@ -203,94 +204,109 @@ export default function Experience() {
         structuredData={experienceStructuredData}
       />
 
+      {/* Minimal background — just a faint cyan radial hint */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-28 left-1/2 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute right-[-14rem] top-[28rem] h-96 w-96 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="absolute -top-28 left-1/2 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-[#00E5FF]/[0.04] blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* Header section */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="border-b border-white/10 pb-10 sm:pb-12"
+          className="border-b border-[#00E5FF]/15 pb-10 sm:pb-12"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-            Experience &amp; Journey
+          <div
+            className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00E5FF] mb-4"
+            style={{ borderRadius: '0px' }}
+          >
+            <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+            $ git log --journey
           </div>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
-            Learning, building, and getting better every day.
+          <h1 className="font-sans mt-3 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-white leading-tight">
+            Learning, building, and{' '}
+            <span className="text-[#00E5FF]">getting better</span> every day.
           </h1>
           <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <p className="max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+            <p className="font-sans max-w-2xl text-base sm:text-lg leading-relaxed text-gray-300">
               My journey blends BCA academics, applied AI learning, full stack projects, and a consistent practice routine.
             </p>
             <div className="flex shrink-0 items-center gap-5">
               <Link
                 to="/projects"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 transition-transform duration-300 hover:-translate-y-0.5"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-5 py-2.5 text-sm font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
               >
                 View projects <FaArrowRight className="text-xs" />
               </Link>
-              <Link to="/contact" className="text-sm font-medium text-slate-300 transition-colors hover:text-white">
+              <Link
+                to="/contact"
+                className="font-mono text-sm font-medium text-gray-400 transition-colors hover:text-[#00E5FF]"
+              >
                 Contact me
               </Link>
             </div>
           </div>
         </motion.section>
 
+        {/* Journey section */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
           className="mt-10 grid items-start gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-8"
         >
+          {/* Sidebar */}
           <aside className="lg:sticky lg:top-28">
             <div className="mb-4 flex items-end justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-cyan-300/70">The journey</p>
-                <h2 className="mt-1 text-xl font-semibold text-white">Milestones</h2>
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#00E5FF]/80">The journey</p>
+                <h2 className="font-sans mt-1 text-xl font-bold text-white tracking-tight">Milestones</h2>
               </div>
-              <span className="text-xs text-slate-500">Select one</span>
+              <span className="font-mono text-xs text-gray-500">Select one</span>
             </div>
 
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-            {journeyItems.map((item) => {
-              const JourneyIcon = item.icon;
-              const isSelected = selectedJourney.id === item.id;
+              {journeyItems.map((item) => {
+                const JourneyIcon = item.icon;
+                const isSelected = selectedJourney.id === item.id;
 
-              return (
-                <motion.button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setSelectedJourneyId(item.id)}
-                  aria-pressed={isSelected}
-                  whileTap={{ scale: 0.98 }}
-                  className={`group flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-300 ${
-                    isSelected
-                      ? 'border-cyan-400/40 bg-cyan-400/[0.08]'
-                      : 'border-transparent bg-white/[0.025] hover:border-white/10 hover:bg-white/[0.05]'
-                  }`}
-                >
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${item.accent}`}>
-                    <JourneyIcon className="text-base text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className={`truncate text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
-                      {item.title}
-                    </h3>
-                    <p className="mt-0.5 truncate text-xs text-slate-500">{item.subtitle}</p>
-                  </div>
-                  <span className={`shrink-0 text-[0.68rem] ${isSelected ? 'text-cyan-300' : 'text-slate-500'}`}>
-                    {item.period}
-                  </span>
-                </motion.button>
-              );
-            })}
+                return (
+                  <motion.button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedJourneyId(item.id)}
+                    aria-pressed={isSelected}
+                    whileTap={{ scale: 0.98 }}
+                    className={`group flex w-full items-center gap-3 border p-3 text-left transition-all duration-300 ${
+                      isSelected
+                        ? 'border-[#00E5FF]/60 bg-[#00E5FF]/[0.08]'
+                        : 'border-white/10 bg-white/[0.02] hover:border-[#00E5FF]/30 hover:bg-[#00E5FF]/[0.03]'
+                    }`}
+                    style={{ borderRadius: '0px' }}
+                  >
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center border ${
+                      isSelected ? 'border-[#00E5FF]/60 bg-[#00E5FF]/15 text-[#00E5FF]' : 'border-white/10 bg-white/5 text-gray-400'
+                    }`}>
+                      <JourneyIcon className="text-base" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className={`font-sans truncate text-sm font-semibold tracking-tight ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                        {item.title}
+                      </h3>
+                      <p className="font-sans mt-0.5 truncate text-xs text-gray-400">{item.subtitle}</p>
+                    </div>
+                    <span className={`font-mono shrink-0 text-[11px] font-medium ${isSelected ? 'text-[#00E5FF]' : 'text-gray-500'}`}>
+                      {item.period}
+                    </span>
+                  </motion.button>
+                );
+              })}
             </div>
           </aside>
 
+          {/* Detail panel */}
           <AnimatePresence mode="wait">
             <motion.article
               key={selectedJourney.id}
@@ -298,49 +314,67 @@ export default function Experience() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.28, ease: 'easeOut' }}
-              className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5 shadow-[0_24px_70px_rgba(2,6,23,0.28)] backdrop-blur-xl sm:p-7 lg:p-8"
+              className="relative overflow-hidden border border-[#00E5FF]/20 bg-black/80 p-5 shadow-[0_24px_70px_rgba(0,229,255,0.04)] backdrop-blur-xl sm:p-7 lg:p-8"
+              style={{ borderRadius: '0px' }}
             >
-              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${selectedJourney.accent}`} />
-              <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
+              {/* Top accent line in cyan */}
+              <div className="absolute inset-x-0 top-0 h-px bg-[#00E5FF]/60" />
+              {/* Corner decorators */}
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[#00E5FF]/60" />
+              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#00E5FF]/60" />
+
+              <div className="flex flex-col gap-5 border-b border-[#00E5FF]/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-300/70">
+                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#00E5FF]">
                     {selectedJourney.period} · {selectedJourney.subtitle}
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">{selectedJourney.title}</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">{selectedJourney.summary}</p>
+                  <h2 className="font-sans mt-2 text-2xl font-bold text-white sm:text-3xl tracking-tight">{selectedJourney.title}</h2>
+                  <p className="font-sans mt-3 max-w-2xl text-sm sm:text-base leading-relaxed text-gray-300">{selectedJourney.summary}</p>
                 </div>
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${selectedJourney.accent}`}>
-                  <SelectedJourneyIcon className="text-xl text-white" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                  <SelectedJourneyIcon className="text-xl" />
                 </div>
               </div>
 
               <div className="py-7">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">What this stage taught me</p>
-                <h3 className="mt-2 text-xl font-semibold text-white sm:text-2xl">{selectedJourney.detailTitle}</h3>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{selectedJourney.detailText}</p>
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#00E5FF]/70">What this stage taught me</p>
+                <h3 className="font-sans mt-2 text-xl font-bold text-white sm:text-2xl tracking-tight">{selectedJourney.detailTitle}</h3>
+                <p className="font-sans mt-3 max-w-3xl text-sm sm:text-base leading-relaxed text-gray-300">{selectedJourney.detailText}</p>
 
-                <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   {selectedJourney.detailPoints.map((point, index) => (
-                    <li key={point} className="border-l border-white/10 pl-4">
-                      <span className="text-xs font-semibold text-cyan-300/70">0{index + 1}</span>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">{point}</p>
-                    </li>
+                    <div
+                      key={point}
+                      className="border border-[#00E5FF]/20 bg-white/[0.02] p-4 transition-colors hover:border-[#00E5FF]/40"
+                      style={{ borderRadius: '0px' }}
+                    >
+                      <span className="font-mono text-xs font-bold text-[#00E5FF]">
+                        &gt; 0{index + 1}
+                      </span>
+                      <p className="font-sans mt-2 text-sm leading-relaxed text-gray-200">
+                        {point}
+                      </p>
+                    </div>
                   ))}
-                </ol>
+                </div>
 
                 <div className="mt-6 flex flex-wrap gap-2">
                   {selectedJourney.chips.map((chip) => (
-                    <span key={`${selectedJourney.id}-${chip}`} className="rounded-full bg-white/[0.05] px-3 py-1.5 text-xs text-slate-300">
-                      {chip}
+                    <span
+                      key={`${selectedJourney.id}-${chip}`}
+                      className="font-mono border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1.5 text-xs text-[#00E5FF]"
+                      style={{ borderRadius: '0px' }}
+                    >
+                      #{chip}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="flex flex-col gap-5 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-5 border-t border-[#00E5FF]/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-slate-500">{selectedJourney.outcomeLabel}</p>
-                  <p className="mt-1 text-sm font-semibold text-white">{selectedJourney.outcomeValue}</p>
+                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-gray-500">{selectedJourney.outcomeLabel}</p>
+                  <p className="font-sans mt-1 text-sm font-semibold text-white">{selectedJourney.outcomeValue}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -349,30 +383,32 @@ export default function Experience() {
                       href={selectedJourney.ctaHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300 hover:text-cyan-200"
+                      className="font-mono inline-flex items-center gap-2 text-sm font-medium text-[#00E5FF] hover:text-white"
                     >
                       {selectedJourney.ctaLabel} <FaArrowRight className="text-xs" />
                     </a>
                   ) : (
                     <Link
                       to={selectedJourney.ctaHref}
-                      className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300 hover:text-cyan-200"
+                      className="font-mono inline-flex items-center gap-2 text-sm font-medium text-[#00E5FF] hover:text-white"
                     >
                       {selectedJourney.ctaLabel} <FaArrowRight className="text-xs" />
                     </Link>
                   )}
-                  <span className="hidden h-5 w-px bg-white/10 sm:block" />
+                  <span className="hidden h-5 w-px bg-[#00E5FF]/20 sm:block" />
                   <button
                     type="button"
                     onClick={goToPreviousJourney}
-                    className="rounded-full border border-white/10 px-3.5 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-white/20 hover:text-white"
+                    className="font-mono border border-[#00E5FF]/20 px-3.5 py-2 text-xs font-medium text-gray-400 transition-colors hover:border-[#00E5FF]/50 hover:text-[#00E5FF]"
+                    style={{ borderRadius: '0px' }}
                   >
                     Previous
                   </button>
                   <button
                     type="button"
                     onClick={goToNextJourney}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3.5 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-white/20 hover:text-white"
+                    className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/20 px-3.5 py-2 text-xs font-medium text-gray-400 transition-colors hover:border-[#00E5FF]/50 hover:text-[#00E5FF]"
+                    style={{ borderRadius: '0px' }}
                   >
                     Next <FaArrowRight className="text-[0.65rem]" />
                   </button>
@@ -382,15 +418,18 @@ export default function Experience() {
           </AnimatePresence>
         </motion.section>
 
+        {/* Learning loop section */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
-          className="mt-16 border-t border-white/10 pt-10"
+          className="mt-16 border-t border-[#00E5FF]/15 pt-10"
         >
           <div className="max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-300/70">How I work</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">A simple loop that keeps me moving</h2>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#00E5FF]">How I work</p>
+            <h2 className="font-sans mt-2 text-2xl font-bold text-white sm:text-3xl tracking-tight">
+              A simple loop that keeps me <span className="text-[#00E5FF]">moving</span>
+            </h2>
           </div>
 
           <div className="mt-8 grid gap-8 md:grid-cols-3 md:gap-0">
@@ -398,15 +437,18 @@ export default function Experience() {
               const LoopIcon = item.icon;
 
               return (
-                <article key={item.title} className={`${index > 0 ? 'md:border-l md:border-white/10 md:pl-8' : ''} ${index < learningLoop.length - 1 ? 'md:pr-8' : ''}`}>
+                <article
+                  key={item.title}
+                  className={`${index > 0 ? 'md:border-l md:border-[#00E5FF]/15 md:pl-8' : ''} ${index < learningLoop.length - 1 ? 'md:pr-8' : ''}`}
+                >
                   <div className="flex items-center gap-3">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${item.accent}`}>
-                      <LoopIcon className="text-sm text-white" />
+                    <div className="flex h-9 w-9 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                      <LoopIcon className="text-sm" />
                     </div>
-                    <span className="text-xs text-slate-500">0{index + 1}</span>
+                    <span className="font-mono text-xs font-semibold text-[#00E5FF]/70">0{index + 1}</span>
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-white">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-slate-400">{item.description}</p>
+                  <h3 className="font-sans mt-4 text-lg font-bold text-white tracking-tight">{item.title}</h3>
+                  <p className="font-sans mt-2 text-sm sm:text-base leading-relaxed text-gray-300">{item.description}</p>
                 </article>
               );
             })}

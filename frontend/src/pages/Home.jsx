@@ -85,7 +85,6 @@ const MotionLink = motion(Link);
 
 export default function Home() {
   const [skillEntries, setSkillEntries] = useState([]);
-  const heroCanvasRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -112,48 +111,7 @@ export default function Home() {
     };
   }, []);
 
-  // Starfield canvas particle effect — mirrors the loader's space environment
-  useEffect(() => {
-    const canvas = heroCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
 
-    let animId;
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const stars = Array.from({ length: 130 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 1.1 + 0.3,
-      alpha: Math.random() * 0.055 + 0.025,
-      vy: Math.random() * 0.18 + 0.04,
-    }));
-
-    const draw = () => {
-      animId = requestAnimationFrame(draw);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#ffffff';
-      for (const s of stars) {
-        s.y -= s.vy;
-        if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
-        ctx.globalAlpha = s.alpha;
-        ctx.fillRect(s.x, s.y, s.size, s.size);
-      }
-      ctx.globalAlpha = 1;
-    };
-    animId = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -271,7 +229,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative overflow-x-hidden pt-28 pb-12 lg:pt-32 lg:pb-16 bg-[#000000]">
+    <div className="relative overflow-x-hidden pt-28 pb-12 lg:pt-32 lg:pb-16 bg-transparent">
       <Seo
         title={homeSeo.title}
         description={homeSeo.description}
@@ -280,13 +238,6 @@ export default function Home() {
         image={profileImage}
         imageAlt="Devansh Yadav profile portrait"
         structuredData={homeStructuredData}
-      />
-
-      {/* Starfield canvas — mirrors loader environment */}
-      <canvas
-        ref={heroCanvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ zIndex: 0 }}
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -479,183 +430,205 @@ export default function Home() {
 
         {/* Home Sections */}
         <motion.div
-          className="mt-20 pt-12 border-t border-primary-500/20 space-y-12"
+          className="mt-20 pt-12 border-t border-[#00E5FF]/15 space-y-16"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
         >
-          <motion.section variants={itemVariants} className="space-y-5">
+          {/* About Me Section */}
+          <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-                  About Me
+                <div
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00E5FF] mb-2"
+                  style={{ borderRadius: '0px' }}
+                >
+                  <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+                  $ cat about.md
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-                  Who I Am
+                <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Who <span className="text-[#00E5FF]">I Am</span>
                 </h2>
               </div>
               <Link
                 to="/about"
-                aria-label="Read more about me"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-500/40 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-cyan-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/60 hover:from-cyan-500/30 hover:to-violet-500/30"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-4 py-2 text-xs font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
               >
-                <FaArrowRight size={15} />
+                Read more <FaArrowRight size={12} />
               </Link>
             </div>
 
-            <motion.div
-              whileHover={{ y: -5 }}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-slate-950/40 p-6 backdrop-blur-xl group"
+            <div
+              className="relative overflow-hidden border border-[#00E5FF]/20 bg-black/80 p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+              style={{ borderRadius: '0px' }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+              {/* Corner brackets */}
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[#00E5FF]/60" />
+              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#00E5FF]/60" />
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[#00E5FF]/60" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-[#00E5FF]/60" />
+
+              <div className="relative z-10 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 p-2.5">
-                      <FaLightbulb className="text-xl text-cyan-400" />
+                    <div className="flex h-10 w-10 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                      <FaLightbulb className="text-lg" />
                     </div>
-                    <h3 className="text-xl font-bold sm:text-2xl">Passionate Developer</h3>
+                    <h3 className="font-sans text-xl font-bold sm:text-2xl text-white">Passionate Developer</h3>
                   </div>
 
-                  <p className="text-sm leading-6 text-slate-300 sm:text-[15px]">
-                    I&apos;m a <span className="font-semibold text-cyan-300">BCA student at Babu Banarasi Das University</span> focused on AI, data science and full-stack development. I like turning ideas into practical, clean solutions.
+                  <p className="font-sans text-sm sm:text-base leading-relaxed text-gray-300">
+                    I&apos;m a <span className="font-semibold text-[#00E5FF]">BCA student at Babu Banarasi Das University</span> focused on AI, data science, and full-stack development. I like turning ideas into practical, clean solutions.
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
-                      <FaCode className="text-cyan-300" /> Full Stack
+                    <span
+                      className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/20 bg-[#00E5FF]/[0.04] px-3 py-1.5 text-xs text-[#00E5FF]"
+                      style={{ borderRadius: '0px' }}
+                    >
+                      <FaCode size={11} /> Full Stack
                     </span>
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
-                      <FaRocket className="text-violet-300" /> Problem Solver
+                    <span
+                      className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/20 bg-[#00E5FF]/[0.04] px-3 py-1.5 text-xs text-[#00E5FF]"
+                      style={{ borderRadius: '0px' }}
+                    >
+                      <FaRocket size={11} /> Problem Solver
                     </span>
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
-                      <FaFire className="text-emerald-300" /> Continuous Growth
+                    <span
+                      className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/20 bg-[#00E5FF]/[0.04] px-3 py-1.5 text-xs text-[#00E5FF]"
+                      style={{ borderRadius: '0px' }}
+                    >
+                      <FaFire size={11} /> Continuous Growth
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-white/10 bg-white/5 p-3.5">
-                      <p className="text-xl font-bold text-cyan-400 sm:text-2xl">2024-2027</p>
-                      <p className="mt-1 text-xs text-slate-400 sm:text-sm">BCA Program</p>
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="border border-[#00E5FF]/20 bg-white/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                      <p className="font-mono text-2xl font-bold text-[#00E5FF]">2024-2027</p>
+                      <p className="font-sans text-xs text-gray-400 mt-1">BCA Program</p>
                     </div>
-                    <div className="rounded-lg border border-white/10 bg-white/5 p-3.5">
-                      <p className="text-xl font-bold text-violet-400 sm:text-2xl">∞</p>
-                      <p className="mt-1 text-xs text-slate-400 sm:text-sm">Always Learning</p>
+                    <div className="border border-[#00E5FF]/20 bg-white/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                      <p className="font-mono text-2xl font-bold text-[#00E5FF]">∞</p>
+                      <p className="font-sans text-xs text-gray-400 mt-1">Always Learning</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-500/20 p-2.5">
-                      <FaGraduationCap className="text-lg text-cyan-300" />
+                    <div className="flex h-10 w-10 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                      <FaGraduationCap className="text-lg" />
                     </div>
-                    <h3 className="text-lg font-bold">Education</h3>
+                    <h3 className="font-sans text-lg font-bold text-white">Education</h3>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-3">
-                    <p className="text-sm font-semibold text-cyan-300">BCA Program</p>
-                    <p className="mt-1 text-xs text-slate-400">Babu Banarasi Das University · 2024-2027</p>
+                  <div className="border border-[#00E5FF]/20 bg-white/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                    <p className="font-sans text-sm font-semibold text-white">BCA Program</p>
+                    <p className="font-mono mt-1 text-xs text-[#00E5FF]/80">Babu Banarasi Das University · 2024-2027</p>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-3">
-                    <p className="text-sm font-semibold text-violet-300">AI Minor</p>
-                    <p className="mt-1 text-xs text-slate-400">IIT Mandi (Online)</p>
+                  <div className="border border-[#00E5FF]/20 bg-white/[0.02] p-4" style={{ borderRadius: '0px' }}>
+                    <p className="font-sans text-sm font-semibold text-white">AI Minor</p>
+                    <p className="font-mono mt-1 text-xs text-[#00E5FF]/80">IIT Mandi (Online)</p>
                   </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.section>
-
-          <motion.section variants={itemVariants} className="space-y-10">
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1430]/55 px-4 py-10 sm:p-8">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(34,211,238,0.2),transparent_38%),radial-gradient(circle_at_80%_20%,rgba(192,132,252,0.18),transparent_38%),radial-gradient(circle_at_50%_100%,rgba(2,132,199,0.2),transparent_45%)]" />
-              <div className="relative">
-                <div className="text-center">
-                  <p className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/20 px-4 py-1.5 text-[11px] font-semibold tracking-[0.2em] text-violet-200">
-                    WHAT I KNOW
-                  </p>
-                  <h2 className="mt-4 text-3xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent md:text-4xl">
-                    My Skills
-                  </h2>
-                  <p className="mt-3 text-sm text-gray-300 sm:text-base">
-                    Technologies and tools I use to bring ideas to life
-                  </p>
-                </div>
-
-                <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
-                  {skillGroups.map((group) => {
-                    const SectionIcon = group.icon;
-                    return (
-                      <motion.article
-                        key={group.category}
-                        whileHover={{ y: -6, scale: 1.01 }}
-                        transition={{ duration: 0.28, ease: 'easeOut' }}
-                        className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-5 backdrop-blur-xl"
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${group.glowClass}`} />
-                        <div className="relative">
-                          <div className="flex items-center gap-3">
-                            <SectionIcon className="text-3xl text-cyan-300" />
-                            <h3
-                              className={`text-2xl font-bold bg-gradient-to-r ${group.titleClass} bg-clip-text text-transparent sm:text-[1.7rem]`}
-                            >
-                              {group.category}
-                            </h3>
-                          </div>
-
-                          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                            {group.items.map((skill) => {
-                              const SkillIcon = resolveSkillIcon(skill);
-
-                              return (
-                                <span
-                                  key={skill._id || `${group.category}-${skill.name}`}
-                                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-300 sm:text-sm ${group.badgeClass}`}
-                                >
-                                  {SkillIcon && <SkillIcon className="text-sm" />}
-                                  {skill.name}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </motion.article>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-10 flex justify-center">
-                  <Link
-                    to="/skills"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(56,189,248,0.35)] transition-transform duration-300 hover:scale-[1.02] sm:px-7 sm:py-3.5 sm:text-base"
-                  >
-                    View All Skills & Expertise <FaArrowRight size={17} />
-                  </Link>
                 </div>
               </div>
             </div>
           </motion.section>
 
-          <motion.section variants={itemVariants} className="space-y-6 rounded-3xl border border-white/10 bg-slate-950/40 p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+          {/* Skills Section */}
+          <motion.section variants={itemVariants} className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+              <div>
+                <div
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00E5FF] mb-2"
+                  style={{ borderRadius: '0px' }}
+                >
+                  <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+                  $ skills --list
+                </div>
+                <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Technical <span className="text-[#00E5FF]">Arsenal</span>
+                </h2>
+                <p className="font-sans mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
+                  Technologies, frameworks, and tools I use to build scalable web apps and AI solutions.
+                </p>
+              </div>
+              <Link
+                to="/skills"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-4 py-2 text-xs font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
+              >
+                All skills <FaArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              {skillGroups.map((group) => {
+                const SectionIcon = group.icon;
+                return (
+                  <article
+                    key={group.category}
+                    className="relative border border-[#00E5FF]/20 bg-black/80 p-5 sm:p-6 transition-all duration-300 hover:border-[#00E5FF]/50"
+                    style={{ borderRadius: '0px' }}
+                  >
+                    <div className="flex items-center gap-3 border-b border-[#00E5FF]/15 pb-4">
+                      <div className="flex h-9 w-9 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                        <SectionIcon className="text-lg" />
+                      </div>
+                      <h3 className="font-sans text-lg font-bold text-white tracking-tight">
+                        {group.category}
+                      </h3>
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-2 gap-2">
+                      {group.items.map((skill) => {
+                        const SkillIcon = resolveSkillIcon(skill);
+
+                        return (
+                          <span
+                            key={skill._id || `${group.category}-${skill.name}`}
+                            className="font-mono inline-flex items-center gap-2 border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-gray-300 transition-colors hover:border-[#00E5FF]/40 hover:text-[#00E5FF]"
+                            style={{ borderRadius: '0px' }}
+                          >
+                            {SkillIcon && <SkillIcon className="text-xs text-[#00E5FF]" />}
+                            <span className="truncate">{skill.name}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </motion.section>
+
+          {/* Education Journey Section */}
+          <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-200 shadow-[0_0_25px_rgba(139,92,246,0.25)] backdrop-blur-md mb-3">
-                  <span className="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(139,92,246,0.9)] animate-pulse" />
-                  Academic Journey
+                <div
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00E5FF] mb-2"
+                  style={{ borderRadius: '0px' }}
+                >
+                  <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+                  $ git log --journey
                 </div>
-                <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]">Education Journey</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-                  A timeline of my academic journey, certifications, and continuous learning that shaped my skills as a developer.
+                <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Learning <span className="text-[#00E5FF]">Journey</span>
+                </h2>
+                <p className="font-sans mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
+                  Key milestones across BCA coursework, IIT Mandi AI Minor, full-stack projects, and continuous learning.
                 </p>
               </div>
               <Link
                 to="/experience"
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-400/15"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-4 py-2 text-xs font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
               >
-                View Experience <FaArrowRight className="text-xs" />
+                View full journey <FaArrowRight size={12} />
               </Link>
             </div>
 
@@ -664,91 +637,98 @@ export default function Home() {
                 const ExperienceIcon = item.icon;
 
                 return (
-                  <MotionLink
+                  <Link
                     key={item.title}
                     to={`/experience?journey=${item.id}`}
                     aria-label={`Open ${item.title} journey`}
-                    whileHover={{ y: -4 }}
-                    whileTap={{ scale: 0.985 }}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="group block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                    className="group block h-full focus-visible:outline-none"
                   >
-                    <motion.article
-                      className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-950/80 via-blue-950/35 to-slate-900/80 p-5 text-left shadow-[0_18px_35px_rgba(2,6,23,0.35)] transition-colors duration-300 hover:border-cyan-400/35"
+                    <article
+                      className="relative h-full border border-[#00E5FF]/20 bg-black/80 p-5 text-left transition-all duration-300 hover:border-[#00E5FF]/60 flex flex-col justify-between"
+                      style={{ borderRadius: '0px' }}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${item.accent} opacity-0 transition-opacity duration-300 group-hover:opacity-10`} />
-
-                      <div className="relative flex h-full flex-col">
+                      <div>
                         <div className="flex items-start justify-between gap-3">
-                          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${item.accent} shadow-lg shadow-cyan-500/15`}>
-                            <ExperienceIcon className="text-xl text-white" />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                            <ExperienceIcon className="text-base" />
                           </div>
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[0.68rem] text-slate-300">
+                          <span className="font-mono border border-white/10 px-2 py-0.5 text-[10px] text-gray-400" style={{ borderRadius: '0px' }}>
                             {item.period}
                           </span>
                         </div>
 
-                        <div className="mt-4 space-y-2">
-                          <p className="text-xs uppercase tracking-[0.18em] text-cyan-300/70">{item.subtitle}</p>
-                          <h3 className="text-xl font-semibold leading-tight text-white">{item.title}</h3>
-                          <p
-                            className="text-sm leading-6 text-gray-300"
-                            style={blogDescriptionClamp}
-                          >
+                        <div className="mt-4 space-y-1.5">
+                          <p className="font-mono text-xs uppercase tracking-wider text-[#00E5FF]">{item.subtitle}</p>
+                          <h3 className="font-sans text-lg font-bold text-white group-hover:text-[#00E5FF] transition-colors">{item.title}</h3>
+                          <p className="font-sans text-xs sm:text-sm text-gray-300 leading-relaxed pt-1" style={blogDescriptionClamp}>
                             {item.summary}
                           </p>
                         </div>
+                      </div>
 
-                        <span className="mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-100 transition-all duration-300 group-hover:border-cyan-300/60 group-hover:bg-cyan-500/15 group-hover:translate-x-1">
-                          View details <FaArrowRight className="text-xs" />
+                      <div className="pt-4 border-t border-[#00E5FF]/10 mt-4">
+                        <span className="font-mono inline-flex items-center gap-1.5 text-xs text-[#00E5FF] group-hover:underline">
+                          View details <FaArrowRight className="text-[10px]" />
                         </span>
                       </div>
-                    </motion.article>
-                  </MotionLink>
+                    </article>
+                  </Link>
                 );
               })}
             </div>
           </motion.section>
 
-          <motion.section variants={itemVariants} className="space-y-6 rounded-3xl border border-white/10 bg-slate-950/40 p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+          {/* Featured Projects Section */}
+          <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.25)] backdrop-blur-md mb-3">
-                  <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.9)] animate-pulse" />
-                  Projects
+                <div
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00E5FF] mb-2"
+                  style={{ borderRadius: '0px' }}
+                >
+                  <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+                  $ ls ./projects
                 </div>
-                <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">Featured Projects</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-                  A curated selection of full-stack web applications, interactive tools, and open-source work I've built.
+                <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Featured <span className="text-[#00E5FF]">Projects</span>
+                </h2>
+                <p className="font-sans mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
+                  Full stack web applications, AI integrations, and developer tools built with React, Node.js, and Python.
                 </p>
               </div>
               <Link
                 to="/projects"
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-400/15"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-4 py-2 text-xs font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
               >
-                Explore Projects <FaArrowRight className="text-xs" />
+                All projects <FaArrowRight size={12} />
               </Link>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
               {projectPreview.map((project) => (
                 <div
                   key={project.title}
-                  className="group flex h-full min-h-[360px] flex-col overflow-hidden bg-primary-500/10 border border-primary-500/20 rounded-2xl hover:border-primary-500/45 hover:translate-y-[-4px] transition-all duration-300"
+                  className="group flex h-full min-h-[360px] flex-col overflow-hidden border border-[#00E5FF]/20 bg-black/80 hover:border-[#00E5FF]/60 transition-all duration-300"
+                  style={{ borderRadius: '0px' }}
                 >
                   {project.image && (
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-36 object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    <div className="relative overflow-hidden h-36 border-b border-[#00E5FF]/20">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover grayscale contrast-110 group-hover:grayscale-0 transition-all duration-300"
+                      />
+                    </div>
                   )}
                   <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-2xl md:text-xl font-semibold mb-2.5 leading-tight">{project.title}</h3>
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <h3 className="font-sans text-lg font-bold text-white mb-2 leading-tight group-hover:text-[#00E5FF] transition-colors">{project.title}</h3>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
                       {project.technologies.map((tech) => (
                         <span
                           key={`${project.title}-${tech}`}
-                          className="px-2.5 py-0.5 rounded-full bg-primary-500/20 text-primary-100 text-xs border border-primary-400/30"
+                          className="font-mono px-2 py-0.5 text-[10px] border border-[#00E5FF]/30 bg-[#00E5FF]/5 text-[#00E5FF]"
+                          style={{ borderRadius: '0px' }}
                         >
                           {tech}
                         </span>
@@ -756,18 +736,19 @@ export default function Home() {
                     </div>
                     {project.description && (
                       <p
-                        className="text-xs leading-5 text-slate-400 mb-3"
-                        style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' }}
+                        className="font-sans text-xs leading-relaxed text-gray-300 mb-4"
+                        style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, overflow: 'hidden' }}
                       >
                         {project.description}
                       </p>
                     )}
-                    <div className="mt-auto grid grid-cols-2 gap-2">
+                    <div className="mt-auto grid grid-cols-2 gap-2 pt-2 border-t border-[#00E5FF]/10">
                       <a
                         href={project.githubLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-2 rounded-lg text-center font-medium bg-primary-500/20 border border-primary-500/35 hover:bg-primary-500/30 transition-colors duration-300"
+                        className="font-mono py-2 text-center text-xs font-semibold border border-white/20 text-gray-300 hover:border-[#00E5FF] hover:text-[#00E5FF] transition-colors"
+                        style={{ borderRadius: '0px' }}
                       >
                         Code
                       </a>
@@ -775,7 +756,8 @@ export default function Home() {
                         href={project.liveDemoLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-2 rounded-lg text-center font-medium bg-gradient-to-r from-violet-500 to-cyan-500 hover:brightness-110 transition-all duration-300"
+                        className="font-mono py-2 text-center text-xs font-semibold border border-[#00E5FF]/60 text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-colors"
+                        style={{ borderRadius: '0px' }}
                       >
                         Demo
                       </a>
@@ -784,77 +766,85 @@ export default function Home() {
                 </div>
               ))}
 
-              <div className="rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-500 p-5 flex items-center justify-center text-center min-h-[360px]">
-                <div>
-                  <h3 className="text-3xl font-bold mb-2">View All Projects</h3>
-                  <p className="text-white/90 mb-5">See more of my work</p>
-                  <Link
-                    to="/projects"
-                    className="inline-flex items-center gap-2 rounded-lg bg-white/20 border border-white/35 px-4 py-2 font-medium hover:bg-white/30 transition-colors duration-300"
-                  >
-                    Explore <FaArrowRight size={14} />
-                  </Link>
-                </div>
+              <div
+                className="border border-[#00E5FF]/30 bg-[#00E5FF]/[0.03] p-6 flex items-center justify-center text-center flex-col min-h-[360px]"
+                style={{ borderRadius: '0px' }}
+              >
+                <div className="font-mono text-xs text-[#00E5FF] uppercase tracking-widest mb-2">$ git status</div>
+                <h3 className="font-sans text-2xl font-bold text-white mb-2">View All Projects</h3>
+                <p className="font-sans text-xs text-gray-400 mb-5 max-w-xs">Explore more repositories and live full-stack builds.</p>
+                <Link
+                  to="/projects"
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF] px-5 py-2.5 text-xs font-semibold text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all"
+                  style={{ borderRadius: '0px' }}
+                >
+                  Explore <FaArrowRight size={12} />
+                </Link>
               </div>
             </div>
           </motion.section>
 
-          <motion.section variants={itemVariants} className="space-y-6 rounded-3xl border border-white/10 bg-slate-950/40 p-6 sm:p-8 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+          {/* Latest Blogs Section */}
+          <motion.section variants={itemVariants} className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-200 shadow-[0_0_25px_rgba(168,85,247,0.25)] backdrop-blur-md mb-3">
-                  <span className="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(168,85,247,0.9)] animate-pulse" />
-                  Blog
+                <div
+                  className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00E5FF] mb-2"
+                  style={{ borderRadius: '0px' }}
+                >
+                  <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+                  $ cat latest_articles.md
                 </div>
-                <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]">Latest Blogs</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-                  A small preview of recent writing on AI, web development, and practical project building.
+                <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Latest <span className="text-[#00E5FF]">Articles</span>
+                </h2>
+                <p className="font-sans mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
+                  Insights and walkthroughs on AI, full stack development, and practical developer routines.
                 </p>
               </div>
               <Link
                 to="/blog"
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-all duration-300 hover:border-cyan-300/60 hover:bg-cyan-400/15"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-4 py-2 text-xs font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
               >
-                View All Blogs <FaArrowRight className="text-xs" />
+                All articles <FaArrowRight size={12} />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {blogPreview.map((blog) => (
-                <motion.article
+                <article
                   key={blog.slug}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-950/70 via-blue-950/35 to-slate-900/70 p-5 shadow-[0_18px_35px_rgba(2,6,23,0.35)] transition-colors duration-300 hover:border-cyan-400/35"
+                  className="group relative border border-[#00E5FF]/20 bg-black/80 p-5 transition-all duration-300 hover:border-[#00E5FF]/60 flex flex-col justify-between"
+                  style={{ borderRadius: '0px' }}
                 >
-                  <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_55%)]" />
-                  </div>
-
-                  <div className="relative flex h-full flex-col">
-                    <span className="inline-flex w-fit rounded-full border border-cyan-300/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
+                  <div>
+                    <span
+                      className="font-mono inline-flex border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#00E5FF]"
+                      style={{ borderRadius: '0px' }}
+                    >
                       {blog.category}
                     </span>
 
                     <div className="mt-4 space-y-2">
-                      <h3 className="text-xl font-semibold leading-snug text-white">{blog.title}</h3>
-                      <p className="text-sm leading-6 text-gray-300" style={blogDescriptionClamp}>
+                      <h3 className="font-sans text-lg font-bold text-white group-hover:text-[#00E5FF] transition-colors leading-snug">{blog.title}</h3>
+                      <p className="font-sans text-xs sm:text-sm leading-relaxed text-gray-300" style={blogDescriptionClamp}>
                         {blog.description}
                       </p>
                     </div>
-
-                    <div className="mt-5 flex items-center justify-between gap-3">
-                      <span className="text-xs text-gray-400">Read the full article</span>
-                      <Link
-                        to={`/blog/${blog.slug}`}
-                        className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm font-semibold text-slate-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10 hover:text-white"
-                      >
-                        Read More
-                        <FaArrowRight size={11} />
-                      </Link>
-                    </div>
                   </div>
-                </motion.article>
+
+                  <div className="mt-5 flex items-center justify-between gap-3 pt-3 border-t border-[#00E5FF]/10">
+                    <span className="font-mono text-[11px] text-gray-500">article preview</span>
+                    <Link
+                      to={`/blog/${blog.slug}`}
+                      className="font-mono inline-flex items-center gap-1.5 text-xs text-[#00E5FF] group-hover:underline"
+                    >
+                      Read More
+                      <FaArrowRight size={10} />
+                    </Link>
+                  </div>
+                </article>
               ))}
             </div>
           </motion.section>

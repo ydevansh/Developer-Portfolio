@@ -478,12 +478,9 @@ export default function Services() {
         structuredData={structuredData}
       />
 
-      {/* Ambient glow orbs */}
+      {/* Minimal terminal background */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute -top-28 left-[-10rem] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
-        <div className="absolute top-20 right-[-8rem] h-96 w-96 rounded-full bg-fuchsia-500/15 blur-3xl" />
-        <div className="absolute bottom-40 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,0.12),transparent_30%),radial-gradient(circle_at_82%_12%,rgba(168,85,247,0.14),transparent_28%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,229,255,0.04),transparent_50%)]" />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-24">
@@ -495,17 +492,20 @@ export default function Services() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
           className="border-b border-white/10 pb-12"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-            Services
+          <div
+            className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00E5FF] mb-3"
+            style={{ borderRadius: '0px' }}
+          >
+            <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+            $ ls ./services
           </div>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="font-mono mt-3 max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Services I{' '}
-            <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
+            <span className="text-[#00E5FF]">
               Offer
             </span>
           </h1>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+          <p className="font-mono mt-5 max-w-2xl text-sm leading-7 text-[#A1A1AA] sm:text-base">
             I build modern Full Stack web applications, AI-powered tools, and responsive websites — from concept
             to deployment. Whether it&apos;s a personal portfolio, a business platform, or an AI integration,
             I deliver clean code and premium design.
@@ -513,15 +513,17 @@ export default function Services() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(99,102,241,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(34,211,238,0.3)]"
+              className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-6 py-3 text-sm font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+              style={{ borderRadius: '0px' }}
             >
-              Hire Me <FaArrowRight size={13} />
+              ./hire-me <FaArrowRight size={13} />
             </Link>
             <a
               href="https://wa.me/916388525760?text=Hello%20Devansh%2C%20I%20want%20to%20discuss%20a%20project"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-500/10"
+              className="font-mono inline-flex items-center gap-2 border border-white/15 bg-white/[0.03] px-6 py-3 text-sm font-semibold text-[#A1A1AA] transition-all duration-300 hover:border-[#00E5FF]/40 hover:text-[#00E5FF]"
+              style={{ borderRadius: '0px' }}
             >
               Discuss Your Project
             </a>
@@ -537,12 +539,15 @@ export default function Services() {
           className="space-y-6"
         >
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-              What do you need?
+            <div
+              className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00E5FF] mb-2"
+              style={{ borderRadius: '0px' }}
+            >
+              <span className="h-1.5 w-1.5 bg-[#00E5FF] animate-pulse" />
+              $ select --goal
             </div>
-            <h2 className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent sm:text-3xl">Choose Your Goal</h2>
-            <p className="mt-2 text-sm text-slate-400">Click a card to see the full details for that goal.</p>
+            <h2 className="font-mono mt-2 text-2xl font-bold text-white sm:text-3xl">Choose Your Goal</h2>
+            <p className="font-mono mt-2 text-sm text-[#A1A1AA]">Click a card to see the full details for that goal.</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -554,32 +559,34 @@ export default function Services() {
                   key={card.id}
                   layout
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  className={`relative overflow-hidden rounded-2xl border bg-slate-950/50 backdrop-blur-xl cursor-pointer transition-colors duration-300 ${
-                    isOpen ? 'border-white/20' : 'border-white/10 hover:border-white/15'
+                  className={`relative overflow-hidden border bg-black/80 cursor-pointer transition-colors duration-300 ${
+                    isOpen ? 'border-[#00E5FF]/50' : 'border-[#00E5FF]/15 hover:border-[#00E5FF]/35'
                   }`}
+                  style={{ borderRadius: '0px' }}
                   onClick={() => setOpenGoal(isOpen ? null : card.id)}
                 >
-                  {/* top accent bar */}
-                  <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${card.accent}`} />
-                  {/* bg glow */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${card.glow} opacity-0 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'group-hover:opacity-60'}`} />
+                  {/* top accent line — always cyan */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-[#00E5FF]/60" />
+                  {/* corner decorators */}
+                  <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[#00E5FF]/40" />
+                  <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#00E5FF]/40" />
 
                   <div className="relative p-5">
                     {/* Header row */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${card.accent} shadow-lg`}>
-                          <Icon className="text-lg text-white" />
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF]">
+                          <Icon className="text-lg" />
                         </div>
                         <div>
-                          <h3 className="text-base font-bold text-white">{card.label}</h3>
-                          <p className="text-[11px] text-slate-400">{card.tagline}</p>
+                          <h3 className="font-mono text-base font-bold text-white">{card.label}</h3>
+                          <p className="font-mono text-[11px] text-[#A1A1AA]">{card.tagline}</p>
                         </div>
                       </div>
                       <motion.div
                         animate={{ rotate: isOpen ? 180 : 0 }}
                         transition={{ duration: 0.3 }}
-                        className="shrink-0 text-slate-400"
+                        className="shrink-0 text-[#00E5FF]/60"
                       >
                         <FaChevronDown size={14} />
                       </motion.div>
@@ -596,41 +603,42 @@ export default function Services() {
                           transition={{ duration: 0.38, ease: 'easeInOut' }}
                           className="overflow-hidden"
                         >
-                          <div className="mt-5 border-t border-white/10 pt-5 space-y-4">
+                          <div className="mt-5 border-t border-[#00E5FF]/10 pt-5 space-y-4">
                             <div>
-                              <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/70 mb-2">Services Included</p>
+                              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#00E5FF]/60 mb-2">Services Included</p>
                               <ul className="space-y-1.5">
                                 {card.services.map((s) => (
-                                  <li key={s} className="flex items-center gap-2 text-sm text-slate-300">
-                                    <FaCheck size={10} className="text-emerald-400 shrink-0" /> {s}
+                                  <li key={s} className="flex items-center gap-2 text-sm text-[#A1A1AA]">
+                                    <FaCheck size={10} className="text-[#00E5FF] shrink-0" /> {s}
                                   </li>
                                 ))}
                               </ul>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500 mb-1">Timeline</p>
-                                <p className="text-sm font-semibold text-cyan-300">{card.timeline}</p>
+                              <div className="border border-[#00E5FF]/15 bg-[#00E5FF]/[0.03] p-3" style={{ borderRadius: '0px' }}>
+                                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#A1A1AA]/50 mb-1">Timeline</p>
+                                <p className="font-mono text-sm font-semibold text-[#00E5FF]">{card.timeline}</p>
                               </div>
-                              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500 mb-1">Examples</p>
-                                <p className="text-xs text-slate-300">{card.examples[0]}</p>
+                              <div className="border border-[#00E5FF]/15 bg-[#00E5FF]/[0.03] p-3" style={{ borderRadius: '0px' }}>
+                                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#A1A1AA]/50 mb-1">Examples</p>
+                                <p className="font-mono text-xs text-[#A1A1AA]">{card.examples[0]}</p>
                               </div>
                             </div>
                             <div>
-                              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-2">Technologies</p>
+                              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]/50 mb-2">Technologies</p>
                               <div className="flex flex-wrap gap-2">
                                 {card.tech.map((t) => (
-                                  <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-slate-300">{t}</span>
+                                  <span key={t} className="font-mono border border-[#00E5FF]/25 bg-[#00E5FF]/5 px-2.5 py-1 text-[11px] text-[#00E5FF]" style={{ borderRadius: '0px' }}>{t}</span>
                                 ))}
                               </div>
                             </div>
                             <Link
                               to="/contact"
                               onClick={(e) => e.stopPropagation()}
-                              className={`inline-flex items-center gap-2 rounded-xl bg-gradient-to-r ${card.accent} px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-transform duration-200 hover:-translate-y-0.5`}
+                              className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/60 px-4 py-2.5 text-sm font-semibold text-[#00E5FF] transition-all duration-200 hover:bg-[#00E5FF] hover:text-black"
+                              style={{ borderRadius: '0px' }}
                             >
-                              Get Started <FaArrowRight size={12} />
+                              ./get-started <FaArrowRight size={12} />
                             </Link>
                           </div>
                         </motion.div>

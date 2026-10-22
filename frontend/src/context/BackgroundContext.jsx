@@ -2,15 +2,16 @@
  * BackgroundContext.jsx
  *
  * Provides a global React context for background selection.
- * Persists the user's choice in localStorage so the preference
- * survives page refreshes — but the DEFAULT on very first visit
- * is always 'professional'.
+ * Supported keys:
+ *   - 'network' : Connected-dots / particle network background
+ *   - 'solar'   : 3D Solar System Orrery & starry background
+ *   - 'matrix'  : Matrix digital rain binary falling code background (DEFAULT)
  */
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-/** @type {'professional' | 'solar'} */
-const DEFAULT_BG = 'professional';
+/** @type {'matrix' | 'solar' | 'network'} */
+const DEFAULT_BG = 'matrix';
 const STORAGE_KEY = 'portfolio_bg_preference';
 
 const BackgroundContext = createContext(null);
@@ -19,10 +20,14 @@ export function BackgroundProvider({ children }) {
   const [activeBackground, setActiveBackgroundState] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      // Only honour stored value if it's a known valid key
-      if (stored === 'professional' || stored === 'solar') return stored;
+      if (stored === 'matrix' || stored === 'solar' || stored === 'network') {
+        return stored;
+      }
+      if (stored === 'professional') {
+        return 'network';
+      }
     } catch {
-      // localStorage blocked (private mode, etc.) — fall through
+      // localStorage blocked (private mode, etc.)
     }
     return DEFAULT_BG;
   });
@@ -48,4 +53,3 @@ export function useBackground() {
   if (!ctx) throw new Error('useBackground must be used inside BackgroundProvider');
   return ctx;
 }
-

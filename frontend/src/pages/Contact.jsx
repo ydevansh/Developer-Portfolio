@@ -120,11 +120,12 @@ export default function Contact() {
     }
   };
 
+  /* Terminal-style input classes */
   const inputClasses = (fieldName) =>
-    `w-full px-4 py-2 bg-primary-500/10 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${
+    `font-mono w-full px-4 py-2.5 bg-black border text-white placeholder-[#A1A1AA]/50 focus:outline-none transition-colors ${
       fieldErrors[fieldName]
-        ? 'border-red-500 focus:border-red-500'
-        : 'border-primary-500/30 focus:border-primary-500'
+        ? 'border-red-500/70 focus:border-red-400'
+        : 'border-[#00E5FF]/25 focus:border-[#00E5FF]/70 hover:border-[#00E5FF]/40'
     }`;
 
   return (
@@ -137,11 +138,9 @@ export default function Contact() {
         structuredData={structuredData}
       />
 
+      {/* Subtle starfield bg — no colored orbs */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-28 left-[-8rem] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
-        <div className="absolute right-[-6rem] top-10 h-72 w-72 rounded-full bg-violet-500/15 blur-3xl" />
-        <div className="absolute bottom-0 left-1/2 h-72 w-[34rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,0.12),transparent_28%),radial-gradient(circle_at_82%_16%,rgba(168,85,247,0.14),transparent_26%),radial-gradient(circle_at_50%_92%,rgba(59,130,246,0.08),transparent_34%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,229,255,0.04),transparent_50%)]" />
       </div>
 
       <div className="relative mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
@@ -151,108 +150,77 @@ export default function Contact() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* Concise Hero Section */}
           <motion.section
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1430]/65 p-5 shadow-[0_24px_60px_rgba(2,6,23,0.35)] sm:p-6"
+            className="space-y-4"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_45%),radial-gradient(circle_at_85%_20%,rgba(168,85,247,0.12),transparent_35%)]" />
-            <div className="relative space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
-                  Get in touch
-                </span>
-                <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-slate-300">
-                  Collaboration · Internship · Freelance
-                </span>
-                <span className="inline-flex rounded-full border border-violet-300/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-medium text-violet-100">
-                  Lucknow · Remote
-                </span>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00E5FF]"
+                style={{ borderRadius: '0px' }}
+              >
+                <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+                $ contact --init
               </div>
-
-              <div className="space-y-2.5">
-                <h1 className="max-w-2xl text-2xl font-bold leading-[1.06] tracking-[-0.04em] text-white sm:text-3xl md:text-4xl">
-                  <span className="block">Contact Devansh Yadav</span>
-                  <span className="block bg-gradient-to-r from-fuchsia-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-                    for useful ideas and real projects
-                  </span>
-                </h1>
-                <p className="max-w-xl text-sm leading-6 text-slate-300 sm:text-[15px]">
-                  Feel free to reach out for collaborations, internships, or freelance work from Lucknow or remote.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5">
-                <a
-                  href={linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(59,130,246,0.25)] transition-transform duration-300 hover:-translate-y-0.5"
-                >
-                  <FaLinkedin size={14} />
-                  Message me on LinkedIn
-                </a>
-
-                <a
-                  href="#contact-form"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm font-semibold text-slate-100 transition-colors duration-300 hover:border-cyan-400/35 hover:bg-cyan-500/10"
-                >
-                  Send a Message
-                  <FaArrowRight size={13} />
-                </a>
-              </div>
+              <span className="font-mono text-xs text-gray-400 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_6px_rgba(0,229,255,0.6)]" />
+                Lucknow · Remote
+              </span>
             </div>
-          </motion.section>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="rounded-2xl border border-sky-500/20 bg-sky-500/10 p-4 sm:p-5"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/20 text-sky-300">
-                  <FaLinkedin size={20} />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
-                    LinkedIn
-                  </p>
-                  <h2 className="mt-1 text-lg font-bold text-white sm:text-xl">Devansh Yadav</h2>
-                  <p className="mt-1 text-sm text-gray-400">
-                    Message me directly for collaborations, internships, and professional opportunities.
-                  </p>
-                </div>
-              </div>
+            <h1 className="font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Let&apos;s build something <span className="text-[#00E5FF]">together</span>.
+            </h1>
 
+            <p className="font-sans text-sm sm:text-base leading-relaxed text-gray-300">
+              Open for internships, freelance projects, and collaborations. Drop a message below or connect directly on LinkedIn.
+            </p>
+
+            <div className="pt-1">
               <a
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/15 px-4 py-2.5 text-sm font-medium text-sky-200 transition-colors hover:bg-sky-500/25 hover:border-sky-400"
+                className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/50 bg-[#00E5FF]/5 px-4 py-2 text-xs sm:text-sm font-semibold text-[#00E5FF] transition-all duration-300 hover:bg-[#00E5FF] hover:text-black"
+                style={{ borderRadius: '0px' }}
               >
-                Open LinkedIn Profile
+                <FaLinkedin size={15} />
+                Message on LinkedIn
+                <FaArrowRight size={11} className="ml-0.5" />
               </a>
             </div>
-          </motion.div>
+          </motion.section>
 
           {success && (
-            <div className="bg-green-500/20 border border-green-500 rounded-lg p-4 text-green-400">
-              Message sent successfully! I'll get back to you soon.
+            <div className="font-mono border border-[#00E5FF]/50 bg-[#00E5FF]/10 p-4 text-[#00E5FF]" style={{ borderRadius: '0px' }}>
+              ✓ Message sent successfully! I&apos;ll get back to you soon.
             </div>
           )}
 
           {errorMessage && (
-            <div className="bg-red-500/20 border border-red-500 rounded-lg p-4 text-red-300">
-              {errorMessage}
+            <div className="font-mono border border-red-500/50 bg-red-500/10 p-4 text-red-300" style={{ borderRadius: '0px' }}>
+              ✗ {errorMessage}
             </div>
           )}
 
-          <form id="contact-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Contact Form */}
+          <form id="contact-form" onSubmit={handleSubmit} className="relative space-y-5 border border-[#00E5FF]/20 bg-black/80 p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.5)]" style={{ borderRadius: '0px' }}>
+            {/* Terminal corner accents */}
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#00E5FF]/60" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#00E5FF]/60" />
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#00E5FF]/60" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#00E5FF]/60" />
+
+            <div className="flex items-center justify-between pb-2 border-b border-[#00E5FF]/10">
+              <span className="font-mono text-xs text-[#00E5FF] font-semibold tracking-wider">$ send_message.sh</span>
+              <span className="font-mono text-[11px] text-gray-500">all fields required</span>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium mb-2">Name</label>
+              <label className="font-mono block text-xs uppercase tracking-wider text-gray-400 mb-2">&gt; name</label>
               <input
                 type="text"
                 name="name"
@@ -261,13 +229,14 @@ export default function Contact() {
                 required
                 aria-invalid={Boolean(fieldErrors.name)}
                 className={inputClasses('name')}
-                placeholder="Your name"
+                style={{ borderRadius: '0px' }}
+                placeholder="Devansh Yadav"
               />
-              {fieldErrors.name && <p className="mt-2 text-sm text-red-300">{fieldErrors.name}</p>}
+              {fieldErrors.name && <p className="font-mono mt-2 text-sm text-red-400">✗ {fieldErrors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="font-mono block text-xs uppercase tracking-wider text-gray-400 mb-2">&gt; email</label>
               <input
                 type="email"
                 name="email"
@@ -276,13 +245,14 @@ export default function Contact() {
                 required
                 aria-invalid={Boolean(fieldErrors.email)}
                 className={inputClasses('email')}
+                style={{ borderRadius: '0px' }}
                 placeholder="your@email.com"
               />
-              {fieldErrors.email && <p className="mt-2 text-sm text-red-300">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p className="font-mono mt-2 text-sm text-red-400">✗ {fieldErrors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Message</label>
+              <label className="font-mono block text-xs uppercase tracking-wider text-gray-400 mb-2">&gt; message</label>
               <textarea
                 name="message"
                 value={formData.message}
@@ -291,17 +261,20 @@ export default function Contact() {
                 rows="5"
                 aria-invalid={Boolean(fieldErrors.message)}
                 className={`${inputClasses('message')} resize-none`}
-                placeholder="Your message..."
+                style={{ borderRadius: '0px' }}
+                placeholder="Your message here..."
               />
-              {fieldErrors.message && <p className="mt-2 text-sm text-red-300">{fieldErrors.message}</p>}
+              {fieldErrors.message && <p className="font-mono mt-2 text-sm text-red-400">✗ {fieldErrors.message}</p>}
             </div>
 
             <button
               type="submit"
+              id="contact-submit-btn"
               disabled={loading}
-              className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 rounded-lg font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="font-mono w-full px-6 py-3 border border-[#00E5FF]/60 text-[#00E5FF] font-medium transition-all duration-300 hover:bg-[#00E5FF] hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderRadius: '0px' }}
             >
-              {loading ? 'Sending...' : 'Send Message'}
+              {loading ? '$ sending...' : '$ send --message'}
             </button>
           </form>
         </motion.div>

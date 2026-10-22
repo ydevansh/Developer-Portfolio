@@ -189,10 +189,9 @@ export default function Blog() {
 
       <ScrollProgressBar />
       <div className="relative overflow-x-hidden pt-32 pb-20 sm:pt-36">
+        {/* Minimal background */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-40 left-[-8%] h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
-          <div className="absolute top-14 right-[-4%] h-80 w-80 rounded-full bg-violet-500/20 blur-3xl" />
-          <div className="absolute bottom-10 left-[36%] h-56 w-56 rounded-full bg-blue-500/15 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,229,255,0.04),transparent_50%)]" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -200,14 +199,23 @@ export default function Blog() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-12 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/85 via-blue-950/60 to-slate-900/85 p-7 sm:p-10 shadow-[0_35px_55px_rgba(5,10,30,0.7)]"
+            className="relative mb-12 border border-[#00E5FF]/20 bg-black/80 p-7 sm:p-10"
+            style={{ borderRadius: '0px' }}
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-md mb-3">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
-              Insights &amp; Articles
+            {/* Corner decorators */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#00E5FF]/60" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#00E5FF]/60" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#00E5FF]/60" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#00E5FF]/60" />
+            <div
+              className="font-mono inline-flex items-center gap-2 border border-[#00E5FF]/30 bg-[#00E5FF]/5 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00E5FF] mb-4"
+              style={{ borderRadius: '0px' }}
+            >
+              <span className="h-1.5 w-1.5 bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)] animate-pulse" />
+              $ cat ./insights
             </div>
-            <h1 className="text-4xl font-bold leading-tight sm:text-5xl bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">Devansh Yadav Blog</h1>
-            <p className="mt-4 max-w-3xl text-base leading-relaxed text-gray-300 sm:text-lg">
+            <h1 className="font-mono text-4xl font-bold leading-tight sm:text-5xl text-white">Devansh Yadav <span className="text-[#00E5FF]">Blog</span></h1>
+            <p className="font-mono mt-4 max-w-3xl text-base leading-relaxed text-[#A1A1AA] sm:text-lg">
               Sharing my journey in AI/ML, web development, and real-world coding experiences from Lucknow and BBDU.
             </p>
           </motion.section>
@@ -216,16 +224,18 @@ export default function Blog() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08 }}
-            className="mb-10 grid gap-4 rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow-[0_20px_35px_rgba(2,6,23,0.45)] sm:p-5"
+            className="mb-10 grid gap-4 border border-[#00E5FF]/15 bg-black/60 p-4 sm:p-5"
+            style={{ borderRadius: '0px' }}
           >
             <label className="relative block">
-              <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+              <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#00E5FF]/60" size={14} />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search by title, category, or topic"
-                className="w-full rounded-xl border border-white/15 bg-slate-950/70 py-3 pl-11 pr-4 text-sm text-white placeholder:text-gray-500 outline-none transition-colors focus:border-cyan-300/55"
+                placeholder="$ search --query=..."
+                className="font-mono w-full border border-[#00E5FF]/20 bg-black/80 py-3 pl-11 pr-4 text-sm text-white placeholder:text-[#A1A1AA]/40 outline-none transition-colors focus:border-[#00E5FF]/60 hover:border-[#00E5FF]/35"
+                style={{ borderRadius: '0px' }}
               />
             </label>
 
@@ -239,11 +249,12 @@ export default function Blog() {
                     key={filter}
                     type="button"
                     onClick={() => setActiveFilter(filter)}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all sm:text-[11px] ${
+                    className={`font-mono inline-flex items-center gap-2 border px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all sm:text-[11px] ${
                       active
-                        ? 'border-cyan-300/60 bg-cyan-500/20 text-cyan-100 shadow-[0_12px_26px_rgba(6,182,212,0.25)]'
-                        : 'border-white/15 bg-white/[0.03] text-gray-300 hover:border-cyan-300/35 hover:text-cyan-100'
+                        ? 'border-[#00E5FF]/60 bg-[#00E5FF]/10 text-[#00E5FF]'
+                        : 'border-white/10 bg-white/[0.02] text-[#A1A1AA] hover:border-[#00E5FF]/35 hover:text-[#00E5FF]'
                     }`}
+                    style={{ borderRadius: '0px' }}
                   >
                     {Icon ? <Icon size={11} /> : null}
                     {filter}
@@ -255,20 +266,21 @@ export default function Blog() {
 
           {loading ? (
             <div className="space-y-6">
-              <div className="animate-pulse rounded-3xl border border-cyan-300/25 bg-gradient-to-br from-slate-900/90 via-blue-950/60 to-violet-950/50 shadow-[0_30px_55px_rgba(5,10,35,0.7)]">
+              {/* Terminal-style skeleton */}
+              <div className="animate-pulse border border-[#00E5FF]/15 bg-black/60" style={{ borderRadius: '0px' }}>
                 <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
-                  <div className="h-40 w-full bg-white/[0.04] lg:h-full" />
+                  <div className="h-40 w-full bg-white/[0.03] lg:h-full" />
                   <div className="space-y-4 p-5 sm:p-6">
-                    <div className="h-5 w-20 rounded-full bg-white/[0.08]" />
-                    <div className="h-7 w-3/4 rounded bg-white/[0.08]" />
-                    <div className="h-4 w-full rounded bg-white/[0.06]" />
-                    <div className="h-4 w-5/6 rounded bg-white/[0.06]" />
+                    <div className="h-4 w-20 bg-[#00E5FF]/10" />
+                    <div className="h-6 w-3/4 bg-white/[0.06]" />
+                    <div className="h-3 w-full bg-white/[0.04]" />
+                    <div className="h-3 w-5/6 bg-white/[0.04]" />
                     <div className="flex flex-wrap gap-3">
-                      <div className="h-4 w-24 rounded bg-white/[0.06]" />
-                      <div className="h-4 w-28 rounded bg-white/[0.06]" />
-                      <div className="h-4 w-20 rounded bg-white/[0.06]" />
+                      <div className="h-4 w-24 bg-[#00E5FF]/5" />
+                      <div className="h-4 w-28 bg-[#00E5FF]/5" />
+                      <div className="h-4 w-20 bg-[#00E5FF]/5" />
                     </div>
-                    <div className="h-10 w-44 rounded-xl bg-white/[0.08]" />
+                    <div className="h-9 w-44 bg-[#00E5FF]/10" />
                   </div>
                 </div>
               </div>
@@ -277,22 +289,23 @@ export default function Blog() {
                 {skeletonCards.map((_, index) => (
                   <div
                     key={`blog-skeleton-${index}`}
-                    className="w-full max-w-[28rem] animate-pulse rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.03] p-3 shadow-[0_24px_40px_rgba(2,6,23,0.48)]"
+                    className="w-full max-w-[28rem] animate-pulse border border-[#00E5FF]/10 bg-black/60 p-3"
+                    style={{ borderRadius: '0px' }}
                   >
-                    <div className="h-32 w-full rounded-xl bg-white/[0.05]" />
+                    <div className="h-32 w-full bg-white/[0.04]" />
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="h-4 w-24 rounded-full bg-white/[0.06]" />
-                      <div className="h-3 w-16 rounded bg-white/[0.06]" />
+                      <div className="h-4 w-24 bg-[#00E5FF]/8" />
+                      <div className="h-3 w-16 bg-white/[0.04]" />
                     </div>
                     <div className="mt-3 space-y-2">
-                      <div className="h-4 w-5/6 rounded bg-white/[0.06]" />
-                      <div className="h-4 w-full rounded bg-white/[0.06]" />
+                      <div className="h-4 w-5/6 bg-white/[0.04]" />
+                      <div className="h-4 w-full bg-white/[0.04]" />
                     </div>
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="h-3 w-20 rounded bg-white/[0.06]" />
-                      <div className="h-3 w-20 rounded bg-white/[0.06]" />
+                      <div className="h-3 w-20 bg-white/[0.03]" />
+                      <div className="h-3 w-20 bg-white/[0.03]" />
                     </div>
-                    <div className="mt-3 h-4 w-24 rounded bg-white/[0.06]" />
+                    <div className="mt-3 h-4 w-24 bg-white/[0.04]" />
                   </div>
                 ))}
               </div>
@@ -315,10 +328,11 @@ export default function Blog() {
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-white/10 bg-slate-900/70 p-10 text-center text-gray-300"
+                  className="border border-[#00E5FF]/20 bg-black/60 p-10 text-center"
+                  style={{ borderRadius: '0px' }}
                 >
-                  <h2 className="text-2xl font-semibold text-white">No posts found</h2>
-                  <p className="mt-3 text-sm text-gray-400">
+                  <h2 className="font-mono text-2xl font-semibold text-white">$ no posts found</h2>
+                  <p className="font-mono mt-3 text-sm text-[#A1A1AA]">
                     Try changing your search or selected filter to discover more articles.
                   </p>
                 </motion.div>
