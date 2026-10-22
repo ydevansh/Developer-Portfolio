@@ -2,29 +2,31 @@
  * BackgroundContext.jsx
  *
  * Provides a global React context for background selection.
+ * Defaults strictly to 'matrix' (Digital Rain).
  * Supported keys:
- *   - 'network' : Connected-dots / particle network background
+ *   - 'matrix'  : Digital Rain binary matrix background (DEFAULT)
  *   - 'solar'   : 3D Solar System Orrery & starry background
- *   - 'matrix'  : Matrix digital rain binary falling code background (DEFAULT)
+ *   - 'network' : Connected-dots / particle network background
  */
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 /** @type {'matrix' | 'solar' | 'network'} */
 const DEFAULT_BG = 'matrix';
-const STORAGE_KEY = 'portfolio_bg_preference';
+const STORAGE_KEY = 'portfolio_bg_choice_v2';
 
 const BackgroundContext = createContext(null);
 
 export function BackgroundProvider({ children }) {
   const [activeBackground, setActiveBackgroundState] = useState(() => {
     try {
+      // Clear old legacy preference key so initial render strictly defaults to matrix
+      if (localStorage.getItem('portfolio_bg_preference')) {
+        localStorage.removeItem('portfolio_bg_preference');
+      }
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'matrix' || stored === 'solar' || stored === 'network') {
         return stored;
-      }
-      if (stored === 'professional') {
-        return 'network';
       }
     } catch {
       // localStorage blocked (private mode, etc.)

@@ -1,15 +1,9 @@
 /**
  * DigitalRainBackground.jsx
  *
- * Highly performant Matrix-style Digital Rain Canvas background
- * featuring vertical columns of falling binary numbers (0s and 1s)
- * with fading luminous cyan trails.
- *
- * Performance Optimizations:
- *   - Pure HTML5 Canvas 2D
- *   - RAF with FPS throttle (~33 FPS) to conserve GPU/CPU cycles
- *   - Pauses completely when document is hidden (tab switch)
- *   - Fixed full-screen viewport with pointer-events: none
+ * Highly performant, atmospheric Matrix-style Digital Rain.
+ * Tuned to be subtle, elegant, and non-distracting so portfolio content
+ * remains razor-sharp and effortlessly readable in the foreground.
  */
 
 import React, { useEffect, useRef, memo } from 'react';
@@ -28,29 +22,28 @@ function DigitalRainBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const fontSize = 15;
-    let columns = Math.floor(width / fontSize);
-    let drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -50));
+    // Slightly wider column spacing for a cleaner, non-cluttered rain
+    const fontSize = 16;
+    const colStep = 22; // px per column
+    let columns = Math.floor(width / colStep);
+    let drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -60));
 
-    // Resize handling
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      columns = Math.floor(width / fontSize);
-      drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -50));
-      // Re-fill dark base on resize
+      columns = Math.floor(width / colStep);
+      drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -60));
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Initial background fill
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, width, height);
 
     let lastTime = 0;
-    const fpsInterval = 33; // ~30 FPS for authentic digital rain pacing & low CPU
+    const fpsInterval = 35; // ~28-30 FPS: cinematic tempo + extremely lightweight
 
     const draw = (currentTime) => {
       animId = requestAnimationFrame(draw);
@@ -59,36 +52,32 @@ function DigitalRainBackground() {
       if (elapsed < fpsInterval) return;
       lastTime = currentTime - (elapsed % fpsInterval);
 
-      // Fading translucent black veil creates the fading trail
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.085)';
+      // Clean, controlled fading trail
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px "JetBrains Mono", Consolas, monospace`;
 
       for (let i = 0; i < drops.length; i++) {
+        // Only run subset of active columns at any one time to prevent a solid curtain
         const text = Math.random() > 0.5 ? '1' : '0';
-        const x = i * fontSize;
+        const x = i * colStep;
         const y = drops[i] * fontSize;
 
-        // Head of the drop (bright white/cyan glow)
-        if (Math.random() > 0.7) {
-          ctx.fillStyle = '#FFFFFF';
-          ctx.shadowColor = '#00E5FF';
-          ctx.shadowBlur = 6;
-        } else {
-          ctx.fillStyle = '#00E5FF';
-          ctx.shadowColor = '#00E5FF';
-          ctx.shadowBlur = 3;
+        if (y >= 0 && y <= height + fontSize) {
+          // Subtle, atmospheric cyan tones (not blinding full-white)
+          if (Math.random() > 0.88) {
+            ctx.fillStyle = 'rgba(200, 245, 255, 0.7)'; // soft glowing head
+          } else {
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.38)'; // muted cyber cyan body
+          }
+
+          ctx.fillText(text, x, y);
         }
 
-        ctx.fillText(text, x, y);
-
-        // Reset shadow for next operations
-        ctx.shadowBlur = 0;
-
-        // Reset drop to top with randomized delay once it falls off screen
-        if (y > height && Math.random() > 0.975) {
-          drops[i] = 0;
+        // Reset drop with staggered random delay once off-screen
+        if (y > height && Math.random() > 0.98) {
+          drops[i] = Math.floor(Math.random() * -20);
         }
 
         drops[i]++;
@@ -97,7 +86,6 @@ function DigitalRainBackground() {
 
     animId = requestAnimationFrame(draw);
 
-    // Pause when tab is hidden
     const handleVisibilityChange = () => {
       if (document.hidden) {
         if (animId) {
@@ -130,6 +118,7 @@ function DigitalRainBackground() {
         height: '100vh',
         display: 'block',
         pointerEvents: 'none',
+        opacity: 0.42, // Balanced ambient level: clearly visible yet never overpowers text
       }}
     />
   );
