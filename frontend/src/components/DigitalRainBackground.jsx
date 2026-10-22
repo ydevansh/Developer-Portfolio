@@ -73,8 +73,8 @@ function DigitalRainBackground() {
         const col = columns[i];
         const x = i * colStep + 8;
 
-        // Advance drop position
-        col.y += col.speed * 42 * delta;
+        // Advance drop position at brisk, natural speed
+        col.y += col.speed * 85 * delta;
 
         // Occasional character morph (0 <-> 1)
         if (Math.random() > 0.96) {
@@ -106,7 +106,7 @@ function DigitalRainBackground() {
         const tailY = col.y - col.chars.length * fontSize * 1.3;
         if (tailY > height) {
           col.y = Math.random() * -60;
-          col.speed = 0.35 + Math.random() * 0.45;
+          col.speed = 0.85 + Math.random() * 1.15;
         }
       }
     };
