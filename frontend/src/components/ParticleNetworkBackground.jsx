@@ -11,16 +11,16 @@
 import React, { useEffect, useRef, memo } from 'react';
 
 const CONFIG = {
-  particleCount: 80,
-  particleCountMobile: 40,
-  maxRadius: 2.2,
-  minRadius: 0.8,
-  speed: 0.28,
-  connectionRadius: 150,
-  connectionRadiusMobile: 95,
-  lineOpacityMax: 0.25,
-  mouseInfluenceRadius: 160,
-  mouseInfluenceStrength: 0.04,
+  particleCount: 75,
+  particleCountMobile: 35,
+  maxRadius: 1.8,
+  minRadius: 0.7,
+  speed: 0.25,
+  connectionRadius: 140,
+  connectionRadiusMobile: 85,
+  lineOpacityMax: 0.12,        // Sleek, minimal line brightness
+  mouseInfluenceRadius: 90,    // Compact radius
+  mouseInfluenceStrength: 0.005, // Ultra-gentle drift (never clumps dots together)
   colors: [
     [0, 229, 255],   // cyan
     [0, 180, 216],   // deep cyan
@@ -50,7 +50,7 @@ class Particle {
     this.vx = Math.cos(angle) * spd;
     this.vy = Math.sin(angle) * spd;
     this.r = randomBetween(CONFIG.minRadius, CONFIG.maxRadius);
-    this.op = randomBetween(0.3, 0.85);
+    this.op = randomBetween(0.18, 0.5);
     this.color = CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
     this.twinkleSpeed = randomBetween(0.004, 0.012);
     this.twinklePhase = randomBetween(0, Math.PI * 2);
@@ -119,17 +119,8 @@ function ParticleNetworkBackground() {
       ctx.clearRect(0, 0, w, h);
 
       // Deep dark cyber background
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = '#08090d';
       ctx.fillRect(0, 0, w, h);
-
-      // Mouse radial glow
-      if (mouseX > -1000) {
-        const accent = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 280);
-        accent.addColorStop(0, 'rgba(0, 229, 255, 0.08)');
-        accent.addColorStop(1, 'rgba(0, 229, 255, 0)');
-        ctx.fillStyle = accent;
-        ctx.fillRect(0, 0, w, h);
-      }
 
       // Update particles
       for (let i = 0; i < particles.length; i++) {
