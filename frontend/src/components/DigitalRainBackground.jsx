@@ -33,7 +33,7 @@ function DigitalRainBackground() {
       const count = Math.floor(width / colStep);
       return Array.from({ length: count }, () => ({
         y: Math.random() * -100,
-        speed: 0.35 + Math.random() * 0.45, // Individual calm falling speed
+        speed: 0.85 + Math.random() * 1.15, // Smooth lively falling speed
         chars: Array.from({ length: 30 }, () => (Math.random() > 0.5 ? '1' : '0')),
       }));
     };
@@ -87,15 +87,15 @@ function DigitalRainBackground() {
           const charY = col.y - j * fontSize * 1.3;
 
           if (charY > -fontSize && charY < height + fontSize) {
-            // Slightly brighter, crisp silver-white tones for clear visibility
+            // Ultra-soft, faint watermark tones so portfolio content stays 100% visible
             if (j === 0) {
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.28)'; // Noticeable soft lead
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.10)'; // Gentle lead
             } else if (j < 5) {
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.055)';
             } else if (j < 15) {
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.095)';
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.032)';
             } else {
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.055)'; // Legible subtle trail
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.018)'; // Extremely faint trail
             }
 
             ctx.fillText(col.chars[j], x, charY);
@@ -145,6 +145,7 @@ function DigitalRainBackground() {
         height: '100vh',
         display: 'block',
         pointerEvents: 'none',
+        opacity: 0.85,
       }}
     />
   );
